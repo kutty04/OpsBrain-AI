@@ -1,0 +1,1 @@
+Safety Manual: Coke Oven Battery COB-1. Emergency shutdown procedure: (1) Close main gas valve GV-01 (2) Activate emergency water spray (3) Notify shift supervisor. Max allowable temperature: 1400 C. Min allowable pressure: 10 mmWC.

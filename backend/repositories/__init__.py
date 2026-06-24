@@ -1,0 +1,5 @@
+from backend.repositories.assets import AssetsRepository
+from backend.repositories.documents import DocumentsRepository
+from backend.repositories.incidents import IncidentsRepository
+from backend.repositories.compliance import ComplianceRepository
+from backend.repositories.graph import GraphRepository
