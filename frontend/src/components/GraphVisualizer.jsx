@@ -21,18 +21,18 @@ const getNodeStyle = (type) => {
 
   switch (type) {
     case 'Vessel':
-      return { ...base, bg: 'bg-cyan-950', border: '#06b6d4', style: { background: '#083344', borderColor: '#06b6d4' } };
+      return { ...base, bg: 'bg-cyan-950', border: '#06b6d4', style: { ...base, background: '#083344', borderColor: '#06b6d4' } };
     case 'Instrument':
-      return { ...base, bg: 'bg-fuchsia-950', border: '#d946ef', style: { background: '#4a044e', borderColor: '#d946ef' } };
+      return { ...base, bg: 'bg-fuchsia-950', border: '#d946ef', style: { ...base, background: '#4a044e', borderColor: '#d946ef' } };
     case 'Valve':
-      return { ...base, bg: 'bg-amber-950', border: '#f59e0b', style: { background: '#451a03', borderColor: '#f59e0b' } };
+      return { ...base, bg: 'bg-amber-950', border: '#f59e0b', style: { ...base, background: '#451a03', borderColor: '#f59e0b' } };
     case 'Exchanger':
-      return { ...base, bg: 'bg-teal-950', border: '#14b8a6', style: { background: '#042f2e', borderColor: '#14b8a6' } };
+      return { ...base, bg: 'bg-teal-950', border: '#14b8a6', style: { ...base, background: '#042f2e', borderColor: '#14b8a6' } };
     case 'Pump':
-      return { ...base, bg: 'bg-emerald-950', border: '#10b981', style: { background: '#022c22', borderColor: '#10b981' } };
+      return { ...base, bg: 'bg-emerald-950', border: '#10b981', style: { ...base, background: '#022c22', borderColor: '#10b981' } };
     case 'Line':
     default:
-      return { ...base, bg: 'bg-slate-900', border: '#64748b', style: { background: '#0f172a', borderColor: '#64748b' } };
+      return { ...base, bg: 'bg-slate-900', border: '#64748b', style: { ...base, background: '#0f172a', borderColor: '#64748b' } };
   }
 };
 
