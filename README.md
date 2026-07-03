@@ -100,11 +100,70 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 
 ## 📐 System Architecture
 
-![OpsBrain AI System Architecture](presentation_assets/system_flowchart.png)
+```mermaid
+graph TD
+    %% Frontend Client
+    subgraph Client [React Frontend Client]
+        Dashboard["App.jsx Dashboard & Metrics"]
+        FlowGraph[ReactFlow Topology Viewer]
+        Monitor["AI Runtime & Fallback Monitor"]
+        EvalDash[Evaluation & Benchmarks]
+    end
 
-> **7-layer architecture**: Input Sources → FastAPI Backend → Multi-Agent Orchestration → AI Provider Router (Groq → Mistral → Gemini Flash → Seeded Fallback) → Data Layer (PostgreSQL + pgvector + BGE) → External AI APIs → React Frontend
+    %% API Gateway
+    subgraph Gateway [FastAPI Route Gateway]
+        APIRouter[FastAPI Routing Controller]
+    end
 
+    %% Provider Router
+    subgraph ProviderLayer [AI Provider Router]
+        PRouter["AIProviderRouter (Circuit Breaker)"]
+        Groq[Groq Llama-3.3]
+        Mistral[Mistral API]
+        Gemini["Gemini Flash (Vision + Text)"]
+        DemoFallback[Seeded Demo Fallback]
+    end
 
+    %% Backend Services
+    subgraph Services [FastAPI Backend Core]
+        VisionService[P&ID Vision Extractor]
+        IngestPipeline[SOP Chunker & Embedder]
+        AgentEngine[Multi-Agent Orchestrator]
+        TelemetryStream[SSE Telemetry Stream]
+    end
+
+    %% Data Store & Models
+    subgraph Persistence [Data & Inference Layer]
+        RelationalDB["(PostgreSQL / SQLite Metadata)"]
+        VectorDB[(pgvector Semantic Store)]
+        BGELocal[Local BGE Embeddings]
+    end
+
+    %% Communication Flow
+    Dashboard -->|API Requests| APIRouter
+    FlowGraph -->|Get Graph Edges| APIRouter
+    Monitor -->|SSE Log Stream| TelemetryStream
+    EvalDash -->|GET /api/v1/dashboard| APIRouter
+
+    APIRouter -->|POST /api/v1/pid/parse| VisionService
+    APIRouter -->|POST /api/v1/ingest| IngestPipeline
+    APIRouter -->|POST /api/v1/agents/*| AgentEngine
+
+    VisionService -->|route_vision_pid| PRouter
+    AgentEngine -->|route_text_agent| PRouter
+    IngestPipeline -->|route_rag_answer| PRouter
+
+    PRouter -->|Primary| Groq
+    PRouter -->|Fallback 1| Mistral
+    PRouter -->|Fallback 2| Gemini
+    PRouter -->|Fallback 3| DemoFallback
+
+    VisionService -->|Insert Nodes & Edges| RelationalDB
+    IngestPipeline -->|BGE Vectors| VectorDB
+    BGELocal -.->|CPU Embeddings| IngestPipeline
+    AgentEngine -->|Correlate Safety SOPs| VectorDB
+    RelationalDB -->|Asset Topology Map| FlowGraph
+```
 
 ---
 
