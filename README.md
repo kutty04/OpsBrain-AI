@@ -101,71 +101,30 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 ## 📐 System Architecture
 
 ```mermaid
-graph LR
-    %% Input Layer
-    subgraph Input [" 📥 Input Sources"]
-        DOCS[SOP Documents\n& P&ID Images]
-        SCADA[SCADA\nTelemetry]
-    end
+flowchart TD
+    A["📄 P&ID Blueprints\n& SOP Documents"] --> B["⚙️ FastAPI Backend\nDocument Ingester + P&ID Vision Parser"]
+    C["📡 SCADA Telemetry\nLive Sensor Feeds"] --> D["🔁 SSE Telemetry Stream\n/api/v1/telemetry/stream"]
 
-    %% Frontend
-    subgraph UI [" 🖥️ React Frontend"]
-        DASH[Executive\nDashboard]
-        TWIN[Digital Twin\nGraph]
-        COPILOT[Knowledge\nCopilot]
-        MONITOR[AI Runtime\nMonitor]
-        EVAL[Evaluation\nBenchmarks]
-    end
+    B --> E["🗄️ Knowledge Base\nPostgreSQL Asset Graph + pgvector Store\n─────────────────────\nLocal BGE-small-en-v1.5 Embeddings"]
 
-    %% Backend Core
-    subgraph API [" ⚙️ FastAPI Backend"]
-        GW[API Gateway]
-        INGEST[Document\nIngester]
-        PID[P&ID Vision\nParser]
-        AGENTS[Agent\nOrchestrator]
-        SSE[Telemetry\nSSE Stream]
-    end
+    E --> F["🤖 Multi-Agent Orchestrator\nRCA · Risk · Compliance · Lessons Learned"]
 
-    %% Provider Router
-    subgraph ROUTER [" 🔀 AI Provider Router"]
-        direction TB
-        R1[Groq\nLlama-3.3]
-        R2[Mistral\nAPI]
-        R3[Gemini\nFlash]
-        R4[Seeded\nFallback]
-        R1 -.->|rate limited| R2
-        R2 -.->|rate limited| R3
-        R3 -.->|unavailable| R4
-    end
+    F --> G["🔀 AI Provider Router\nGroq Llama-3.3  →  Mistral  →  Gemini Flash  →  Seeded Fallback\n─────────────────────\nCircuit Breaker · Capability-Aware · Labeled Fallbacks"]
 
-    %% Data Layer
-    subgraph DATA [" 🗄️ Data Layer"]
-        PG[(PostgreSQL\nAsset Graph)]
-        VDB[(pgvector\nSemantic Store)]
-        BGE[Local BGE\nEmbeddings]
-    end
+    G --> F
 
-    %% Flow
-    DOCS --> INGEST --> VDB
-    DOCS --> PID --> PG
-    SCADA --> SSE --> MONITOR
+    E --> H["🖥️ React Frontend\nDigital Twin · Knowledge Copilot · Executive Dashboard\nEvaluation Benchmarks · AI Runtime Monitor"]
+    D --> H
+    F --> H
 
-    UI --> GW
-    GW --> INGEST
-    GW --> PID
-    GW --> AGENTS
-    GW --> SSE
-
-    AGENTS --> ROUTER
-    PID --> ROUTER
-    INGEST --> ROUTER
-
-    AGENTS --> VDB
-    AGENTS --> PG
-    PG --> TWIN
-    VDB --> COPILOT
-
-    BGE -.->|384-dim vectors| VDB
+    style A fill:#1e293b,color:#94a3b8,stroke:#334155
+    style C fill:#1e293b,color:#94a3b8,stroke:#334155
+    style B fill:#0f172a,color:#38bdf8,stroke:#0284c7
+    style D fill:#0f172a,color:#38bdf8,stroke:#0284c7
+    style E fill:#052e16,color:#4ade80,stroke:#16a34a
+    style F fill:#1e1b4b,color:#a5b4fc,stroke:#4f46e5
+    style G fill:#431407,color:#fb923c,stroke:#ea580c
+    style H fill:#0c1a2e,color:#67e8f9,stroke:#0891b2
 ```
 
 ---
