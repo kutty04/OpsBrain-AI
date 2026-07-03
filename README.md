@@ -100,32 +100,11 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 
 ## 📐 System Architecture
 
-```mermaid
-flowchart TD
-    A["📄 P&ID Blueprints\n& SOP Documents"] --> B["⚙️ FastAPI Backend\nDocument Ingester + P&ID Vision Parser"]
-    C["📡 SCADA Telemetry\nLive Sensor Feeds"] --> D["🔁 SSE Telemetry Stream\n/api/v1/telemetry/stream"]
+![OpsBrain AI System Architecture](presentation_assets/architecture_diagram.png)
 
-    B --> E["🗄️ Knowledge Base\nPostgreSQL Asset Graph + pgvector Store\n─────────────────────\nLocal BGE-small-en-v1.5 Embeddings"]
+> **7-layer architecture**: Input Sources → FastAPI Backend → Multi-Agent Orchestration → AI Provider Router (Groq → Mistral → Gemini Flash → Seeded Fallback) → Data Layer (PostgreSQL + pgvector + BGE) → External AI APIs → React Frontend
 
-    E --> F["🤖 Multi-Agent Orchestrator\nRCA · Risk · Compliance · Lessons Learned"]
 
-    F --> G["🔀 AI Provider Router\nGroq Llama-3.3  →  Mistral  →  Gemini Flash  →  Seeded Fallback\n─────────────────────\nCircuit Breaker · Capability-Aware · Labeled Fallbacks"]
-
-    G --> F
-
-    E --> H["🖥️ React Frontend\nDigital Twin · Knowledge Copilot · Executive Dashboard\nEvaluation Benchmarks · AI Runtime Monitor"]
-    D --> H
-    F --> H
-
-    style A fill:#1e293b,color:#94a3b8,stroke:#334155
-    style C fill:#1e293b,color:#94a3b8,stroke:#334155
-    style B fill:#0f172a,color:#38bdf8,stroke:#0284c7
-    style D fill:#0f172a,color:#38bdf8,stroke:#0284c7
-    style E fill:#052e16,color:#4ade80,stroke:#16a34a
-    style F fill:#1e1b4b,color:#a5b4fc,stroke:#4f46e5
-    style G fill:#431407,color:#fb923c,stroke:#ea580c
-    style H fill:#0c1a2e,color:#67e8f9,stroke:#0891b2
-```
 
 ---
 
