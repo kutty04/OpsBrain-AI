@@ -101,68 +101,71 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 ## 📐 System Architecture
 
 ```mermaid
-graph TD
-    %% Frontend Client
-    subgraph Client [React Frontend Client]
-        Dashboard["App.jsx Dashboard & Metrics"]
-        FlowGraph[ReactFlow Topology Viewer]
-        Monitor["AI Runtime & Fallback Monitor"]
-        EvalDash[Evaluation & Benchmarks]
+graph LR
+    %% Input Layer
+    subgraph Input [" 📥 Input Sources"]
+        DOCS[SOP Documents\n& P&ID Images]
+        SCADA[SCADA\nTelemetry]
     end
 
-    %% API Gateway
-    subgraph Gateway [FastAPI Route Gateway]
-        APIRouter[FastAPI Routing Controller]
+    %% Frontend
+    subgraph UI [" 🖥️ React Frontend"]
+        DASH[Executive\nDashboard]
+        TWIN[Digital Twin\nGraph]
+        COPILOT[Knowledge\nCopilot]
+        MONITOR[AI Runtime\nMonitor]
+        EVAL[Evaluation\nBenchmarks]
+    end
+
+    %% Backend Core
+    subgraph API [" ⚙️ FastAPI Backend"]
+        GW[API Gateway]
+        INGEST[Document\nIngester]
+        PID[P&ID Vision\nParser]
+        AGENTS[Agent\nOrchestrator]
+        SSE[Telemetry\nSSE Stream]
     end
 
     %% Provider Router
-    subgraph ProviderLayer [AI Provider Router]
-        PRouter["AIProviderRouter (Circuit Breaker)"]
-        Groq[Groq Llama-3.3]
-        Mistral[Mistral API]
-        Gemini["Gemini Flash (Vision + Text)"]
-        DemoFallback[Seeded Demo Fallback]
+    subgraph ROUTER [" 🔀 AI Provider Router"]
+        direction TB
+        R1[Groq\nLlama-3.3]
+        R2[Mistral\nAPI]
+        R3[Gemini\nFlash]
+        R4[Seeded\nFallback]
+        R1 -.->|rate limited| R2
+        R2 -.->|rate limited| R3
+        R3 -.->|unavailable| R4
     end
 
-    %% Backend Services
-    subgraph Services [FastAPI Backend Core]
-        VisionService[P&ID Vision Extractor]
-        IngestPipeline[SOP Chunker & Embedder]
-        AgentEngine[Multi-Agent Orchestrator]
-        TelemetryStream[SSE Telemetry Stream]
+    %% Data Layer
+    subgraph DATA [" 🗄️ Data Layer"]
+        PG[(PostgreSQL\nAsset Graph)]
+        VDB[(pgvector\nSemantic Store)]
+        BGE[Local BGE\nEmbeddings]
     end
 
-    %% Data Store & Models
-    subgraph Persistence [Data & Inference Layer]
-        RelationalDB["(PostgreSQL / SQLite Metadata)"]
-        VectorDB[(pgvector Semantic Store)]
-        BGELocal[Local BGE Embeddings]
-    end
+    %% Flow
+    DOCS --> INGEST --> VDB
+    DOCS --> PID --> PG
+    SCADA --> SSE --> MONITOR
 
-    %% Communication Flow
-    Dashboard -->|API Requests| APIRouter
-    FlowGraph -->|Get Graph Edges| APIRouter
-    Monitor -->|SSE Log Stream| TelemetryStream
-    EvalDash -->|GET /api/v1/dashboard| APIRouter
+    UI --> GW
+    GW --> INGEST
+    GW --> PID
+    GW --> AGENTS
+    GW --> SSE
 
-    APIRouter -->|POST /api/v1/pid/parse| VisionService
-    APIRouter -->|POST /api/v1/ingest| IngestPipeline
-    APIRouter -->|POST /api/v1/agents/*| AgentEngine
+    AGENTS --> ROUTER
+    PID --> ROUTER
+    INGEST --> ROUTER
 
-    VisionService -->|route_vision_pid| PRouter
-    AgentEngine -->|route_text_agent| PRouter
-    IngestPipeline -->|route_rag_answer| PRouter
+    AGENTS --> VDB
+    AGENTS --> PG
+    PG --> TWIN
+    VDB --> COPILOT
 
-    PRouter -->|Primary| Groq
-    PRouter -->|Fallback 1| Mistral
-    PRouter -->|Fallback 2| Gemini
-    PRouter -->|Fallback 3| DemoFallback
-
-    VisionService -->|Insert Nodes & Edges| RelationalDB
-    IngestPipeline -->|BGE Vectors| VectorDB
-    BGELocal -.->|CPU Embeddings| IngestPipeline
-    AgentEngine -->|Correlate Safety SOPs| VectorDB
-    RelationalDB -->|Asset Topology Map| FlowGraph
+    BGE -.->|384-dim vectors| VDB
 ```
 
 ---
