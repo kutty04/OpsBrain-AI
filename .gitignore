@@ -62,3 +62,8 @@ chrome.log
 *.njsproj
 *.sln
 *.swp
+
+design-baseline/
+redesign-baseline/
+presentation_assets/error_diagnose.png
+
