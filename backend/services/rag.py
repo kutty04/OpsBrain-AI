@@ -1,4 +1,4 @@
-﻿from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional
 from mistralai.client import Mistral
 from backend.config import settings, logger
 from backend.models import OpsBrainException
@@ -11,16 +11,15 @@ class RAGService:
         self.docs_repo = DocumentsRepository()
         
         # Initialize Mistral client
-        if not settings.MISTRAL_API_KEY:
-            logger.error("RAGService: MISTRAL_API_KEY is not configured!")
-            raise OpsBrainException("Mistral API Key is missing", code="MISTRAL_API_KEY_MISSING")
-            
-        try:
-            self.mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY)
-            logger.info("RAGService: Mistral client initialized successfully.")
-        except Exception as e:
-            logger.error(f"Failed to initialize Mistral client: {e}")
-            raise OpsBrainException(f"Failed to initialize Mistral: {e}", code="MISTRAL_INIT_FAILED")
+        self.mistral_client = None
+        if settings.MISTRAL_API_KEY:
+            try:
+                self.mistral_client = Mistral(api_key=settings.MISTRAL_API_KEY)
+                logger.info("RAGService: Mistral client initialized successfully.")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Mistral client: {e}")
+        else:
+            logger.warning("RAGService: MISTRAL_API_KEY is not configured. Fallback chain will bypass Mistral.")
 
     def query_rag(self, query_text: str, limit: int = 5, threshold: float = 0.35) -> Dict[str, Any]:
         # 1. Retrieve similar chunks
@@ -86,22 +85,20 @@ class RAGService:
 
         user_prompt = f"Sources:\n{context_str}\n\nQuery: {query_text}"
 
-        # 5. Call LLM (open-mistral-7b via Mistral)
+        # 5. Call LLM (via Provider Router failover: Groq -> Mistral -> Gemini -> Extractive -> Demo Fallback)
+        from backend.agents.provider_router import router_instance
         try:
-            logger.info("Invoking Mistral LLM model open-mistral-7b for answer generation...")
-            chat_response = self.mistral_client.chat.complete(
-                model="open-mistral-7b",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.0, # Zero temperature ensures maximum reproducibility and zero extrapolation
-                max_tokens=800
+            plain_chunks = [c["content"] for c in chunks]
+            router_res = router_instance.route_rag_answer(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                retrieved_chunks=plain_chunks
             )
-            answer = chat_response.choices[0].message.content.strip()
+            answer = router_res["answer"]
+            provider_metadata = router_res["provider_metadata"]
         except Exception as e:
-            logger.error(f"Mistral LLM completion failed: {e}")
-            raise OpsBrainException(f"LLM completion generation failed: {e}", code="LLM_GENERATION_FAILED")
+            logger.error(f"Provider Router failed to route RAG answer: {e}")
+            raise OpsBrainException(f"LLM RAG completion failed: {e}", code="LLM_GENERATION_FAILED")
 
         # 6. Post-processing citation verification
         # If the model fallback was triggered, mark as not grounded
@@ -113,5 +110,7 @@ class RAGService:
         return {
             "answer": answer,
             "sources": sources,
-            "grounded": is_grounded
+            "grounded": is_grounded,
+            "provider_metadata": provider_metadata
         }
+

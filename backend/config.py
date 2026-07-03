@@ -25,6 +25,16 @@ class Settings(BaseSettings):
     HOST: str = "127.0.0.1"
     LOG_LEVEL: str = "INFO"
 
+    # Demo / Security flags
+    # Set ENABLE_DEMO_SEED=true in .env for local/demo usage.
+    # Leave unset or set to false in production to prevent accidental DB wipe.
+    ENABLE_DEMO_SEED: bool = False
+
+    # Comma-separated list of allowed frontend origins for CORS.
+    # Default covers local Vite dev server (ports 3000 and 5173).
+    # Override in .env for production: ALLOWED_ORIGINS=https://your-domain.com
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+
     # Shared Constants
     PROJECT_NAME: str = "OpsBrain AI"
     API_PREFIX: str = "/api/v1"

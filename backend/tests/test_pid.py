@@ -1,4 +1,4 @@
-﻿import unittest
+import unittest
 from unittest.mock import MagicMock, patch
 import json
 from backend.services.pid import PIDParsingService
@@ -50,14 +50,20 @@ class TestPIDParsingService(unittest.TestCase):
             ]
         }
 
-        # Mock the models.generate_content call
-        mock_response = MagicMock()
-        mock_response.text = json.dumps(mock_extraction)
-
-        with patch.object(self.pid_service.client.models, 'generate_content', return_value=mock_response) as mock_generate:
+        # Mock the route_vision_pid call on the router_instance
+        mock_result = mock_extraction.copy()
+        mock_result["provider_metadata"] = {
+            "provider_used": "gemini_vision",
+            "fallback_used": False,
+            "fallback_reason": None,
+            "attempted_providers": ["gemini_vision"],
+            "latency_ms": 100
+        }
+        with patch('backend.agents.provider_router.router_instance.route_vision_pid', return_value=mock_result) as mock_route:
             result = self.pid_service.parse_pid_image(b"mock_image_bytes", "image/png")
             
-            mock_generate.assert_called_once()
+            mock_route.assert_called_once()
+
             
             logger.info(f"Database insertion count results: {result}")
             

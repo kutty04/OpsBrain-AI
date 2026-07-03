@@ -57,6 +57,38 @@ async def run_compliance_agent(request: AgentRequest):
 async def run_lessons_learned_agent(request: AgentRequest):
     context = {"tag_number": request.tag_number} if request.tag_number else None
     result = lessons_learned_agent.execute(user_query=request.query, context_data=context)
+    
+    # Persist the output in database lessons_learned_history table
+    if request.tag_number:
+        from backend.database import get_db_connection, release_db_connection
+        conn = None
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO lessons_learned_history (tag_number, query, lessons_extracted, preventive_actions, safety_recommendations)
+                VALUES (%s, %s, %s, %s, %s);
+                """,
+                (
+                    request.tag_number,
+                    request.query,
+                    result.get("lessons_extracted", []),
+                    result.get("preventive_actions", []),
+                    result.get("safety_recommendations", [])
+                )
+            )
+            conn.commit()
+            cur.close()
+        except Exception as e:
+            if conn:
+                conn.rollback()
+            from backend.config import logger
+            logger.warning(f"Failed to persist lessons learned logs: {e}")
+        finally:
+            if conn:
+                release_db_connection(conn)
+                
     return APIResponse(
         success=True,
         message="Lessons Learned Agent query executed successfully",

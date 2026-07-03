@@ -81,7 +81,9 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 | **⚡ Risk Intelligence** | Cascading node risk calculator | Evaluates asset hazard scores (0-100) based on incidents, local logs, and status propagation from neighbors. |
 | **🛡️ Compliance Auditor** | Automatic regulatory checks | Checks live metrics against vector-stored regulatory safety guidelines (e.g. OISD standards). |
 | **📚 Lessons Learned** | Preventive safety checklists | Extracts specific guidelines from past work orders and failures to guide active maintenance tasks. |
-| **📡 AI Runtime Monitor** | Live telemetry audit modal | Tracks request rates, model latencies, token cache stats, and exceptions. |
+| **🔀 AI Provider Router** | Multi-provider LLM failover | Routes text agents (Groq→Mistral→Gemini), RAG queries, and P&ID vision to the best available provider with circuit-breaker protection. |
+| **📊 Evaluation & Benchmarks** | Transparent performance metrics | Displays entity extraction accuracy, graph linkage completeness, answer quality, and compliance detection rates against seeded Vizag demo data. |
+| **📡 AI Runtime Monitor** | Live telemetry audit modal | Tracks request rates, model latencies, token cache stats, fallback events, and provider health. |
 
 ---
 
@@ -89,9 +91,10 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 
 *   **Frontend Client:** React 18, ReactFlow (interactive graph rendering), Vanilla CSS (Matrix/Synthwave themed UI), Lucide Icons.
 *   **Backend Server:** FastAPI (Python 3.10+), Uvicorn ASGI gateway, SentenceTransformers (local CPU embeddings).
-*   **AI Models:** Groq Llama-3.3-70b-versatile (agent orchestrator), Gemini-2.5-Flash (vision schema extraction), Mistral (RAG summary compiler).
+*   **AI Models:** Groq Llama-3.3-70b-versatile (primary agent orchestrator), Gemini-2.5-Flash (P&ID vision schema extraction), Mistral (RAG answer synthesis).
+*   **AI Failover:** Capability-aware `AIProviderRouter` with circuit-breaker pattern — text agents chain Groq→Mistral→Gemini→seeded demo fallback; P&ID vision chains Gemini→cached extraction; embeddings are always local BGE.
 *   **Data Layer:** PostgreSQL (Supabase with `pgvector` index search), SQLite (local transactions, active asset caches, and event tables).
-*   **Infrastructure:** Python Virtual Environments, NPM build tooling.
+*   **Infrastructure:** Python Virtual Environments, NPM build tooling, Selenium-based automated demo screenshots.
 
 ---
 
@@ -101,46 +104,64 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 graph TD
     %% Frontend Client
     subgraph Client [React Frontend Client]
-        Dashboard[App.jsx Dashboard & Metrics]
+        Dashboard["App.jsx Dashboard & Metrics"]
         FlowGraph[ReactFlow Topology Viewer]
-        Monitor[AI Telemetry & Fallback Monitor]
+        Monitor["AI Runtime & Fallback Monitor"]
+        EvalDash[Evaluation & Benchmarks]
     end
 
     %% API Gateway
     subgraph Gateway [FastAPI Route Gateway]
-        Router[FastAPI Routing Controller]
+        APIRouter[FastAPI Routing Controller]
+    end
+
+    %% Provider Router
+    subgraph ProviderLayer [AI Provider Router]
+        PRouter["AIProviderRouter (Circuit Breaker)"]
+        Groq[Groq Llama-3.3]
+        Mistral[Mistral API]
+        Gemini["Gemini Flash (Vision + Text)"]
+        DemoFallback[Seeded Demo Fallback]
     end
 
     %% Backend Services
     subgraph Services [FastAPI Backend Core]
-        VisionService[Gemini P&ID Vision Extractor]
+        VisionService[P&ID Vision Extractor]
         IngestPipeline[SOP Chunker & Embedder]
         AgentEngine[Multi-Agent Orchestrator]
+        TelemetryStream[SSE Telemetry Stream]
     end
 
     %% Data Store & Models
     subgraph Persistence [Data & Inference Layer]
-        RelationalDB[(PostgreSQL / SQLite Metadata)]
+        RelationalDB["(PostgreSQL / SQLite Metadata)"]
         VectorDB[(pgvector Semantic Store)]
-        GroqAPI[Groq Llama-3.3 API]
-        MistralAPI[Mistral API]
+        BGELocal[Local BGE Embeddings]
     end
 
     %% Communication Flow
-    Dashboard -->|API Requests| Router
-    FlowGraph -->|Get Graph Edges| Router
-    Monitor -->|Log API Stats| Router
+    Dashboard -->|API Requests| APIRouter
+    FlowGraph -->|Get Graph Edges| APIRouter
+    Monitor -->|SSE Log Stream| TelemetryStream
+    EvalDash -->|GET /api/v1/dashboard| APIRouter
 
-    Router -->|POST /api/v1/pid/parse| VisionService
-    Router -->|POST /api/v1/ingest| IngestPipeline
-    Router -->|POST /api/v1/agents/*| AgentEngine
+    APIRouter -->|POST /api/v1/pid/parse| VisionService
+    APIRouter -->|POST /api/v1/ingest| IngestPipeline
+    APIRouter -->|POST /api/v1/agents/*| AgentEngine
+
+    VisionService -->|route_vision_pid| PRouter
+    AgentEngine -->|route_text_agent| PRouter
+    IngestPipeline -->|route_rag_answer| PRouter
+
+    PRouter -->|Primary| Groq
+    PRouter -->|Fallback 1| Mistral
+    PRouter -->|Fallback 2| Gemini
+    PRouter -->|Fallback 3| DemoFallback
 
     VisionService -->|Insert Nodes & Edges| RelationalDB
-    IngestPipeline -->|bge-small-en-v1.5 Vectors| VectorDB
+    IngestPipeline -->|BGE Vectors| VectorDB
+    BGELocal -.->|CPU Embeddings| IngestPipeline
     AgentEngine -->|Correlate Safety SOPs| VectorDB
-    AgentEngine -->|Primary Reasoning Core| GroqAPI
-    AgentEngine -->|Consolidate RAG Context| MistralAPI
-    
     RelationalDB -->|Asset Topology Map| FlowGraph
 ```
 
@@ -222,6 +243,7 @@ Open `http://localhost:3000` in your web browser.
 3.  **Run Diagnostics:** Click **Run RCA**, **Run Risk Score**, **Run Compliance Check**, and **Extract Lessons** in the actions panel to see real-time agent evaluations.
 4.  **Query Copilot:** Type *"Why is COB-1 at critical risk?"* in the search interface to inspect vector-grounded citations.
 5.  **Audit API Performance:** Click the green **API STATUS** indicator in the top header to review active latency logs and fallback events.
+6.  **View Benchmarks:** Click **Evaluation & Benchmarks** in the sidebar to view entity extraction accuracy, graph linkage completeness, compliance detection rates, and time-to-answer metrics based on the seeded Vizag demo dataset.
 
 ---
 
@@ -268,13 +290,19 @@ Open `http://localhost:3000` in your web browser.
 
 ### 📡 AI Runtime & Fallback Monitor
 ![AI Runtime Monitor](presentation_assets/10_ai_runtime_monitor.png)
-*Telemetry panel tracking request rates, model latencies, token cache stats, and exceptions.*
+*Telemetry panel tracking request rates, model latencies, token cache stats, provider fallback events, and circuit-breaker health.*
+
+---
+
+### 📊 Evaluation & Benchmarks Dashboard
+![Evaluation Dashboard](presentation_assets/11_evaluation_benchmarks.png)
+*Transparent benchmark scorecard showing entity extraction accuracy, graph linkage completeness, query answer quality, and compliance detection rates — all traced to the seeded Vizag Steel demo dataset.*
 
 ---
 
 ## 📈 Business Impact
 
-*Fitted to standard industrial engineering benchmarks:*
+*Fitted to standard industrial engineering benchmarks (prototype estimations for comparison):*
 
 *   **35% Reduction in Safety Search Time:** Eliminates time spent manually referencing paper manuals, blueprint sheets, and PDF guidelines.
 *   **18–22% Reduction in Unplanned Outages:** Maps cascading risk propagation across physical connections, preventing failure cascades.
@@ -286,7 +314,8 @@ Open `http://localhost:3000` in your web browser.
 
 *   **Relational Topology RAG:** Traditional tools search documents in isolation. OpsBrain maps documentation context onto the physical connections of your assets, enabling query reasoning across connected equipment tags.
 *   **Specialized Multi-Agent Coordination:** Tasks are split among distinct, specialized agents (Root Cause, Risk, Compliance, Lessons Learned) rather than passing queries to a general model.
-*   **Transparent System Telemetry:** Includes a real-time monitor panel that exposes request performance, caching statistics, and model fallback routes.
+*   **Capability-Aware AI Provider Router:** A circuit-breaker-protected failover system routes each task type to the best available LLM provider (Groq→Mistral→Gemini→seeded demo fallback), preventing demo failures from rate limits. Fallback events are transparently labeled — no silent fake success.
+*   **Transparent System Telemetry:** Includes a real-time monitor panel that exposes request performance, caching statistics, provider health, and model fallback routes.
 
 ---
 
@@ -298,8 +327,25 @@ Open `http://localhost:3000` in your web browser.
 
 ---
 
+## 📂 Documentation & Verification Reports
+
+Complete design, verification, and presentation documents are available in the repository under `/docs`:
+
+*   **Demo Script:** [docs/demo_script.md](docs/demo_script.md)
+*   **System Architecture & Data Flows:** [docs/architecture_diagram.md](docs/architecture_diagram.md)
+*   **Judge Q&A Defense Handbook:** [docs/judge_qna.md](docs/judge_qna.md)
+*   **System Limitations & Roadmap:** [docs/limitations.md](docs/limitations.md)
+*   **Final Submission & Screenshot Checklist:** [docs/submission_checklist.md](docs/submission_checklist.md)
+*   **Final Submission Readiness Report:** [docs/final_submission_readiness.md](docs/final_submission_readiness.md)
+*   **Benchmark Methodology & Parameters:** [docs/benchmark_methodology.md](docs/benchmark_methodology.md)
+*   **SCADA Telemetry Stream Verification:** [docs/telemetry_verification.md](docs/telemetry_verification.md)
+*   **Provider Fallback & Demo Safety:** [docs/provider_fallback_verification.md](docs/provider_fallback_verification.md)
+
+---
+
 ## 👤 Creator
 *   **Madumitha M** - *Solo Creator, Architect & Developer*
+
 
 ---
 

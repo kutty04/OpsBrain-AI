@@ -9,34 +9,36 @@ import 'reactflow/dist/style.css';
 
 const getNodeStyle = (type) => {
   const base = {
-    padding: '12px',
+    padding: '10px 14px',
     borderRadius: '8px',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    border: '1px solid',
-    color: '#f8fafc',
+    fontSize: '11px',
+    fontWeight: '700',
+    border: '1.5px solid',
+    color: '#ffffff',
     textAlign: 'center',
-    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
+    fontFamily: 'Inter, system-ui, sans-serif',
+    transition: 'all 150ms ease-in-out',
   };
 
   switch (type) {
     case 'Vessel':
-      return { ...base, bg: 'bg-cyan-950', border: '#06b6d4', style: { ...base, background: '#083344', borderColor: '#06b6d4' } };
+      return { ...base, style: { ...base, background: '#0c2333', borderColor: '#0ea5e9' } };
     case 'Instrument':
-      return { ...base, bg: 'bg-fuchsia-950', border: '#d946ef', style: { ...base, background: '#4a044e', borderColor: '#d946ef' } };
+      return { ...base, style: { ...base, background: '#2c1230', borderColor: '#d946ef' } };
     case 'Valve':
-      return { ...base, bg: 'bg-amber-950', border: '#f59e0b', style: { ...base, background: '#451a03', borderColor: '#f59e0b' } };
+      return { ...base, style: { ...base, background: '#2a1a08', borderColor: '#f59e0b' } };
     case 'Exchanger':
-      return { ...base, bg: 'bg-teal-950', border: '#14b8a6', style: { ...base, background: '#042f2e', borderColor: '#14b8a6' } };
+      return { ...base, style: { ...base, background: '#052320', borderColor: '#14b8a6' } };
     case 'Pump':
-      return { ...base, bg: 'bg-emerald-950', border: '#10b981', style: { ...base, background: '#022c22', borderColor: '#10b981' } };
+      return { ...base, style: { ...base, background: '#04211a', borderColor: '#10b981' } };
     case 'Line':
     default:
-      return { ...base, bg: 'bg-slate-900', border: '#64748b', style: { ...base, background: '#0f172a', borderColor: '#64748b' } };
+      return { ...base, style: { ...base, background: '#111827', borderColor: '#4b5563' } };
   }
 };
 
-export default function GraphVisualizer({ graphData, selectedNodeName }) {
+export default function GraphVisualizer({ graphData, selectedNodeName, investigationStep, isInvestigating, activeGraphTrace }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
 
@@ -71,11 +73,38 @@ export default function GraphVisualizer({ graphData, selectedNodeName }) {
       }
 
       const styleObj = getNodeStyle(n.type);
+      let nodeClassName = '';
 
-      // Highlight selected node
-      if (n.name === selectedNodeName) {
-        styleObj.style.boxShadow = '0 0 15px #06b6d4';
-        styleObj.style.borderWidth = '2px';
+      if (isInvestigating) {
+        // Resolve dynamic nodes to pulse
+        const traceNodes = activeGraphTrace?.affected_nodes || [selectedNodeName];
+        const isCurrentActive = (n.name === selectedNodeName && investigationStep >= 1);
+        const isTraceActive = traceNodes.includes(n.name) && investigationStep >= 3;
+        
+        if (isCurrentActive || isTraceActive) {
+          if (n.name === selectedNodeName) {
+            styleObj.style.boxShadow = '0 0 25px var(--accent-ai), inset 0 0 10px rgba(6, 182, 212, 0.4)';
+            styleObj.style.borderColor = 'var(--accent-ai)';
+            styleObj.style.borderWidth = '2px';
+            nodeClassName = 'animate-pulse';
+          } else {
+            styleObj.style.boxShadow = '0 0 25px var(--color-critical), inset 0 0 10px rgba(220, 38, 38, 0.4)';
+            styleObj.style.borderColor = 'var(--color-critical)';
+            styleObj.style.borderWidth = '2px';
+            nodeClassName = 'animate-pulse';
+          }
+        } else {
+          // Dim non-active nodes during active investigation
+          styleObj.style.opacity = '0.25';
+          styleObj.style.filter = 'blur(0.5px)';
+        }
+      } else {
+        // Highlight selected node (normal state)
+        if (n.name === selectedNodeName) {
+          styleObj.style.boxShadow = '0 0 15px var(--accent-primary), inset 0 0 6px rgba(59, 130, 246, 0.2)';
+          styleObj.style.borderColor = 'var(--accent-primary)';
+          styleObj.style.borderWidth = '2px';
+        }
       }
 
       return {
@@ -83,12 +112,14 @@ export default function GraphVisualizer({ graphData, selectedNodeName }) {
         data: { label: `${n.name}\n[${n.type}]` },
         position: { x, y },
         style: styleObj.style,
+        className: nodeClassName,
       };
     });
 
     const formattedEdges = rawEdges.map((e) => {
       let strokeColor = '#94a3b8'; // Line / Flow default
       let strokeDasharray = '';
+      let isAnimated = e.relation_type === 'FLOWS_TO';
       
       if (e.relation_type === 'MEASURES') {
         strokeColor = '#c084fc'; // Purple for instrument measure
@@ -98,14 +129,38 @@ export default function GraphVisualizer({ graphData, selectedNodeName }) {
         strokeDasharray = '3,3';
       }
 
+      // During AI investigation, highlight and animate tracing edges dynamically
+      const srcNode = rawNodes.find(n => n.id === e.source_id);
+      const tgtNode = rawNodes.find(n => n.id === e.target_id);
+      
+      const isTraceEdge = activeGraphTrace?.affected_edges?.some(trace => 
+        (trace.source === srcNode?.name && trace.target === tgtNode?.name) ||
+        (trace.source === tgtNode?.name && trace.target === srcNode?.name)
+      );
+
+      const isRcaEdgeFallback = !activeGraphTrace && 
+        ((srcNode?.name === selectedNodeName && tgtNode?.name === 'GCM-104') ||
+         (srcNode?.name === 'GCM-104' && tgtNode?.name === selectedNodeName));
+
+      if (isInvestigating && (isTraceEdge || isRcaEdgeFallback) && investigationStep >= 3) {
+        strokeColor = 'var(--accent-ai)';
+        isAnimated = true;
+      }
+
       return {
         id: e.id,
         source: e.source_id,
         target: e.target_id,
         label: e.relation_type,
-        labelStyle: { fill: '#cbd5e1', fontSize: '9px', fontWeight: 'bold', fillOpacity: 0.8 },
-        style: { stroke: strokeColor, strokeWidth: 2, strokeDasharray },
-        animated: e.relation_type === 'FLOWS_TO',
+        labelStyle: { fill: '#0f172a', fontSize: '9px', fontWeight: 'bold' },
+
+        style: { 
+          stroke: strokeColor, 
+          strokeWidth: isInvestigating && (isTraceEdge || isRcaEdgeFallback) && investigationStep >= 3 ? 3 : 2, 
+
+          strokeDasharray 
+        },
+        animated: isAnimated,
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color: strokeColor,
@@ -115,12 +170,20 @@ export default function GraphVisualizer({ graphData, selectedNodeName }) {
 
     setNodes(formattedNodes);
     setEdges(formattedEdges);
-  }, [graphData, selectedNodeName]);
+  }, [graphData, selectedNodeName, isInvestigating, investigationStep]);
 
   return (
-    <div className="w-full h-[450px] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden relative">
-      <div className="absolute top-4 left-4 z-10 bg-slate-900/80 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-400">
+    <div className="w-full h-[400px] bg-[var(--bg-app)]/50 border border-[var(--border-color)] rounded-lg overflow-hidden relative shadow-sm card-premium">
+      <div className="cad-corner-tl" />
+      <div className="cad-corner-tr" />
+      <div className="cad-corner-bl" />
+      <div className="cad-corner-br" />
+      
+      <div className="absolute top-4 left-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[10px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
         Active Topology: {nodes.length} Nodes | {edges.length} Edges
+      </div>
+      <div className="absolute top-4 right-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">
+        [SYS_TOPOLOGY_FLOW]
       </div>
       <ReactFlow
         nodes={nodes}
@@ -129,12 +192,12 @@ export default function GraphVisualizer({ graphData, selectedNodeName }) {
         nodesConnectable={false}
         nodesDraggable={true}
       >
-        <Background color="#334155" gap={16} />
-        <Controls showInteractive={false} className="fill-slate-900 stroke-slate-900" />
+        <Background color="var(--border-color)" gap={16} />
+        <Controls showInteractive={false} className="fill-slate-900 stroke-slate-900 bg-[var(--bg-card)] border border-[var(--border-color)] rounded" />
         <MiniMap 
-          nodeColor={(n) => '#1e293b'} 
-          maskColor="rgba(15, 23, 42, 0.6)"
-          className="border border-slate-800 rounded-lg overflow-hidden bg-slate-950"
+          nodeColor={(n) => 'var(--border-color)'} 
+          maskColor="rgba(5, 5, 5, 0.6)"
+          className="border border-[var(--border-color)] rounded-lg overflow-hidden bg-[var(--bg-card)]"
         />
       </ReactFlow>
     </div>

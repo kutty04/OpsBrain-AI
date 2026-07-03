@@ -29,15 +29,15 @@ class PIDExtractionResult(BaseModel):
 
 class PIDParsingService:
     def __init__(self):
-        if not settings.GEMINI_API_KEY:
-            logger.error("PIDParsingService: GEMINI_API_KEY is not configured!")
-            raise OpsBrainException("Gemini API Key is missing", code="GEMINI_API_KEY_MISSING")
-        try:
-            self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
-            logger.info("PIDParsingService: Google GenAI Client initialized successfully.")
-        except Exception as e:
-            logger.error(f"Failed to initialize Google GenAI Client: {e}")
-            raise OpsBrainException(f"Failed to initialize Gemini: {e}", code="GEMINI_INIT_FAILED")
+        self.client = None
+        if settings.GEMINI_API_KEY:
+            try:
+                self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
+                logger.info("PIDParsingService: Google GenAI Client initialized successfully.")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Google GenAI Client in PIDParsingService: {e}")
+        else:
+            logger.warning("PIDParsingService: GEMINI_API_KEY is not configured. Fallback chain will bypass Gemini Vision.")
 
     def parse_pid_image(self, image_bytes: bytes, mime_type: str) -> Dict[str, Any]:
         prompt = (
@@ -55,31 +55,24 @@ class PIDParsingService:
             "Return the result strictly matching the provided JSON schema."
         )
 
+        from backend.agents.provider_router import router_instance
         try:
-            logger.info("Calling Gemini Vision model gemini-2.5-flash for P&ID extraction...")
-            response = self.client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=[
-                    types.Part.from_bytes(
-                        data=image_bytes,
-                        mime_type=mime_type
-                    ),
-                    prompt
-                ],
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=PIDExtractionResult
-                )
+            extraction_result_dict = router_instance.route_vision_pid(
+                image_bytes=image_bytes,
+                mime_type=mime_type,
+                prompt=prompt,
+                schema=PIDExtractionResult
             )
-            # Parse response json text
-            result_json = json.loads(response.text)
-            extraction_result = PIDExtractionResult(**result_json)
+            provider_metadata = extraction_result_dict.get("provider_metadata", {})
+            extraction_result = PIDExtractionResult(**extraction_result_dict)
         except Exception as e:
-            logger.error(f"Gemini Vision call or JSON validation failed: {e}")
+            logger.error(f"P&ID Vision extraction pipeline failed: {e}")
             raise OpsBrainException(f"P&ID Vision extraction failed: {e}", code="PID_EXTRACTION_FAILED")
 
         # Save to DB inside a transaction
-        return self.save_parsed_topology(extraction_result)
+        db_res = self.save_parsed_topology(extraction_result)
+        db_res["provider_metadata"] = provider_metadata
+        return db_res
 
     def save_parsed_topology(self, data: PIDExtractionResult) -> Dict[str, int]:
         conn = get_db_connection()

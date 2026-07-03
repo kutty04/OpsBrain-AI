@@ -7,57 +7,77 @@ from backend.config import logger
 
 # --- Response Schemas ---
 
+class GraphTraceEdge(BaseModel):
+    source: str = Field(..., description="Source equipment tag number.")
+    target: str = Field(..., description="Target equipment tag number.")
+    reason: Optional[str] = Field(default=None, description="Optional relationship path annotation.")
+
+class GraphTrace(BaseModel):
+    affected_nodes: List[str] = Field(default_factory=list, description="Equipment tag numbers involved in this diagnostic trace.")
+    affected_edges: List[GraphTraceEdge] = Field(default_factory=list, description="Connections between nodes traversed during analysis.")
+    reasoning_steps: List[str] = Field(default_factory=list, description="Agent's logical investigation reasoning stages.")
+    evidence_refs: List[str] = Field(default_factory=list, description="Associated document names or regulations referenced.")
+
 class KnowledgeResponse(BaseModel):
     answer: str = Field(..., description="Detailed text answer to the user's question.")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confidence score from 0.0 to 1.0.")
     related_tags: List[str] = Field(default_factory=list, description="Related equipment tag numbers mentioned in the answer.")
+    graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace for RAG context visualization.")
 
 class RCAResponse(BaseModel):
     identified_root_cause: str = Field(..., description="Clear explanation of the identified root cause.")
     contributing_factors: List[str] = Field(..., description="Key contributing factors to the failure.")
     suggested_mitigations: List[str] = Field(..., description="Recommended actions/mitigations to resolve the issue.")
     severity_assessment: str = Field(..., description="Assessment of incident severity (Low, Medium, High, Critical).")
+    graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace of failure propagation pathways.")
 
 class ComplianceResponse(BaseModel):
     status: str = Field(..., description="Status must be one of: 'COMPLIANT', 'NON_COMPLIANT', 'UNDER_REVIEW'.")
     violations: List[str] = Field(..., description="Specific compliance/regulatory violations detected.")
     findings: str = Field(..., description="Summary details of the compliance assessment.")
+    graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace identifying audited/violating assets.")
 
 class LessonsLearnedResponse(BaseModel):
     lessons_extracted: List[str] = Field(..., description="Key learnings extracted from historical incident data.")
     preventive_actions: List[str] = Field(..., description="Actions recommended to prevent a recurrence of these incidents.")
     safety_recommendations: List[str] = Field(..., description="General safety recommendations based on learnings.")
+    graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace mapping preventative actions to nodes.")
 
 class RiskResponse(BaseModel):
     calculated_score: int = Field(..., ge=0, le=100, description="Risk score from 0 to 100.")
     risk_level: str = Field(..., description="Risk Level must be one of: 'Low', 'Medium', 'High', 'Critical'.")
     explanation: str = Field(..., description="Detailed breakdown explaining the risk calculation outcome.")
+    graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace illustrating cascading risk profiles.")
 
 # --- System Prompts ---
 
 KNOWLEDGE_PROMPT = (
     "You are the OpsBrain Knowledge Agent. Your role is to answer questions about the plant, assets, spec details, and safety documents.\n"
     "Using the provided asset details, neighborhood topology, and safety manual passages, write a detailed answer.\n"
-    "Cite specific sources (SOPs, page numbers) and reference equipment tag numbers in your reply."
+    "Cite specific sources (SOPs, page numbers) and reference equipment tag numbers in your reply.\n"
+    "You must also populate the 'graph_trace' property: list the affected nodes, the traversed edges (with a reason connecting them based on RAG context), your internal reasoning steps, and specific file references in 'evidence_refs'."
 )
 
 RCA_PROMPT = (
     "You are the OpsBrain Root Cause Analysis (RCA) Agent. Your role is to investigate equipment failure incidents.\n"
     "Correlate incident descriptions with active states, connected assets (neighborhood), and recent maintenance work orders.\n"
     "Determine if recent maintenance introduced a fault, if connected items caused a cascade, or if standard wear occurred.\n"
-    "Draft a professional engineering Root Cause Analysis report matching the output format."
+    "Draft a professional engineering Root Cause Analysis report matching the output format.\n"
+    "You must also populate 'graph_trace': trace the failure progression through connected node tags (affected_nodes, affected_edges with failure propagation reason), explain your diagnostic steps (reasoning_steps), and document logs/SOPs in 'evidence_refs'."
 )
 
 COMPLIANCE_PROMPT = (
     "You are the OpsBrain Compliance Agent. Your role is to review asset operational history against regulatory safety guidelines.\n"
     "Look at active compliance records, safety limits, and recent incidents.\n"
     "Classify the status as 'COMPLIANT' (no active warnings or incidents), 'NON_COMPLIANT' (severe active violations/unresolved warnings), or 'UNDER_REVIEW'.\n"
-    "Detail your findings and list specific regulations violated."
+    "Detail your findings and list specific regulations violated.\n"
+    "You must also populate 'graph_trace': include the target asset tag and any connected measurement or regulation tags in 'affected_nodes', explain your audit path in 'reasoning_steps', and list active rules/guidelines in 'evidence_refs'."
 )
 
 LESSONS_LEARNED_PROMPT = (
     "You are the OpsBrain Lessons Learned Agent. Your role is to evaluate history logs to extract safety warnings and preventative checklists.\n"
-    "Review historical incidents, maintenance notes, and manuals to formulate actionable safety warnings and design recommendations."
+    "Review historical incidents, maintenance notes, and manuals to formulate actionable safety warnings and design recommendations.\n"
+    "You must also populate 'graph_trace': map preventive actions to equipment tags (affected_nodes), log your analysis flow (reasoning_steps), and reference historical WO/incident IDs in 'evidence_refs'."
 )
 
 RISK_PROMPT = (
@@ -70,7 +90,8 @@ RISK_PROMPT = (
     "- Add 10 if connected neighbors in graph have high risk scores (cascading risk)\n"
     "- Cap the final score at 100.\n"
     "Map the score to a Risk Level: 0-25 -> 'Low', 26-55 -> 'Medium', 56-85 -> 'High', 86-100 -> 'Critical'.\n"
-    "Detail your explanation breakdown."
+    "Detail your explanation breakdown.\n"
+    "You must also populate 'graph_trace': list the current tag and neighbors contributing to cascading risk (affected_nodes, affected_edges with scoring influence reason), outline your math (reasoning_steps), and list data documents in 'evidence_refs'."
 )
 
 # --- Agent Implementations ---
@@ -109,7 +130,7 @@ class KnowledgeAgent(BaseAgent):
             f"- Safety Documents (RAG): {rag_hits}\n"
         )
         
-        return self.execute_llm(prompt)
+        return self.execute_llm(prompt, tag_number=tag_number)
 
 class RCAAgent(BaseAgent):
     def __init__(self):
@@ -132,7 +153,7 @@ class RCAAgent(BaseAgent):
             f"- Connected Topology: {neighbors}\n"
         )
         
-        return self.execute_llm(prompt)
+        return self.execute_llm(prompt, tag_number=tag_number)
 
 class ComplianceAgent(BaseAgent):
     def __init__(self):
@@ -153,7 +174,7 @@ class ComplianceAgent(BaseAgent):
             f"- Asset Details & Logs: {details}\n"
         )
         
-        return self.execute_llm(prompt)
+        return self.execute_llm(prompt, tag_number=tag_number)
 
 class LessonsLearnedAgent(BaseAgent):
     def __init__(self):
@@ -174,7 +195,7 @@ class LessonsLearnedAgent(BaseAgent):
             f"- Asset failures & work logs: {details}\n"
         )
         
-        return self.execute_llm(prompt)
+        return self.execute_llm(prompt, tag_number=tag_number)
 
 class RiskAgent(BaseAgent):
     def __init__(self):
@@ -214,7 +235,7 @@ class RiskAgent(BaseAgent):
         )
         
         # 1. Run evaluation
-        evaluation = self.execute_llm(prompt)
+        evaluation = self.execute_llm(prompt, tag_number=tag_number)
         
         # 2. Write risk score back to database using tool
         try:
