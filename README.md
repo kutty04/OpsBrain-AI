@@ -100,7 +100,7 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 
 ## 📐 System Architecture
 
-![OpsBrain AI System Architecture](presentation_assets/architecture_diagram.png)
+![OpsBrain AI System Architecture](presentation_assets/system_architecture.png)
 
 > **7-layer architecture**: Input Sources → FastAPI Backend → Multi-Agent Orchestration → AI Provider Router (Groq → Mistral → Gemini Flash → Seeded Fallback) → Data Layer (PostgreSQL + pgvector + BGE) → External AI APIs → React Frontend
 
