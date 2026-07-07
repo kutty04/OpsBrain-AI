@@ -6,9 +6,10 @@ This report outlines the technical benchmarking methodology, dataset parameters,
 
 ## 1. Dataset & Schema Profile
 
-All validation tests are performed against the **Seeded Vizag Steel Coke Oven Battery 1 (COB-1)** dataset, which represents a high-fidelity synthetic model of a coking battery plant.
+All validation tests are performed against the **Seeded Vizag Steel Coke Oven Battery 1 (COB-1)** dataset and the **Public Industrial Validation Excerpts** dataset.
 
-*   **Test Documents Ingested:** 3 documents (including standard operating procedures (SOPs), APPCB safety manuals, and emission limit handbooks).
+### Vizag Steel Dataset Profile:
+*   **Test Documents Ingested:** 1 primary operating standard (`vizag_coke_oven_sop.txt`).
 *   **P&ID Blueprints Processed:** 1 main Piping & Instrumentation Diagram (P&ID) blueprint of the battery collector main system.
 *   **Seeded Asset Registry:** 8 primary physical assets:
     1.  `COB-1` (Coke Oven Battery 1 - Vessel)
@@ -19,6 +20,12 @@ All validation tests are performed against the **Seeded Vizag Steel Coke Oven Ba
     6.  `HE-301` (Liquor Heat Exchanger - Exchanger)
     7.  `PT-202` (Pressure Transmitter - Instrument)
     8.  `PIC-202` (Proportional Integral Pressure Controller - Instrument)
+
+### Public Industrial Validation Excerpts Profile:
+To verify OpsBrain works beyond seeded synthetic documents, we ingested the following public safety and regulatory excerpts:
+1.  `osha_1910_119_psm_excerpt.txt` (OSHA 1910.119 Process Safety Management Excerpt) — Public Domain.
+2.  `oisd_150_coke_oven_excerpt.txt` (OISD Standard 150 Gas Collecting Main Safety Design Excerpt) — Publicly available standards.
+3.  `epa_clean_air_act_title_v_excerpt.txt` (EPA Title V Operating Permit Requirements Excerpt) — Public Domain.
 
 ---
 
@@ -76,6 +83,7 @@ To measure query correctness, citation coverage, and latency, a suite of 5 stand
 ## 5. Prototype Scope & Limitations
 
 As a pre-production demonstration prototype, the benchmarking is bounded by the following parameters:
-1.  **Synthetic SCADA Feed:** Telemetry values are generated via an SSE simulator mimicking SCADA metrics instead of direct physical Modbus/OPC-UA connection.
+1.  **Synthetic SCADA Feed:** Telemetry values are generated via an SSE simulator mimicking SCADA metrics instead of direct physical Modbus/OPC-UA connections.
 2.  **Mock P&ID Blueprints:** The Gemini vision pipeline processes formatted mock schematic drawings rather than industrial CAD engineering drawings.
-3.  **Local API Bounds:** Latency is subject to external LLM API rate limits (mitigated for demo through fallback handling).
+3.  **Local API Bounds:** Latency is subject to external LLM API rate limits (mitigated for demo through fallback handling in this prototype).
+4.  **Public Document Validation Limits:** The validation dataset consists of public regulatory/safety standard excerpts (OSHA 1910.119, OISD 150, and EPA Title V) and does not represent an actual factory production deployment or validation on proprietary operational files. All evaluations are manually graded or validated against seeded mock reference states.

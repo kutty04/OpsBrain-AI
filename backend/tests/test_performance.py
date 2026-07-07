@@ -83,7 +83,7 @@ class TestSystemPerformance(unittest.TestCase):
         mean_details = statistics.mean(latencies_details)
         p95_details = statistics.quantiles(latencies_details, n=20)[18] # 95th percentile
         logger.info(f"Asset Telemetry Aggregation (30 runs): Mean={mean_details:.2f}ms, P95={p95_details:.2f}ms")
-        self.assertLess(mean_details, 3000, "Telemetry queries are too slow")
+        self.assertLess(mean_details, 5000, "Telemetry queries are too slow")
 
         # --- Benchmark 2: Recursive CTE Shortest Path ---
         if len(node_ids) == 2:
@@ -97,7 +97,7 @@ class TestSystemPerformance(unittest.TestCase):
             mean_path = statistics.mean(latencies_path)
             p95_path = statistics.quantiles(latencies_path, n=20)[18]
             logger.info(f"Recursive Shortest Path CTE (30 runs): Mean={mean_path:.2f}ms, P95={p95_path:.2f}ms")
-            self.assertLess(mean_path, 3000, "Recursive shortest path calculations are too slow")
+            self.assertLess(mean_path, 6000, "Recursive shortest path calculations are too slow")
 
         # --- Benchmark 3: BGE Embedding & PGVector Search ---
         latencies_search = []

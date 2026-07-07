@@ -1,0 +1,18 @@
+EPA Clean Air Act - Title V Operating Permit Requirements for Coke Oven Batteries
+Excerpt Section: Emission Limitations and Monitoring (Section 63.302)
+
+1. General Emission Standards:
+   (i) The owner or operator of a coke oven battery shall not cause or allow the emission of raw coke oven gas or volatile organic compounds (VOC) from:
+       (A) Coke oven doors to exceed 5.0% of doors on the battery;
+       (B) Charging hole lids to exceed 1.0% of lids on the battery;
+       (C) Offtake piping to exceed 4.0% of offtake piping on the battery.
+   (ii) Emissions during charging cycles: Visible smoke emissions from the charging holes during coal charging must not exceed a cumulative duration of 15 seconds per charging cycle across any single oven.
+
+2. Monitoring and Compliance Inspections:
+   (i) Daily observations shall be conducted by a certified inspector to monitor visible emissions from coke oven doors, lids, and offtakes.
+   (ii) Fugitive emission leaks detected during observations must be logged, and repair or replacement (e.g. graphite door seal maintenance or charging lid adjustment) must be executed within 24 hours of detection.
+   (iii) If a door continues to leak for more than 3 consecutive carbonization cycles after repair attempts, the oven must be taken out of service at the end of the current cycle for structural rebuild.
+
+3. Recordkeeping:
+   (i) The owner or operator shall maintain records of all daily observations, door leak detections, lid adjustments, and corresponding maintenance work order numbers.
+   (ii) Record files must be preserved for a minimum of 5 years and be readily accessible for regulatory compliance audits by environmental agencies.

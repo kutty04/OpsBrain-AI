@@ -5,6 +5,8 @@ from backend.database import get_db_connection, release_db_connection
 import psycopg2.extras
 from backend.config import logger
 import datetime as dt
+import os
+import json
 
 router = APIRouter(prefix="/dashboard", tags=["Executive Dashboard"])
 
@@ -174,5 +176,82 @@ async def get_executive_stats():
     except Exception as e:
         logger.error(f"Failed compile dashboard stats: {e}")
         raise OpsBrainException(f"Executive stats compilation failed: {e}", code="DASHBOARD_COMPILATION_FAILED")
+    finally:
+        release_db_connection(conn)
+
+@router.get("/evaluation", response_model=APIResponse, status_code=status.HTTP_200_OK)
+async def get_evaluation_stats():
+    logger.info("Retrieving dynamic evaluation and benchmark statistics...")
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        
+        # 1. Dynamically count chunks and documents in the database
+        cur.execute("SELECT COUNT(*) FROM documents;")
+        total_docs = cur.fetchone()[0]
+        
+        cur.execute("SELECT COUNT(*) FROM document_chunks;")
+        total_chunks = cur.fetchone()[0]
+        
+        # 2. Count chunks that belong specifically to validation documents
+        cur.execute("""
+            SELECT COUNT(*) FROM documents 
+            WHERE metadata->>'source' = 'Public Industrial Document Validation Samples';
+        """)
+        validation_docs_count = cur.fetchone()[0]
+        
+        cur.execute("""
+            SELECT COUNT(dc.id) FROM document_chunks dc
+            JOIN documents d ON d.id = dc.document_id
+            WHERE d.metadata->>'source' = 'Public Industrial Document Validation Samples';
+        """)
+        validation_chunks_count = cur.fetchone()[0]
+        
+        cur.close()
+        
+        # 3. Load validation sources and benchmark questions from files
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        sources_path = os.path.join(base_dir, "data", "validation_sources.json")
+        validation_sources = []
+        if os.path.exists(sources_path):
+            with open(sources_path, "r", encoding="utf-8") as f:
+                validation_sources = json.load(f)
+                
+        questions_path = os.path.join(base_dir, "data", "benchmark_questions.json")
+        benchmark_questions = []
+        if os.path.exists(questions_path):
+            with open(questions_path, "r", encoding="utf-8") as f:
+                benchmark_questions = json.load(f)
+                
+        # Calculate categories count
+        categories_count = {}
+        for q in benchmark_questions:
+            cat = q.get("evaluation_type", "unknown")
+            categories_count[cat] = categories_count.get(cat, 0) + 1
+            
+        data = {
+            "total_documents": total_docs,
+            "total_chunks": total_chunks,
+            "total_embeddings": total_chunks,
+            "validation_sources_count": len(validation_sources),
+            "validation_docs_ingested": validation_docs_count,
+            "validation_chunks_created": validation_chunks_count,
+            "validation_embeddings_created": validation_chunks_count,
+            "benchmark_questions_count": len(benchmark_questions),
+            "benchmark_categories": categories_count,
+            "validation_sources": validation_sources,
+            "benchmark_questions": benchmark_questions
+        }
+        
+        return APIResponse(
+            success=True,
+            message="Evaluation dashboard statistics retrieved successfully",
+            data=data
+        )
+        
+    except Exception as e:
+        logger.error(f"Failed to compile evaluation statistics: {e}")
+        raise OpsBrainException(f"Evaluation stats compilation failed: {e}", code="EVALUATION_COMPILATION_FAILED")
     finally:
         release_db_connection(conn)

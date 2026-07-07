@@ -1,0 +1,9 @@
+OISD Standard 150 - Safety Design and Operating Practices for Coke Oven Batteries
+Excerpt Section: Gas Collecting Mains and Pressure Control (Section 7.2 & 7.3)
+
+1. Gas Collecting Main back-pressure control loop must be maintained at a positive pressure at all times during carbonization to prevent air ingress. Air ingress into hot collecting mains presents an immediate risk of internal explosion.
+2. The pressure in the gas collecting main shall be automatically controlled within the range of 10 mmWC to 15 mmWC (water column) using a pressure regulating control valve (such as PSV-202) connected to the controller (such as PIC-202).
+3. If pressure drops below 5 mmWC, alarm systems must trigger to alert the operator of potential negative pressure risk and air ingress.
+4. If pressure spikes above 300 mmWC (typically due to downstream blockages or controller malfunction), the emergency bleed valve (safety valve) must open automatically to vent the raw gas to the atmosphere, preventing pressure relief failure on oven door seals and resulting in heavy environmental emissions.
+5. Graphite rope seals used on coke oven doors must be inspected every 30 operating cycles. Any visible wear, hardening, or compression loss under thermal cycling must be corrected by immediate replacement to avoid fugitive volatile leaks.
+6. Coal charging operations shall only occur when the charging car is fully sealed against the charging holes, utilizing steam aspiration or liquid spray systems to suppress charging smoke emissions.

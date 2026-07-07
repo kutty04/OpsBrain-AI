@@ -1,0 +1,167 @@
+[
+  {
+    "id": "BQ-001",
+    "question": "What is the normal operating back-pressure range for the raw gas collector main GCM-104?",
+    "expected_answer_summary": "10 to 15 mmWC (water column) regulated by the pressure regulating control valve PSV-202.",
+    "required_sources": ["vizag_coke_oven_sop.txt", "oisd_150_coke_oven_excerpt.txt"],
+    "expected_asset_tags": ["GCM-104", "PSV-202", "PIC-202"],
+    "evaluation_type": "rag",
+    "pass_criteria": "Mentions range 10-15 mmWC and tags GCM-104 or PSV-202.",
+    "grading_method": "automated",
+    "dataset_scope": "both"
+  },
+  {
+    "id": "BQ-002",
+    "question": "Identify the root cause of the pressure spike on collector main GCM-104.",
+    "expected_answer_summary": "Proportional controller (PIC-202) output froze, preventing the regulating valve PSV-202 from opening.",
+    "required_sources": ["incidents log", "maintenance logs"],
+    "expected_asset_tags": ["GCM-104", "PIC-202", "PSV-202"],
+    "evaluation_type": "rca",
+    "pass_criteria": "Identifies controller freeze (PIC-202) as the root cause of the GCM-104 pressure spike.",
+    "grading_method": "automated",
+    "dataset_scope": "seeded_vizag"
+  },
+  {
+    "id": "BQ-003",
+    "question": "Is Coke Oven Battery 1 (COB-1) currently compliant with safety emission standards?",
+    "expected_answer_summary": "NON_COMPLIANT due to visible door emissions exceeding the allowed duration of 15 seconds on Oven #12.",
+    "required_sources": ["compliance_records", "epa_clean_air_act_title_v_excerpt.txt"],
+    "expected_asset_tags": ["COB-1"],
+    "evaluation_type": "compliance",
+    "pass_criteria": "Correctly flags compliance status as NON_COMPLIANT and references the 15-second charging limit.",
+    "grading_method": "automated",
+    "dataset_scope": "both"
+  },
+  {
+    "id": "BQ-004",
+    "question": "What maintenance work order was executed to address door emission leaks on COB-1?",
+    "expected_answer_summary": "Work Order WO-7715 was executed to replace worn graphite door seal ropes on Oven #12 and #13.",
+    "required_sources": ["maintenance_logs"],
+    "expected_asset_tags": ["COB-1"],
+    "evaluation_type": "lessons",
+    "pass_criteria": "Cites WO-7715 and the replacement of graphite door seals.",
+    "grading_method": "automated",
+    "dataset_scope": "seeded_vizag"
+  },
+  {
+    "id": "BQ-005",
+    "question": "Explain the physical relationship and flow path between coal charging and raw gas extraction.",
+    "expected_answer_summary": "Coal Charging Car CC-101 charges coal into Coke Oven Battery COB-1, which generates raw gas flowing to Gas Collecting Main GCM-104.",
+    "required_sources": ["knowledge_edges", "vizag_coke_oven_sop.txt"],
+    "expected_asset_tags": ["CC-101", "COB-1", "GCM-104"],
+    "evaluation_type": "graph",
+    "pass_criteria": "Traces flow from CC-101 to COB-1 and then to GCM-104.",
+    "grading_method": "manual",
+    "dataset_scope": "seeded_vizag"
+  },
+  {
+    "id": "BQ-006",
+    "question": "What are the lessons learned and preventative recommendations for graphite rope door seal deterioration?",
+    "expected_answer_summary": "Graphite rope seals suffer from compression loss under thermal cycling; they must be inspected every 30 operating cycles and replaced immediately if worn.",
+    "required_sources": ["oisd_150_coke_oven_excerpt.txt", "maintenance_logs"],
+    "expected_asset_tags": ["COB-1"],
+    "evaluation_type": "lessons",
+    "pass_criteria": "Highlights the 30-cycle inspection limit for graphite rope door seals.",
+    "grading_method": "automated",
+    "dataset_scope": "both"
+  },
+  {
+    "id": "BQ-007",
+    "question": "What is the emergency protocol under OISD 150 standard if the gas collecting main pressure spikes above 300 mmWC?",
+    "expected_answer_summary": "The emergency bleed valve (bypass valve) must automatically open to vent raw coke oven gas to the atmosphere.",
+    "required_sources": ["oisd_150_coke_oven_excerpt.txt"],
+    "expected_asset_tags": ["GCM-104", "PSV-202"],
+    "evaluation_type": "compliance",
+    "pass_criteria": "Correctly identifies that the emergency bleed valve opens above 300 mmWC to prevent door seal failure.",
+    "grading_method": "automated",
+    "dataset_scope": "public_validation"
+  },
+  {
+    "id": "BQ-008",
+    "question": "How does the pressure controller PIC-202 interact with the physical valve PSV-202?",
+    "expected_answer_summary": "PIC-202 controls the opening position of PSV-202 based on pressure transmitter PT-202 measurements (measures raw gas main pressure).",
+    "required_sources": ["knowledge_edges", "vizag_coke_oven_sop.txt"],
+    "expected_asset_tags": ["PIC-202", "PSV-202", "PT-202"],
+    "evaluation_type": "graph",
+    "pass_criteria": "Identifies that PIC-202 controls PSV-202 to regulate raw gas pressure.",
+    "grading_method": "automated",
+    "dataset_scope": "seeded_vizag"
+  },
+  {
+    "id": "BQ-009",
+    "question": "What does OSHA 1910.119 mandate regarding emergency shutdown operating procedures?",
+    "expected_answer_summary": "Operating procedures must detail emergency shutdown conditions and designate qualified operators to execute the shutdown in a safe and timely manner.",
+    "required_sources": ["osha_1910_119_psm_excerpt.txt"],
+    "expected_asset_tags": [],
+    "evaluation_type": "rag",
+    "pass_criteria": "Refers to the requirement for written conditions and qualified operator assignment for emergency shutdowns.",
+    "grading_method": "manual",
+    "dataset_scope": "public_validation"
+  },
+  {
+    "id": "BQ-010",
+    "question": "What is the maximum allowed leakage limit percentage for coke oven lids under EPA Title V regulations?",
+    "expected_answer_summary": "Visible leaks from charging hole lids are restricted to not exceed 1.0% of the total charging hole lids on the battery.",
+    "required_sources": ["epa_clean_air_act_title_v_excerpt.txt", "vizag_coke_oven_sop.txt"],
+    "expected_asset_tags": ["COB-1"],
+    "evaluation_type": "compliance",
+    "pass_criteria": "Identifies the 1.0% emission limit threshold for charging hole lids.",
+    "grading_method": "automated",
+    "dataset_scope": "both"
+  },
+  {
+    "id": "BQ-011",
+    "question": "Under OSHA 1910.119, how frequently must process operating procedures be certified?",
+    "expected_answer_summary": "Employers must review and certify annually that operating procedures are current and accurate.",
+    "required_sources": ["osha_1910_119_psm_excerpt.txt"],
+    "expected_asset_tags": [],
+    "evaluation_type": "rag",
+    "pass_criteria": "Cites the 'annual' certification requirement.",
+    "grading_method": "automated",
+    "dataset_scope": "public_validation"
+  },
+  {
+    "id": "BQ-012",
+    "question": "What are the consequence of a low-pressure deviation (< 5 mmWC) in the gas collecting main?",
+    "expected_answer_summary": "Risk of raw gas main pressure dropping below atmospheric, resulting in air ingress and internal explosion hazard.",
+    "required_sources": ["oisd_150_coke_oven_excerpt.txt"],
+    "expected_asset_tags": ["GCM-104"],
+    "evaluation_type": "compliance",
+    "pass_criteria": "Mentions air ingress and explosion hazards from a drop below 5 mmWC.",
+    "grading_method": "automated",
+    "dataset_scope": "public_validation"
+  },
+  {
+    "id": "BQ-013",
+    "question": "Identify which assets are directly affected by the Coal Charging Car (CC-101) charging operations.",
+    "expected_answer_summary": "CC-101 charges coal directly into Coke Oven Battery COB-1, affecting raw gas generation in GCM-104.",
+    "required_sources": ["knowledge_edges"],
+    "expected_asset_tags": ["CC-101", "COB-1"],
+    "evaluation_type": "graph",
+    "pass_criteria": "Flags the physical flow link between CC-101 and COB-1.",
+    "grading_method": "automated",
+    "dataset_scope": "seeded_vizag"
+  },
+  {
+    "id": "BQ-014",
+    "question": "What is the normal expected carbonization cycle time for Coke Oven Battery 1?",
+    "expected_answer_summary": "17 to 20 hours for complete carbonization under normal operating standards.",
+    "required_sources": ["vizag_coke_oven_sop.txt"],
+    "expected_asset_tags": ["COB-1"],
+    "evaluation_type": "rag",
+    "pass_criteria": "Specifies the 17 to 20 hours duration.",
+    "grading_method": "automated",
+    "dataset_scope": "seeded_vizag"
+  },
+  {
+    "id": "BQ-015",
+    "question": "What records must be kept and for how long under EPA Title V regulations for coke ovens?",
+    "expected_answer_summary": "Records of daily observations, door leak detections, lid adjustments, and corresponding work orders must be preserved for a minimum of 5 years.",
+    "required_sources": ["epa_clean_air_act_title_v_excerpt.txt"],
+    "expected_asset_tags": [],
+    "evaluation_type": "rag",
+    "pass_criteria": "Mentions the 5-year retention period for compliance files.",
+    "grading_method": "automated",
+    "dataset_scope": "public_validation"
+  }
+]

@@ -1,0 +1,26 @@
+OSHA Standard 1910.119 - Process Safety Management (PSM) of Highly Hazardous Chemicals
+Excerpt Section: Operating Procedures (1910.119(f))
+
+1. The employer shall develop and implement written operating procedures that provide clear instructions for safely conducting activities involved in each covered process consistent with the process safety information.
+
+2. Operating procedures shall address the following elements:
+   (i) Steps for each operating phase:
+       (A) Initial startup;
+       (B) Normal operations;
+       (C) Temporary operations;
+       (D) Emergency shutdown including the conditions under which emergency shutdown is required, and the assignment of shutdown responsibility to qualified operators to ensure that emergency shutdown is executed in a safe and timely manner;
+       (E) Emergency operations;
+       (F) Normal shutdown; and,
+       (G) Startup following a turnaround, or after an emergency shutdown.
+   (ii) Operating limits:
+       (A) Consequences of deviation; and,
+       (B) Steps required to correct or avoid deviation.
+   (iii) Safety and health considerations:
+       (A) Properties of, and hazards presented by, the chemicals used in the process;
+       (B) Precautions necessary to prevent exposure, including engineering controls, administrative controls, and personal protective equipment;
+       (C) Control measures to be taken if physical contact or airborne exposure occurs;
+       (D) Quality control for raw materials and control of hazardous chemical inventory levels; and,
+       (E) Any special or unique hazards.
+
+3. Operating procedures shall be readily accessible to employees who work in or maintain a process.
+4. The operating procedures shall be reviewed as often as necessary to assure that they reflect current operating practice, including changes that result from process chemicals, technology, and equipment, and prior modifications to the facility. The employer shall certify annually that these operating procedures are current and accurate.

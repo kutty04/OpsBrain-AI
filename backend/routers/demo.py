@@ -138,7 +138,7 @@ async def seed_vizag_coke_oven_scenario():
 
         # 9. Insert RAG Scenario Documentation and generate BGE-384 Embeddings
         logger.info("Deleting previous demo documents to avoid RAG duplicates...")
-        cur.execute("DELETE FROM documents WHERE title = 'vizag_coke_oven_sop.txt';")
+        cur.execute("DELETE FROM documents WHERE title IN ('vizag_coke_oven_sop.txt', 'osha_1910_119_psm_excerpt.txt', 'oisd_150_coke_oven_excerpt.txt', 'epa_clean_air_act_title_v_excerpt.txt');")
         conn.commit()
 
         logger.info("Indexing Vizag Coke Oven SOP for RAG agent query answers...")
@@ -171,9 +171,55 @@ async def seed_vizag_coke_oven_scenario():
             (doc_id,)
         )
 
+        # 10. Ingest public industrial validation documents
+        import os
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        validation_dir = os.path.join(base_dir, "data", "validation_docs")
+        
+        validation_files = [
+            ("osha_1910_119_psm_excerpt.txt", "OSHA 1910.119 Process Safety Management Excerpt"),
+            ("oisd_150_coke_oven_excerpt.txt", "OISD 150 Coke Oven Safety Design Excerpt"),
+            ("epa_clean_air_act_title_v_excerpt.txt", "EPA Title V Clean Air Act Permits Excerpt")
+        ]
+        
+        for filename, title in validation_files:
+            filepath = os.path.join(validation_dir, filename)
+            if os.path.exists(filepath):
+                logger.info(f"Indexing public validation document: {filename}...")
+                with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                
+                import json
+                v_metadata = {"status": "PROCESSING", "source": "Public Industrial Document Validation Samples", "title": title}
+                v_doc = docs_repo.create_document(
+                    title=filename,
+                    file_type="TXT",
+                    metadata=v_metadata
+                )
+                v_doc_id = v_doc["id"]
+                
+                # Split content into paragraphs for clean RAG retrieval
+                paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
+                if paragraphs:
+                    logger.info(f"Generating embeddings for {len(paragraphs)} paragraphs of {filename}...")
+                    v_embeddings = indexer.generate_embeddings(paragraphs)
+                    for idx, para in enumerate(paragraphs):
+                        docs_repo.insert_chunk(
+                            document_id=v_doc_id,
+                            content=para,
+                            embedding=v_embeddings[idx],
+                            page_number=idx + 1
+                        )
+                
+                v_metadata_final = {"status": "PROCESSED", "source": "Public Industrial Document Validation Samples", "title": title}
+                cur.execute(
+                    "UPDATE documents SET metadata = %s WHERE id = %s;",
+                    (json.dumps(v_metadata_final), v_doc_id)
+                )
+        
         conn.commit()
         cur.close()
-        logger.info("Vizag Coke Oven Battery scenario successfully seeded and indexed!")
+        logger.info("Vizag scenario and public industrial validation documents successfully seeded and indexed!")
 
         # Load all assets back to return in response
         seeded_assets = assets_repo.get_all_assets()
