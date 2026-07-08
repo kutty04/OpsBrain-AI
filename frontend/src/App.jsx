@@ -1358,9 +1358,9 @@ function AppContent() {
 
           {/* --- DIGITAL TWIN TAB --- */}
           {activeTab === 'twin' && (
-            <div className="flex h-full gap-8 max-w-7xl mx-auto items-stretch">
+            <div className="flex flex-col lg:flex-row lg:h-full gap-6 lg:gap-8 max-w-7xl mx-auto items-stretch lg:items-start">
               {/* Asset list sub-sidebar */}
-              <div className={`w-80 flex flex-col border border-slate-800 bg-slate-900/40 rounded-xl p-4 space-y-4 flex-shrink-0 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+              <div className={`w-full lg:w-80 flex flex-col border border-slate-800 bg-slate-900/40 rounded-xl p-4 space-y-4 flex-shrink-0 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                 <h3 className="font-bold text-slate-200 px-2 flex items-center gap-2">
                   <Database className="h-4.5 w-4.5 text-cyan-400" />
                   Asset Register ({assets.length})
@@ -1632,7 +1632,11 @@ function AppContent() {
 
                                   {ev.confidence_score !== null && (
                                     <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 pt-1.5 border-t border-slate-900">
-                                      <span>Confidence rating: {(ev.confidence_score * 100).toFixed(1)}%</span>
+                                      <span>
+                                        {ev.confidence_score >= 1.0 
+                                          ? "Confidence rating: High confidence based on available seeded/public validation evidence."
+                                          : `Confidence rating: ${(ev.confidence_score * 100).toFixed(1)}%`}
+                                      </span>
                                     </div>
                                   )}
                                 </div>
@@ -1739,18 +1743,18 @@ function AppContent() {
                         <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">[SYS_KNOWLEDGE_RAG]</span>
                       </div>
 
-                      <form onSubmit={runKnowledgeAgent} className="flex gap-2">
+                      <form onSubmit={runKnowledgeAgent} className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           value={agentQuery}
                           onChange={(e) => setAgentQuery(e.target.value)}
                           placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}... e.g. "Why is ${selectedAssetTag} at risk?"` : 'Select an asset first...'}
-                          className="flex-1 px-4 py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
+                          className="w-full sm:flex-1 px-4 py-2.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-sm md:text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
                         />
                         <button
                           type="submit"
                           disabled={knowledgeLoading || !agentQuery.trim()}
-                          className="px-5 py-2 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center gap-1.5 flex-shrink-0 hover:shadow-md"
+                          className="w-full sm:w-auto px-5 py-2.5 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 flex-shrink-0 hover:shadow-md cursor-pointer"
                         >
                           {knowledgeLoading
                             ? <Loader className="h-4 w-4 animate-spin text-slate-950" />
@@ -1799,7 +1803,7 @@ function AppContent() {
                                   <button
                                     key={tag}
                                     onClick={() => { setSelectedAssetTag(tag); setSidebarOpen(false); }}
-                                    className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold text-[var(--accent-primary)] bg-[var(--bg-pill)] border border-[var(--border-pill)] hover:bg-[var(--bg-pill)]/30 transition"
+                                    className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold text-[var(--accent-primary)] bg-[var(--bg-pill)] border border-[var(--border-pill)] hover:bg-[var(--bg-pill)]/30 transition cursor-pointer"
                                   >
                                     {tag}
                                   </button>
@@ -1815,16 +1819,17 @@ function AppContent() {
                               Graph-Aware Evidence Path
                             </div>
                             
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 text-xs text-slate-300 flex-wrap">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 text-xs text-slate-300">
                               {/* Selected Asset */}
-                              <div className="px-2 py-1 bg-slate-900 border border-[var(--border-color)] rounded font-mono font-bold text-slate-200">
+                              <div className="px-2.5 py-1.5 bg-slate-900 border border-[var(--border-color)] rounded font-mono font-bold text-slate-200 text-center w-full sm:w-auto">
                                 {selectedAssetTag || "N/A"}
                               </div>
                               
                               <span className="text-slate-600 hidden sm:inline">→</span>
+                              <span className="text-cyan-500/50 sm:hidden py-0.5 text-xs">↓</span>
                               
                               {/* Related Graph Nodes */}
-                              <div className="flex flex-wrap gap-1.5 items-center">
+                              <div className="flex flex-wrap gap-1.5 items-center justify-center sm:justify-start w-full sm:w-auto">
                                 {knowledgeResult.graph_trace?.affected_nodes?.filter(n => n !== selectedAssetTag).length > 0 ? (
                                   knowledgeResult.graph_trace.affected_nodes.filter(n => n !== selectedAssetTag).map(node => (
                                     <span key={node} className="px-2 py-1 bg-cyan-950/30 border border-cyan-800/30 text-cyan-400 rounded font-mono text-[11px] font-bold">
@@ -1832,22 +1837,23 @@ function AppContent() {
                                     </span>
                                   ))
                                 ) : (
-                                  <span className="text-slate-500 italic">No connected nodes</span>
+                                  <span className="text-slate-500 italic text-[11px]">No connected nodes</span>
                                 )}
                               </div>
                               
                               <span className="text-slate-600 hidden sm:inline">→</span>
+                              <span className="text-fuchsia-500/50 sm:hidden py-0.5 text-xs">↓</span>
                               
                               {/* Retrieved Documents & Regulations */}
-                              <div className="flex flex-wrap gap-1.5 items-center">
+                              <div className="flex flex-wrap gap-1.5 items-center justify-center sm:justify-start w-full sm:w-auto">
                                 {knowledgeResult.graph_trace?.evidence_refs?.length > 0 ? (
                                   knowledgeResult.graph_trace.evidence_refs.map(ref => (
-                                    <span key={ref} className="px-2 py-1 bg-fuchsia-950/30 border border-fuchsia-800/30 text-fuchsia-400 rounded font-mono text-[10px] font-bold">
+                                    <span key={ref} className="px-2 py-1 bg-fuchsia-950/30 border border-fuchsia-800/30 text-fuchsia-400 rounded font-mono text-[10px] font-bold break-words max-w-[280px] sm:max-w-none text-center">
                                       {ref}
                                     </span>
                                   ))
                                 ) : (
-                                  <span className="text-slate-500 italic">No regulations referenced</span>
+                                  <span className="text-slate-500 italic text-[11px]">No regulations referenced</span>
                                 )}
                               </div>
                             </div>
@@ -1873,11 +1879,11 @@ function AppContent() {
                                 {knowledgeResult.sources.map((src, i) => (
                                   <div
                                     key={i}
-                                    className="flex items-center gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm"
+                                    className="flex items-center gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full"
                                   >
                                     <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0" />
-                                    <div>
-                                      <div className="text-[10px] font-bold text-slate-300 truncate max-w-[180px]">{src.title || src.label}</div>
+                                    <div className="min-w-0">
+                                      <div className="text-[10px] font-bold text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">{src.title || src.label}</div>
                                       <div className="text-[9px] text-slate-500 font-mono">
                                         {src.page_number ? `Page ${src.page_number}` : ''}
                                         {src.page_number && src.similarity_score ? ' · ' : ''}

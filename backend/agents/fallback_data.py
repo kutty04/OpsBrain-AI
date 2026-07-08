@@ -159,7 +159,7 @@ FALLBACK_DATA: Dict[str, Dict[str, Any]] = {
                     "observed_value": 350.0,
                     "allowed_threshold": "10 to 15",
                     "unit": "mmWC",
-                    "rule_or_clause": "OISD Standard 150 Section 7.2 / 7.3 Gas Pressure Loop",
+                    "rule_or_clause": "OISD 150 coke oven safety excerpt",
                     "source_document": "oisd_150_coke_oven_excerpt.txt",
                     "source_type": "public_validation",
                     "citation": "Section 7.3: Collector main back-pressure must be automatically controlled between 10 mmWC to 15 mmWC.",

@@ -92,7 +92,7 @@ COMPLIANCE_PROMPT = (
     "  - 'observed_value': the actual measured telemetry or condition from the logs (e.g. 342.5 or 'Over 15 seconds' or 'Normal').\n"
     "  - 'allowed_threshold': allowed regulatory limit from the references (e.g. '10 to 15' or '15 seconds maximum' or 'Compliant operation').\n"
     "  - 'unit': measurement unit (e.g., 'mmWC', 'seconds', or null).\n"
-    "  - 'rule_or_clause': name of the regulatory rule or clause (e.g., OISD 150 Section 7.3, EPA Section 63.302, OSHA 1910.119(f)).\n"
+    "  - 'rule_or_clause': name of the regulatory rule or clause (e.g., OISD 150 coke oven safety excerpt, EPA Section 63.302, OSHA 1910.119(f)).\n"
     "  - 'source_document': file name of the document supporting the evidence (e.g. oisd_150_coke_oven_excerpt.txt, osha_1910_119_psm_excerpt.txt, epa_clean_air_act_title_v_excerpt.txt, vizag_coke_oven_sop.txt). If no source matches, set to 'Evidence unavailable. Manual review required.'.\n"
     "  - 'source_type': must be 'public_validation' for OSHA/EPA/OISD Standard, or 'seeded_demo' for vizag_coke_oven_sop.txt, or 'unknown' if no source is available.\n"
     "  - 'citation': citation quote or reference detail from the document.\n"
