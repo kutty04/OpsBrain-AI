@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field
 from backend.agents.framework import BaseAgent
 from backend.agents.registry import agent_tools
@@ -31,11 +31,25 @@ class RCAResponse(BaseModel):
     severity_assessment: str = Field(..., description="Assessment of incident severity (Low, Medium, High, Critical).")
     graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace of failure propagation pathways.")
 
+class ComplianceEvidence(BaseModel):
+    issue: str = Field(..., description="Description of the compliance issue or validation check.")
+    affected_asset: str = Field(..., description="Equipment tag number of the affected asset.")
+    observed_value: Optional[Union[str, float, int]] = Field(default=None, description="Observed telemetry value or condition.")
+    allowed_threshold: Optional[Union[str, float, int]] = Field(default=None, description="Allowed regulatory threshold or limit.")
+    unit: Optional[str] = Field(default=None, description="Measurement unit (e.g., mmWC, seconds).")
+    rule_or_clause: str = Field(..., description="Regulatory rule or clause name.")
+    source_document: str = Field(..., description="Source document or file name supporting the evidence.")
+    source_type: str = Field(..., description="Source type: 'seeded_demo' | 'public_validation' | 'benchmark' | 'unknown'.")
+    citation: Optional[str] = Field(default=None, description="Citation details or page references.")
+    recommended_action: str = Field(..., description="Corrective action recommended to restore compliance.")
+    confidence_score: Optional[float] = Field(default=None, description="Confidence score from 0.0 to 1.0.")
+
 class ComplianceResponse(BaseModel):
     status: str = Field(..., description="Status must be one of: 'COMPLIANT', 'NON_COMPLIANT', 'UNDER_REVIEW'.")
     violations: List[str] = Field(..., description="Specific compliance/regulatory violations detected.")
     findings: str = Field(..., description="Summary details of the compliance assessment.")
     graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace identifying audited/violating assets.")
+    compliance_evidence: Optional[List[ComplianceEvidence]] = Field(default=None, description="Detailed evidence supporting the compliance assessment.")
 
 class LessonsLearnedResponse(BaseModel):
     lessons_extracted: List[str] = Field(..., description="Key learnings extracted from historical incident data.")
@@ -71,7 +85,24 @@ COMPLIANCE_PROMPT = (
     "Look at active compliance records, safety limits, and recent incidents.\n"
     "Classify the status as 'COMPLIANT' (no active warnings or incidents), 'NON_COMPLIANT' (severe active violations/unresolved warnings), or 'UNDER_REVIEW'.\n"
     "Detail your findings and list specific regulations violated.\n"
-    "You must also populate 'graph_trace': include the target asset tag and any connected measurement or regulation tags in 'affected_nodes', explain your audit path in 'reasoning_steps', and list active rules/guidelines in 'evidence_refs'."
+    "You must also populate 'graph_trace': include the target asset tag and any connected measurement or regulation tags in 'affected_nodes', explain your audit path in 'reasoning_steps', and list active rules/guidelines in 'evidence_refs'.\n"
+    "You must also populate 'compliance_evidence': a list of objects detailing each audited metric/rule. For each item, specify:\n"
+    "  - 'issue': description of the compliance issue or validation check.\n"
+    "  - 'affected_asset': equipment tag number of the affected asset (e.g. GCM-104 or COB-1).\n"
+    "  - 'observed_value': the actual measured telemetry or condition from the logs (e.g. 342.5 or 'Over 15 seconds' or 'Normal').\n"
+    "  - 'allowed_threshold': allowed regulatory limit from the references (e.g. '10 to 15' or '15 seconds maximum' or 'Compliant operation').\n"
+    "  - 'unit': measurement unit (e.g., 'mmWC', 'seconds', or null).\n"
+    "  - 'rule_or_clause': name of the regulatory rule or clause (e.g., OISD 150 Section 7.3, EPA Section 63.302, OSHA 1910.119(f)).\n"
+    "  - 'source_document': file name of the document supporting the evidence (e.g. oisd_150_coke_oven_excerpt.txt, osha_1910_119_psm_excerpt.txt, epa_clean_air_act_title_v_excerpt.txt, vizag_coke_oven_sop.txt). If no source matches, set to 'Evidence unavailable. Manual review required.'.\n"
+    "  - 'source_type': must be 'public_validation' for OSHA/EPA/OISD Standard, or 'seeded_demo' for vizag_coke_oven_sop.txt, or 'unknown' if no source is available.\n"
+    "  - 'citation': citation quote or reference detail from the document.\n"
+    "  - 'recommended_action': corrective action recommended to restore compliance.\n"
+    "  - 'confidence_score': confidence score between 0.0 and 1.0.\n"
+    "Make sure to support the following coking plant cases:\n"
+    "1. Gas collector main pressure deviation (observed pressure spikes like 350 mmWC vs 10-15 mmWC allowed, source: oisd_150_coke_oven_excerpt.txt / vizag_coke_oven_sop.txt).\n"
+    "2. Air ingress/negative pressure risk (pressure drop below 5 mmWC, source: oisd_150_coke_oven_excerpt.txt).\n"
+    "3. Emission duration/smoke limit (smoke leaks exceeding 15 seconds limit, source: epa_clean_air_act_title_v_excerpt.txt).\n"
+    "4. Normal compliant state (where no gap is detected, flag as COMPLIANT, write 'No compliance gap detected' in issue, reference correct SOP/OISD source, e.g. HE-301 safety valves compliant under OISD-GDN-201)."
 )
 
 LESSONS_LEARNED_PROMPT = (
@@ -167,11 +198,27 @@ class ComplianceAgent(BaseAgent):
             
         details = agent_tools.call_tool("read_asset_details", tag_number=tag_number)
         
+        # Phase 3 RAG integration: Fetch relevant safety regulations for the asset tag
+        safety_context = ""
+        try:
+            rag_result = agent_tools.call_tool("search_safety_manuals", query=f"compliance safety limit threshold regulation {tag_number}")
+            if rag_result and "sources" in rag_result:
+                safety_context = "\n\n".join([
+                    f"Document: {s.get('filename', 'Unknown')}\n"
+                    f"Reference: Page {s.get('page_number', 'N/A')}\n"
+                    f"Excerpt Content: {s.get('content', '')}"
+                    for s in rag_result["sources"]
+                ])
+        except Exception as e:
+            logger.warning(f"Failed to fetch safety context for compliance: {e}")
+
         prompt = (
             f"Task: Assess safety limit compliance for {tag_number}.\n"
             f"Context: {user_query}\n\n"
             f"COMPLIANCE TELEMETRY:\n"
-            f"- Asset Details & Logs: {details}\n"
+            f"- Asset Details & Logs: {details}\n\n"
+            f"REFERENCE REGULATORY MANUALS EXCERPTS:\n"
+            f"{safety_context if safety_context else 'No matching safety regulations found in vector store.'}\n"
         )
         
         return self.execute_llm(prompt, tag_number=tag_number)

@@ -117,7 +117,22 @@ FALLBACK_DATA: Dict[str, Dict[str, Any]] = {
                     "Detected seal leakage duration exceeding 15 seconds"
                 ],
                 "evidence_refs": ["CREP Guidelines Handbook"]
-            }
+            },
+            "compliance_evidence": [
+                {
+                    "issue": "Fugitive door emissions leakage duration exceeded safety limits",
+                    "affected_asset": "COB-1",
+                    "observed_value": "Over 15 seconds",
+                    "allowed_threshold": "15 seconds maximum",
+                    "unit": "seconds",
+                    "rule_or_clause": "EPA Clean Air Act Operating Permit Section 63.302",
+                    "source_document": "epa_clean_air_act_title_v_excerpt.txt",
+                    "source_type": "public_validation",
+                    "citation": "Section 63.302(1)(ii): Smoke emissions during coal charging must not exceed 15 seconds per cycle.",
+                    "recommended_action": "Inspect pusher and charging car alignment, replace worn door rope seals on Oven #12.",
+                    "confidence_score": 0.95
+                }
+            ]
         },
         "GCM-104": {
             "status": "UNDER_REVIEW",
@@ -136,7 +151,22 @@ FALLBACK_DATA: Dict[str, Dict[str, Any]] = {
                     "Requested official emission audit log"
                 ],
                 "evidence_refs": ["APPCB regulations"]
-            }
+            },
+            "compliance_evidence": [
+                {
+                    "issue": "Gas collector main back-pressure spiked above standard limits",
+                    "affected_asset": "GCM-104",
+                    "observed_value": 350.0,
+                    "allowed_threshold": "10 to 15",
+                    "unit": "mmWC",
+                    "rule_or_clause": "OISD Standard 150 Section 7.2 / 7.3 Gas Pressure Loop",
+                    "source_document": "oisd_150_coke_oven_excerpt.txt",
+                    "source_type": "public_validation",
+                    "citation": "Section 7.3: Collector main back-pressure must be automatically controlled between 10 mmWC to 15 mmWC.",
+                    "recommended_action": "Calibrate pressure transmitter PT-202 and verify PIC-202 controller output is not frozen.",
+                    "confidence_score": 0.90
+                }
+            ]
         }
     },
     "lessons": {

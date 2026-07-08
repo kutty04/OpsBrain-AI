@@ -172,6 +172,45 @@ export default function EvaluationDashboard() {
         </div>
       </div>
 
+      {/* Phase 3: Compliance Benchmark Summary Card */}
+      {evalData?.compliance_stats && (
+        <div className="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg relative overflow-hidden shadow-sm card-premium space-y-4">
+          {renderCadCorners()}
+          <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
+            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              Compliance Benchmark Scorecard
+            </h3>
+            <span className="text-[9px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20 font-bold">
+              Manually evaluated compliance benchmark on seeded Vizag + public validation excerpts
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-1">
+            <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-lg text-center">
+              <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Compliance Questions</div>
+              <div className="text-2xl font-black font-mono text-slate-200 mt-2">{evalData.compliance_stats.compliance_questions_count}</div>
+              <div className="text-[9px] text-slate-500 mt-1 font-medium">Domain benchmarks</div>
+            </div>
+            <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-lg text-center">
+              <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Evidence Coverage</div>
+              <div className="text-2xl font-black font-mono text-cyan-400 mt-2">{evalData.compliance_stats.compliance_evidence_coverage_pct.toFixed(1)}%</div>
+              <div className="text-[9px] text-cyan-500/80 mt-1 font-medium">Fully covered by standard references</div>
+            </div>
+            <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-lg text-center">
+              <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Cases with Evidence</div>
+              <div className="text-2xl font-black font-mono text-emerald-400 mt-2">{evalData.compliance_stats.compliance_cases_with_evidence}</div>
+              <div className="text-[9px] text-emerald-500/80 mt-1 font-medium">Linked to OISD/OSHA/EPA excerpts</div>
+            </div>
+            <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-lg text-center">
+              <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Manual Audit Reviews</div>
+              <div className="text-2xl font-black font-mono text-amber-400 mt-2">{evalData.compliance_stats.compliance_cases_requiring_manual_review}</div>
+              <div className="text-[9px] text-amber-500/80 mt-1 font-medium">Requires Hybrid / Expert Check</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* PHASE 1: Real Public Industrial Document Validation */}
       <div className="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg relative overflow-hidden shadow-sm card-premium space-y-4">
         {renderCadCorners()}

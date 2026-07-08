@@ -1580,6 +1580,67 @@ function AppContent() {
                           </div>
                         )}
                         <p className="text-sm text-slate-300 leading-relaxed font-medium">{complianceAgentResult.findings}</p>
+                        
+                        {complianceAgentResult.compliance_evidence?.length > 0 && (
+                          <div className="pt-2.5 border-t border-slate-800/80 space-y-3">
+                            <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider font-mono">Evidence Used / Clauses Triggered</div>
+                            <div className="space-y-3">
+                              {complianceAgentResult.compliance_evidence.map((ev, index) => (
+                                <div key={index} className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-lg space-y-2.5 text-xs">
+                                  <div className="flex justify-between items-start gap-2 flex-wrap">
+                                    <div className="font-bold text-slate-200">{ev.issue}</div>
+                                    <div className="flex gap-1.5 flex-wrap">
+                                      <span className="text-[8px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20 font-bold uppercase">{ev.affected_asset}</span>
+                                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-bold border uppercase ${
+                                        ev.source_type === 'public_validation' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                                        : ev.source_type === 'seeded_demo' ? 'text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20'
+                                        : 'text-slate-400 bg-slate-500/10 border-slate-500/20'
+                                      }`}>
+                                        {ev.source_type === 'public_validation' ? 'Public Validation Excerpt' 
+                                         : ev.source_type === 'seeded_demo' ? 'Seeded Demo Source' 
+                                         : ev.source_type === 'benchmark' ? 'Benchmark Source'
+                                         : 'Unknown Source'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
+                                    <div>
+                                      <span className="text-slate-500">Observed Value:</span> <strong className="text-rose-400 font-semibold">{ev.observed_value !== null ? `${ev.observed_value}${ev.unit ? ' ' + ev.unit : ''}` : 'N/A'}</strong>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500">Allowed Threshold:</span> <strong className="text-slate-400 font-semibold">{ev.allowed_threshold !== null ? `${ev.allowed_threshold}${ev.unit ? ' ' + ev.unit : ''}` : 'N/A'}</strong>
+                                    </div>
+                                  </div>
+
+                                  <div className="text-[11px] text-slate-300">
+                                    <span className="text-slate-500">Rule/Clause:</span> <strong className="text-slate-400 font-semibold">{ev.rule_or_clause}</strong>
+                                    {ev.source_document && (
+                                      <span className="text-[9px] text-slate-500 font-mono ml-2">[{ev.source_document}]</span>
+                                    )}
+                                  </div>
+
+                                  {ev.citation && (
+                                    <div className="p-2 bg-slate-900/60 border-l-2 border-slate-700 text-[10px] text-slate-400 italic leading-relaxed font-medium">
+                                      "{ev.citation}"
+                                    </div>
+                                  )}
+
+                                  <div className="text-[11px] text-slate-300">
+                                    <span className="text-slate-500 font-bold">Recommended Action:</span> <span className="text-slate-300">{ev.recommended_action}</span>
+                                  </div>
+
+                                  {ev.confidence_score !== null && (
+                                    <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 pt-1.5 border-t border-slate-900">
+                                      <span>Confidence rating: {(ev.confidence_score * 100).toFixed(1)}%</span>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         {renderProviderMetadataChip(complianceAgentResult)}
                       </div>
                     )}
