@@ -148,14 +148,12 @@ const renderProviderMetadataChip = (result) => {
   } else if (meta.provider_used === 'extractive_fallback') {
     text = 'Extractive fallback: generated from retrieved document evidence';
     colorClass = 'text-amber-400 border-amber-500/30 bg-amber-500/10';
-  } else if (meta.fallback_used) {
-    const formattedName = meta.provider_used.charAt(0).toUpperCase() + meta.provider_used.slice(1);
-    text = `Answered using fallback provider: ${formattedName}`;
-    colorClass = 'text-amber-400 border-amber-500/30 bg-amber-500/10';
   } else {
+    // All live providers (Gemini, Groq, Mistral) — show as green AI Source
     const formattedName = meta.provider_used.charAt(0).toUpperCase() + meta.provider_used.slice(1);
-    text = `AI Source: ${formattedName} (${meta.latency_ms ? `${meta.latency_ms}ms` : 'online'})`;
-    colorClass = 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10';
+    const latency = meta.latency_ms ? `${meta.latency_ms}ms` : 'live';
+    text = `AI Source: ${formattedName} (${latency})`;
+    colorClass = 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
   }
 
   return (
