@@ -31,11 +31,26 @@ class RCAResponse(BaseModel):
     severity_assessment: str = Field(..., description="Assessment of incident severity (Low, Medium, High, Critical).")
     graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace of failure propagation pathways.")
 
+class ComplianceEvidence(BaseModel):
+    issue: Optional[str] = None
+    affected_asset: Optional[str] = None
+    observed_value: Optional[str] = None
+    allowed_threshold: Optional[str] = None
+    unit: Optional[str] = None
+    rule_name: Optional[str] = None
+    source_document: Optional[str] = None
+    citation: Optional[str] = None
+    severity: Optional[str] = None
+    confidence: Optional[str] = None
+    recommended_action: Optional[str] = None
+    why_it_matters: Optional[str] = None
+
 class ComplianceResponse(BaseModel):
     status: str = Field(..., description="Status must be one of: 'COMPLIANT', 'NON_COMPLIANT', 'UNDER_REVIEW'.")
     violations: List[str] = Field(..., description="Specific compliance/regulatory violations detected.")
     findings: str = Field(..., description="Summary details of the compliance assessment.")
     graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace identifying audited/violating assets.")
+    compliance_evidence: Optional[List[ComplianceEvidence]] = Field(default=None, description="Optional structured compliance evidence for explainable audit tracking.")
 
 class LessonsLearnedResponse(BaseModel):
     lessons_extracted: List[str] = Field(..., description="Key learnings extracted from historical incident data.")
