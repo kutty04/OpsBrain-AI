@@ -389,6 +389,8 @@ function AppContent() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [seedMessage, setSeedMessage] = useState(null); // Non-blocking seed status toast
+  const [activeDataset, setActiveDataset] = useState('vizag'); // 'vizag' | 'refinery'
+  const [seedingDataset, setSeedingDataset] = useState(false); // prevent concurrent seed calls
 
   // Ingestion File State
   const [selectedFile, setSelectedFile] = useState(null);
@@ -1288,20 +1290,38 @@ function AppContent() {
             Hackathon Mode
           </div>
           
+          {/* Phase 6B: Active Dataset Label */}
+          <div className="flex items-center gap-1.5 px-1">
+            <span className="text-[9px] uppercase font-black tracking-widest text-slate-500">Active Dataset:</span>
+            <span className={`text-[9px] font-bold uppercase tracking-wide ${activeDataset === 'refinery' ? 'text-amber-400' : 'text-[var(--accent-primary)]'}`}>
+              {activeDataset === 'refinery' ? 'Refinery Pump Station' : 'Vizag Steel Coke Oven'}
+            </span>
+          </div>
+
+          {/* Seed Vizag button */}
           <button
+            type="button"
+            disabled={seedingDataset}
             onClick={async () => {
               if (confirm("Reset database and seed Vizag Steel Coke Oven Battery dataset?")) {
                 try {
+                  setSeedingDataset(true);
                   setLoadingAssets(true);
+                  setSelectedAssetDetails(null);
+                  setIsInvestigating(false);
+                  setInvestigationStep(0);
+                  setInvestigationLogs([]);
+                  // Reset any in-flight agent loading states to clean slate
+                  setRcaLoading(false); setRcaResult(null); setRcaError(null);
+                  setRiskAgentLoading(false); setRiskAgentResult(null); setRiskAgentError(null);
+                  setComplianceAgentLoading(false); setComplianceAgentResult(null); setComplianceAgentError(null);
+                  setLessonsLoading(false); setLessonsResult(null); setLessonsError(null);
                   const res = await fetchAPI('/demo/seed-vizag', { method: 'POST' });
+                  setActiveDataset('vizag');
                   setSeedMessage({ type: 'success', text: 'Vizag demo seeded successfully.' });
                   setTimeout(() => setSeedMessage(null), 4000);
-                  
-                  // Reload datasets
                   await loadAssets();
                   await loadExecutiveData();
-                  
-                  // Switch to Executive view
                   setActiveTab('executive');
                   if (res.data && res.data.assets && res.data.assets.length > 0) {
                     setSelectedAssetTag(res.data.assets[0].tag_number);
@@ -1311,14 +1331,61 @@ function AppContent() {
                   setTimeout(() => setSeedMessage(null), 5000);
                 } finally {
                   setLoadingAssets(false);
+                  setSeedingDataset(false);
                 }
               }
             }}
-            className="w-full py-1.5 px-3 bg-[var(--bg-pill)] hover:bg-[var(--bg-pill)]/20 text-[var(--accent-primary)] border border-[var(--border-pill)] hover:border-[var(--accent-primary)] rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5"
+            className="w-full py-1.5 px-3 bg-[var(--bg-pill)] hover:bg-[var(--bg-pill)]/20 text-[var(--accent-primary)] border border-[var(--border-pill)] hover:border-[var(--accent-primary)] rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Seed Vizag Steel
+            {seedingDataset && activeDataset !== 'refinery' ? 'Seeding...' : 'Seed Vizag Steel'}
           </button>
-          
+
+          {/* Phase 6B: Seed Refinery Demo button */}
+          <button
+            type="button"
+            disabled={seedingDataset}
+            onClick={async () => {
+              if (confirm("Switch to Refinery Pump Station scalability demo? This will replace Vizag data.")) {
+                try {
+                  setSeedingDataset(true);
+                  setLoadingAssets(true);
+                  setSelectedAssetDetails(null);
+                  setSelectedAssetTag(null);
+                  setIsInvestigating(false);
+                  setInvestigationStep(0);
+                  setInvestigationLogs([]);
+                  // Reset any in-flight agent loading states to clean slate
+                  setRcaLoading(false); setRcaResult(null); setRcaError(null);
+                  setRiskAgentLoading(false); setRiskAgentResult(null); setRiskAgentError(null);
+                  setComplianceAgentLoading(false); setComplianceAgentResult(null); setComplianceAgentError(null);
+                  setLessonsLoading(false); setLessonsResult(null); setLessonsError(null);
+                  await fetchAPI('/demo/seed-refinery', { method: 'POST' });
+                  setActiveDataset('refinery');
+                  setSeedMessage({ type: 'success', text: 'Refinery Pump Station demo seeded.' });
+                  setTimeout(() => setSeedMessage(null), 4000);
+                  await loadAssets();
+                  await loadExecutiveData();
+                  setActiveTab('twin');
+                } catch (err) {
+                  setSeedMessage({ type: 'error', text: 'Refinery seed failed: ' + err.message });
+                  setTimeout(() => setSeedMessage(null), 5000);
+                } finally {
+                  setLoadingAssets(false);
+                  setSeedingDataset(false);
+                }
+              }
+            }}
+            className="w-full py-1.5 px-3 bg-amber-900/30 hover:bg-amber-900/50 text-amber-400 border border-amber-800/50 hover:border-amber-600 rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {seedingDataset && activeDataset !== 'vizag' ? 'Seeding...' : 'Seed Refinery Demo'}
+          </button>
+
+          {/* Phase 6B: Optional scalability note */}
+          <p className="text-[9px] text-slate-600 leading-tight px-1">
+            Optional scalability proof. Uses the same knowledge graph and asset schema on a second plant dataset.
+          </p>
+
+          {/* Seed toast */}
           {seedMessage && (
             <div className={`w-full text-xs px-2 py-1 rounded-md mt-1 font-medium transition-all ${seedMessage.type === 'success' ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`}>
               {seedMessage.text}
