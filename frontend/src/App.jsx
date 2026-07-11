@@ -2125,22 +2125,44 @@ function AppContent() {
                             <div className="space-y-2">
                               <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Source Citations</div>
                               <div className="flex flex-wrap gap-2">
-                                {knowledgeResult.sources.map((src, i) => (
-                                  <div
-                                    key={i}
-                                    className="flex items-start gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full sm:max-w-[280px]"
-                                  >
-                                    <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
-                                    <div className="min-w-0">
-                                      <div className="text-[10px] font-bold text-slate-300 break-words max-w-[160px] sm:max-w-[200px]">{src.title || src.label}</div>
-                                      <div className="text-[9px] text-slate-500 font-mono">
-                                        {src.page_number ? `Page ${src.page_number}` : ''}
-                                        {src.page_number && src.similarity_score ? ' · ' : ''}
-                                        {src.similarity_score ? `${Math.round(src.similarity_score * 100)}% match` : ''}
+                                {knowledgeResult.sources.map((src, i) => {
+                                  if (src.source_type === 'Field Note / Tribal Knowledge') {
+                                    return (
+                                      <div
+                                        key={i}
+                                        className="flex flex-col gap-1.5 p-3 bg-amber-500/5 border border-amber-500/25 rounded-lg shadow-sm w-full sm:max-w-[280px]"
+                                      >
+                                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-amber-400">
+                                          <BookOpen className="h-3.5 w-3.5 flex-shrink-0" />
+                                          <span>Field Note / Tribal Knowledge</span>
+                                        </div>
+                                        <div className="min-w-0 space-y-1">
+                                          <div className="text-[10px] font-bold text-slate-200">Asset: {src.asset_tag}</div>
+                                          {src.author_role && <div className="text-[9px] text-slate-400">Role: {src.author_role}</div>}
+                                          {src.confidence && <div className="text-[9px] text-slate-400">Confidence: {src.confidence}</div>}
+                                          <div className="text-[9px] text-slate-400 leading-normal italic line-clamp-3">"{src.note_text}"</div>
+                                        </div>
+                                      </div>
+                                    );
+                                  }
+
+                                  return (
+                                    <div
+                                      key={i}
+                                      className="flex items-start gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full sm:max-w-[280px]"
+                                    >
+                                      <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
+                                      <div className="min-w-0">
+                                        <div className="text-[10px] font-bold text-slate-300 break-words max-w-[160px] sm:max-w-[200px]">{src.title || src.label}</div>
+                                        <div className="text-[9px] text-slate-500 font-mono">
+                                          {src.page_number ? `Page ${src.page_number}` : ''}
+                                          {src.page_number && src.similarity_score ? ' · ' : ''}
+                                          {src.similarity_score ? `${Math.round(src.similarity_score * 100)}% match` : ''}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           ) : (

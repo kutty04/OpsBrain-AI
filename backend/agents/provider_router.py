@@ -28,7 +28,9 @@ def coerce_to_schema(data: Dict[str, Any], schema: Any) -> Dict[str, Any]:
     preventing validation errors from LLM output inconsistencies.
     """
     # 1. Normalize confidence float
-    if "confidence" in data:
+    if "confidence" not in data or data["confidence"] is None or data["confidence"] == "":
+        data["confidence"] = 0.8
+    else:
         try:
             val = data["confidence"]
             if isinstance(val, str):
@@ -137,6 +139,8 @@ def coerce_to_schema(data: Dict[str, Any], schema: Any) -> Dict[str, Any]:
                     data[field_name] = "Medium"
                 elif field_name == "severity_assessment":
                     data[field_name] = "Medium"
+                elif field_name == "confidence":
+                    data[field_name] = 0.8
                 else:
                     data[field_name] = ""
         else:

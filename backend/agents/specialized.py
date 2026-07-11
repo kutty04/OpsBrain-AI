@@ -136,16 +136,107 @@ class KnowledgeAgent(BaseAgent):
         except Exception as e:
             logger.warning(f"Knowledge Agent RAG search failed: {e}")
             
+        # Fetch matching tribal notes based on detected asset tags in user_query or tag_number
+        all_tags = []
+        from backend.database import get_db_connection, release_db_connection
+        conn = None
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT tag_number FROM assets;")
+            all_tags = [r[0] for r in cur.fetchall()]
+            cur.close()
+        except Exception as e:
+            logger.warning(f"Failed to fetch asset tags for matching: {e}")
+        finally:
+            if conn:
+                release_db_connection(conn)
+
+        query_upper = user_query.upper()
+        detected_tags = []
+        for tag in all_tags:
+            if tag.upper() in query_upper:
+                detected_tags.append(tag)
+        if tag_number and tag_number not in detected_tags:
+            detected_tags.append(tag_number)
+
+        retrieved_notes = []
+        if detected_tags:
+            conn = None
+            try:
+                conn = get_db_connection()
+                cur = conn.cursor()
+                cur.execute("SELECT to_regclass('tribal_knowledge_notes');")
+                if cur.fetchone()[0] is not None:
+                    placeholders = ', '.join(['%s'] * len(detected_tags))
+                    cur.execute(
+                        f"SELECT id, asset_tag, note_text, source_type, author_role, confidence, created_at FROM tribal_knowledge_notes WHERE asset_tag IN ({placeholders}) ORDER BY created_at DESC;",
+                        tuple(detected_tags)
+                    )
+                    rows = cur.fetchall()
+                    for r in rows:
+                        retrieved_notes.append({
+                            "id": str(r[0]),
+                            "asset_tag": r[1],
+                            "note_text": r[2],
+                            "source_type": r[3] or "Field Note / Tribal Knowledge",
+                            "author_role": r[4],
+                            "confidence": r[5],
+                            "created_at": r[6].isoformat() if r[6] else None
+                        })
+                cur.close()
+            except Exception as e:
+                logger.warning(f"Failed to retrieve tribal notes context: {e}")
+            finally:
+                if conn:
+                    release_db_connection(conn)
+
         # Compile prompt
         prompt = (
             f"User Query: {user_query}\n\n"
             f"CONTEXT DATA:\n"
             f"- Equipment Details: {details}\n"
             f"- Graph Neighborhood: {neighbors}\n"
-            f"- Safety Documents (RAG): {rag_hits}\n"
+            f"- Safety Documents (RAG): {rag_hits.get('answer') if isinstance(rag_hits, dict) else rag_hits}\n"
         )
+
+        if retrieved_notes:
+            blocks = []
+            for i, note in enumerate(retrieved_notes, 1):
+                blocks.append(
+                    f"[Tribal Source {i}]: Asset Tag: {note['asset_tag']}, Author Role: {note['author_role'] or 'N/A'}, Confidence: {note['confidence'] or 'N/A'}\n"
+                    f"Content: {note['note_text']}"
+                )
+            tribal_notes_context = "\n\n".join(blocks)
+            prompt += f"- Field Notes / Tribal Knowledge:\n{tribal_notes_context}\n\n"
+            prompt += (
+                "IMPORTANT INSTRUCTIONS FOR TRIBAL KNOWLEDGE/FIELD NOTES:\n"
+                "If the answer incorporates information from the 'Field Notes / Tribal Knowledge' section, you MUST:\n"
+                "1. Explicitly state in your answer text that the information came from a field note or operator-observed tribal knowledge (e.g. 'According to a field note for [asset_tag]...', 'Operator-observed tribal knowledge suggests...').\n"
+                "2. Include the author role (e.g. Senior Technician) and confidence level in the text if available.\n"
+                "3. Explicitly state: 'This should be treated as operational context, not certified compliance evidence.'\n"
+            )
+
+        res = self.execute_llm(prompt, tag_number=tag_number)
         
-        return self.execute_llm(prompt, tag_number=tag_number)
+        # Merge sources to return to frontend
+        sources = []
+        if isinstance(rag_hits, dict) and "sources" in rag_hits:
+            sources.extend(rag_hits["sources"])
+            
+        for note in retrieved_notes:
+            sources.append({
+                "source_type": "Field Note / Tribal Knowledge",
+                "label": f"Field Note: {note['asset_tag']}",
+                "title": f"Field Note: {note['asset_tag']}",
+                "asset_tag": note["asset_tag"],
+                "author_role": note["author_role"],
+                "confidence": note["confidence"],
+                "note_text": note["note_text"]
+            })
+            
+        res["sources"] = sources
+        return res
 
 class RCAAgent(BaseAgent):
     def __init__(self):
