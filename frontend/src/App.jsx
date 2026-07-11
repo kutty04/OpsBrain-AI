@@ -1846,26 +1846,26 @@ function AppContent() {
                     {/* P1 + P4: Agent Knowledge Copilot Chat Panel */}
                     <div className={`p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       {renderCadCorners()}
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-bold text-[var(--accent-ai)] text-[16px] flex items-center gap-2 uppercase tracking-wider">
-                          <MessageSquare className="h-4.5 w-4.5" /> Knowledge Copilot
-                          <span className="text-[10px] font-normal text-slate-500 ml-1 lowercase normal-case">— Ask anything about safety SOPs, manuals, or failures</span>
+                      <div className="flex flex-wrap justify-between items-start gap-y-1">
+                        <h4 className="font-bold text-[var(--accent-ai)] text-[15px] sm:text-[16px] flex items-center gap-2 uppercase tracking-wider min-w-0">
+                          <MessageSquare className="h-4 w-4 flex-shrink-0" /> Knowledge Copilot
+                          <span className="text-[10px] font-normal text-slate-500 ml-1 lowercase normal-case hidden sm:inline">— Ask anything about safety SOPs, manuals, or failures</span>
                         </h4>
-                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">[SYS_KNOWLEDGE_RAG]</span>
+                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex-shrink-0">[SYS_KNOWLEDGE_RAG]</span>
                       </div>
 
-                      <form onSubmit={runKnowledgeAgent} className="flex gap-2">
+                      <form onSubmit={runKnowledgeAgent} className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           value={agentQuery}
                           onChange={(e) => setAgentQuery(e.target.value)}
-                          placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}... e.g. "Why is ${selectedAssetTag} at risk?"` : 'Select an asset first...'}
-                          className="flex-1 px-4 py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
+                          placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}...` : 'Select an asset first...'}
+                          className="w-full min-w-0 flex-1 px-4 py-2.5 sm:py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-[14px] sm:text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
                         />
                         <button
                           type="submit"
                           disabled={knowledgeLoading || !agentQuery.trim()}
-                          className="px-5 py-2 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center gap-1.5 flex-shrink-0 hover:shadow-md"
+                          className="w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0 hover:shadow-md"
                         >
                           {knowledgeLoading
                             ? <Loader className="h-4 w-4 animate-spin text-slate-950" />
@@ -1874,7 +1874,7 @@ function AppContent() {
                         </button>
                       </form>
 
-                      <div className="flex items-center gap-3 text-[9px] font-mono text-slate-500 uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-mono text-slate-500 uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
                         <span className="font-extrabold text-[var(--accent-ai)]">Powered by:</span>
                         <span>Groq LLM</span>
                         <span className="opacity-40">|</span>
@@ -1906,7 +1906,7 @@ function AppContent() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap font-medium">{knowledgeResult.answer}</p>
+                            <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap break-words font-medium">{knowledgeResult.answer}</p>
                             {renderProviderMetadataChip(knowledgeResult)}
                             {knowledgeResult.related_tags?.length > 0 && (
                               <div className="flex flex-wrap gap-1 pt-1">
@@ -1988,11 +1988,11 @@ function AppContent() {
                                 {knowledgeResult.sources.map((src, i) => (
                                   <div
                                     key={i}
-                                    className="flex items-center gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm"
+                                    className="flex items-start gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full sm:max-w-[280px]"
                                   >
-                                    <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0" />
-                                    <div>
-                                      <div className="text-[10px] font-bold text-slate-300 truncate max-w-[180px]">{src.title || src.label}</div>
+                                    <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
+                                    <div className="min-w-0">
+                                      <div className="text-[10px] font-bold text-slate-300 break-words max-w-[160px] sm:max-w-[200px]">{src.title || src.label}</div>
                                       <div className="text-[9px] text-slate-500 font-mono">
                                         {src.page_number ? `Page ${src.page_number}` : ''}
                                         {src.page_number && src.similarity_score ? ' · ' : ''}
