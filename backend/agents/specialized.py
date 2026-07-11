@@ -53,9 +53,9 @@ class ComplianceResponse(BaseModel):
     compliance_evidence: Optional[List[ComplianceEvidence]] = Field(default=None, description="Optional structured compliance evidence for explainable audit tracking.")
 
 class LessonsLearnedResponse(BaseModel):
-    lessons_extracted: List[str] = Field(..., description="Key learnings extracted from historical incident data.")
-    preventive_actions: List[str] = Field(..., description="Actions recommended to prevent a recurrence of these incidents.")
-    safety_recommendations: List[str] = Field(..., description="General safety recommendations based on learnings.")
+    lessons_extracted: List[str] = Field(..., description="Key engineering lessons learned. If no incident history exists, generate at least 3 industry best-practice lessons relevant to the asset type and category. NEVER return an empty list.")
+    preventive_actions: List[str] = Field(..., description="Concrete preventive actions to avoid failures. Always provide at least 3 specific actions.")
+    safety_recommendations: List[str] = Field(..., description="General safety recommendations. Always provide at least 3 specific recommendations.")
     graph_trace: Optional[GraphTrace] = Field(default=None, description="Dynamic graph trace mapping preventative actions to nodes.")
 
 class RiskResponse(BaseModel):
@@ -251,18 +251,50 @@ class LessonsLearnedAgent(BaseAgent):
     def execute(self, user_query: str, context_data: Dict[str, Any] = None) -> Dict[str, Any]:
         logger.info("Executing Lessons Learned Agent...")
         tag_number = context_data.get("tag_number") if context_data else None
-        
+
         details = {}
+        neighbors = {}
         if tag_number:
-            details = agent_tools.call_tool("read_asset_details", tag_number=tag_number)
-            
+            try:
+                details = agent_tools.call_tool("read_asset_details", tag_number=tag_number)
+            except Exception as e:
+                logger.warning(f"Lessons Agent: failed to fetch details for {tag_number}: {e}")
+            try:
+                neighbors = agent_tools.call_tool("read_asset_neighborhood", tag_number=tag_number, depth=1)
+            except Exception as e:
+                logger.warning(f"Lessons Agent: failed to fetch neighbors for {tag_number}: {e}")
+
+        # Extract structured history for richer LLM context
+        incidents = details.get("incidents", [])
+        maintenance = details.get("maintenance_logs", [])
+        compliance = details.get("compliance_records", [])
+        asset_name = details.get("name", tag_number)
+        asset_category = details.get("category", "Unknown")
+        asset_status = details.get("status", "Unknown")
+        neighbor_tags = [n.get("name", "") for n in neighbors.get("nodes", []) if n.get("name") != tag_number]
+
         prompt = (
-            f"Task: Extract preventive safety checklists and warnings.\n"
+            f"Task: Extract key lessons learned, preventive actions, and safety recommendations for asset {tag_number}.\n"
             f"Scope/Query: {user_query}\n\n"
-            f"HISTORY RECORDS:\n"
-            f"- Asset failures & work logs: {details}\n"
+            f"ASSET PROFILE:\n"
+            f"- Tag: {tag_number}, Name: {asset_name}, Category: {asset_category}, Status: {asset_status}\n"
+            f"- Connected assets: {neighbor_tags}\n\n"
+            f"INCIDENT HISTORY ({len(incidents)} records):\n"
+            f"{incidents}\n\n"
+            f"MAINTENANCE LOG ({len(maintenance)} records):\n"
+            f"{maintenance}\n\n"
+            f"COMPLIANCE RECORDS ({len(compliance)} records):\n"
+            f"{compliance}\n\n"
+            f"INSTRUCTION:\n"
+            f"You MUST populate ALL THREE output fields: lessons_extracted, preventive_actions, and safety_recommendations.\n"
+            f"Each field must contain AT LEAST 3 specific items. Empty arrays are not acceptable.\n"
+            f"For lessons_extracted: write concrete engineering lessons such as 'Lesson 1: High-temperature coke oven assets require ...', "
+            f"drawing from incident history if available, or from industry best practices for {asset_category} equipment if no incidents exist.\n"
+            f"For preventive_actions: list specific scheduled checks and procedures for this asset type.\n"
+            f"For safety_recommendations: provide OSHA/industrial safety standards relevant to {asset_category} assets.\n"
+            f"Always be specific — mention the asset tag {tag_number}, category {asset_category}, and status {asset_status} in your reasoning.\n"
         )
-        
+
         return self.execute_llm(prompt, tag_number=tag_number)
 
 class RiskAgent(BaseAgent):
