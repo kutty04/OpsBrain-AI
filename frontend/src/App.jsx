@@ -388,6 +388,7 @@ function AppContent() {
   const [loadingExecutive, setLoadingExecutive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [seedMessage, setSeedMessage] = useState(null); // Non-blocking seed status toast
 
   // Ingestion File State
   const [selectedFile, setSelectedFile] = useState(null);
@@ -1293,7 +1294,8 @@ function AppContent() {
                 try {
                   setLoadingAssets(true);
                   const res = await fetchAPI('/demo/seed-vizag', { method: 'POST' });
-                  alert("Successfully seeded Vizag Steel Coke Oven Battery dataset!");
+                  setSeedMessage({ type: 'success', text: 'Vizag demo seeded successfully.' });
+                  setTimeout(() => setSeedMessage(null), 4000);
                   
                   // Reload datasets
                   await loadAssets();
@@ -1305,7 +1307,8 @@ function AppContent() {
                     setSelectedAssetTag(res.data.assets[0].tag_number);
                   }
                 } catch (err) {
-                  alert("Failed to seed scenario: " + err.message);
+                  setSeedMessage({ type: 'error', text: 'Seed failed: ' + err.message });
+                  setTimeout(() => setSeedMessage(null), 5000);
                 } finally {
                   setLoadingAssets(false);
                 }
@@ -1315,6 +1318,12 @@ function AppContent() {
           >
             Seed Vizag Steel
           </button>
+          
+          {seedMessage && (
+            <div className={`w-full text-xs px-2 py-1 rounded-md mt-1 font-medium transition-all ${seedMessage.type === 'success' ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`}>
+              {seedMessage.text}
+            </div>
+          )}
           
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] font-semibold text-slate-400">Live Alarms</span>
