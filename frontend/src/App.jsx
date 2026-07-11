@@ -1697,6 +1697,61 @@ function AppContent() {
                           </div>
                         )}
                         <p className="text-sm text-slate-300 leading-relaxed font-medium">{complianceAgentResult.findings}</p>
+
+                        {/* Explainable Compliance Evidence Section */}
+                        <div className="mt-4 pt-4 border-t border-slate-800/60 space-y-3">
+                          <div className="text-[10px] text-fuchsia-400/80 uppercase font-black tracking-widest font-mono">
+                            Explainable Compliance Evidence
+                          </div>
+                          {complianceAgentResult.compliance_evidence && complianceAgentResult.compliance_evidence.length > 0 ? (
+                            <div className="space-y-3">
+                              {complianceAgentResult.compliance_evidence.map((ev, idx) => (
+                                <div key={idx} className="p-3 bg-slate-950/40 border border-slate-800/40 rounded-lg space-y-2 text-xs">
+                                  <div className="flex justify-between items-start gap-2 flex-wrap">
+                                    <div>
+                                      <span className="font-bold text-slate-300">Asset:</span> <span className="font-mono text-cyan-400 bg-cyan-500/10 px-1 py-0.5 rounded">{ev.affected_asset || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex gap-2 text-[9px] font-mono">
+                                      <span className="text-rose-400 border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.2 rounded uppercase">{ev.severity || 'Medium'}</span>
+                                      <span className="text-slate-400 border border-slate-500/20 bg-slate-500/10 px-1.5 py-0.2 rounded uppercase">Confidence: {ev.confidence || 'High'}</span>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-slate-400">Issue:</span> <span className="text-slate-200">{ev.issue || 'Compliance review required'}</span>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] bg-slate-900/30 p-2 rounded">
+                                    <div>
+                                      <span className="text-slate-500 font-medium">Observed Value:</span> <span className="font-bold text-slate-300">{ev.observed_value || 'N/A'} {ev.unit || ''}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500 font-medium">Allowed Threshold:</span> <span className="font-bold text-emerald-400">{ev.allowed_threshold || 'N/A'} {ev.unit || ''}</span>
+                                    </div>
+                                  </div>
+                                  <div className="text-[11px] text-slate-400">
+                                    <span className="text-slate-500 font-medium">Source Document:</span> <span className="italic text-slate-300">{ev.source_document || 'N/A'}</span> 
+                                    {ev.citation && <span className="text-slate-500 text-[10px] ml-1">({ev.citation})</span>}
+                                  </div>
+                                  {ev.recommended_action && (
+                                    <div className="pt-1.5 border-t border-slate-800/60">
+                                      <span className="font-bold text-emerald-400 block mb-0.5">Recommended Action:</span>
+                                      <p className="text-slate-300 text-[11px] leading-relaxed">{ev.recommended_action}</p>
+                                    </div>
+                                  )}
+                                  {ev.why_it_matters && (
+                                    <div className="text-[10px] text-slate-500 italic">
+                                      * {ev.why_it_matters}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[11px] text-slate-500 font-mono italic">
+                              No structured compliance evidence returned for this run.
+                            </div>
+                          )}
+                        </div>
+
                         {renderProviderMetadataChip(complianceAgentResult)}
                       </div>
                     )}

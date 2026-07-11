@@ -165,6 +165,10 @@ export default function EvaluationDashboard() {
               <span className="font-semibold text-slate-300">Audit Rule Verification</span>
               <span className="text-[10px] text-emerald-400 font-bold border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded">PASSED</span>
             </div>
+            <div className="flex justify-between items-center p-2 bg-slate-950/40 border border-[var(--border-color)] rounded-md">
+              <span className="font-semibold text-slate-300">Explainable Compliance Flags</span>
+              <span className="text-[10px] text-emerald-400 font-bold border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded">AVAILABLE</span>
+            </div>
           </div>
         </div>
 
