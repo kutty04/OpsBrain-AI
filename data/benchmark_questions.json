@@ -148,5 +148,25 @@
     "expected_assets": ["COB-1", "PSV-202"],
     "difficulty": "hard",
     "evaluation_focus": "Checks topological isolation and instrumentation containment audit capability."
+  },
+  {
+    "id": "BQ-018",
+    "category": "Asset relationship",
+    "question": "What asset does PT-301 measure in the refinery pump station?",
+    "expected_answer_summary": "PT-301 measures P-101 discharge pressure or Feed Transfer Pump pressure.",
+    "expected_sources": ["refinery_pump_station_sop.txt"],
+    "expected_assets": ["PT-301", "P-101"],
+    "difficulty": "easy",
+    "evaluation_focus": "Validates refinery pump station instrumentation measurement relationships."
+  },
+  {
+    "id": "BQ-019",
+    "category": "Compliance threshold",
+    "question": "What should be checked when P-101 discharge pressure reaches 18 bar?",
+    "expected_answer_summary": "Check VLV-201 blockage/opening status, verify PT-301 calibration, and inspect M-101 motor load.",
+    "expected_sources": ["refinery_pump_station_sop.txt"],
+    "expected_assets": ["P-101", "VLV-201", "PT-301", "M-101"],
+    "difficulty": "medium",
+    "evaluation_focus": "Validates refinery pump station high-pressure causal inspection mapping."
   }
 ]

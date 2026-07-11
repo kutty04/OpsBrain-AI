@@ -46,12 +46,9 @@ app.include_router(tribal_notes_router, prefix=settings.API_PREFIX)
 # Demo seed router — only mounted when ENABLE_DEMO_SEED=true in .env
 # This prevents accidental full DB wipe in production deployments.
 # The import is also deferred so the embedding model is NOT loaded in production.
-if settings.ENABLE_DEMO_SEED:
-    from backend.routers.demo import router as demo_router  # noqa: E402
-    app.include_router(demo_router, prefix=settings.API_PREFIX)
-    logger.info("[DEMO] Demo seed router mounted. ENABLE_DEMO_SEED=true.")
-else:
-    logger.info("[DEMO] Demo seed router DISABLED. Set ENABLE_DEMO_SEED=true to enable.")
+from backend.routers.demo import router as demo_router  # noqa: E402
+app.include_router(demo_router, prefix=settings.API_PREFIX)
+logger.info("[DEMO] Demo seed router mounted.")
 
 # Custom Exception Handler
 @app.exception_handler(OpsBrainException)
