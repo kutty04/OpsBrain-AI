@@ -165,6 +165,8 @@ const renderProviderMetadataChip = (result) => {
   );
 };
 
+const ENABLE_INVESTIGATION_HUD = false;
+
 function AppContent() {
   const [theme, setTheme] = useState('slate');
   const [apiStatus, setApiStatus] = useState('healthy');
@@ -173,31 +175,75 @@ function AppContent() {
   // ── AI Runtime & Fallback Monitor Telemetry States ────────────────────────
   const [isMonitorOpen, setIsMonitorOpen] = useState(false);
   const [telemetry, setTelemetry] = useState({
-    groq: { reqs: 0, errs: 0, totalLatency: 0, status: 'ONLINE' },
-    gemini: { reqs: 0, errs: 0, totalLatency: 0, status: 'ONLINE' },
-    mistral: { reqs: 0, errs: 0, totalLatency: 0, status: 'ONLINE' },
+    groq: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+    gemini: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+    mistral: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
     promptCacheHits: 0,
     searchCacheHits: 0,
-    telemetryStream: 'DISCONNECTED'
+    telemetryStream: 'IDLE'
   });
   const [fallbackLogs, setFallbackLogs] = useState([]);
   const [lastCopilotQuery, setLastCopilotQuery] = useState('');
+
+  const handleClearTelemetry = async () => {
+    try {
+      const res = await fetchAPI('/health');
+      const providers = res.data?.providers || {};
+      setTelemetry(prev => ({
+        groq: { reqs: 0, errs: 0, totalLatency: 0, status: providers.groq ? 'IDLE' : 'NOT CONFIGURED' },
+        gemini: { reqs: 0, errs: 0, totalLatency: 0, status: providers.gemini ? 'IDLE' : 'NOT CONFIGURED' },
+        mistral: { reqs: 0, errs: 0, totalLatency: 0, status: providers.mistral ? 'IDLE' : 'NOT CONFIGURED' },
+        promptCacheHits: 0,
+        searchCacheHits: 0,
+        telemetryStream: prev.telemetryStream
+      }));
+    } catch (e) {
+      setTelemetry(prev => ({
+        groq: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+        gemini: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+        mistral: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+        promptCacheHits: 0,
+        searchCacheHits: 0,
+        telemetryStream: prev.telemetryStream
+      }));
+    }
+    setFallbackLogs([]);
+  };
+
+  useEffect(() => {
+    const initTelemetryConfig = async () => {
+      try {
+        const res = await fetchAPI('/health');
+        if (res.success && res.data && res.data.providers) {
+          setTelemetry(prev => {
+            let updated = { ...prev };
+            Object.keys(res.data.providers).forEach(prov => {
+              if (updated[prov]) {
+                const isConfigured = res.data.providers[prov];
+                updated[prov] = {
+                  ...updated[prov],
+                  status: isConfigured ? 'IDLE' : 'NOT CONFIGURED'
+                };
+              }
+            });
+            return updated;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to retrieve telemetry configuration:', err);
+      }
+    };
+    initTelemetryConfig();
+  }, []);
 
   const fetchAPI = async (url, options) => {
     const start = performance.now();
     let provider = null;
 
-    // Detect provider based on API route
+    // Detect default provider based on API route (only used for fallback/errors before metadata arrives)
     if (url.includes('/pid/parse')) provider = 'gemini';
     else if (url.includes('/agents/rca') || url.includes('/agents/risk') || url.includes('/agents/compliance') || url.includes('/agents/lessons-learned')) provider = 'groq';
-    else if (url.includes('/agents/knowledge')) provider = 'groq'; // defaults to Groq as the router
-
-    if (provider) {
-      setTelemetry(prev => ({
-        ...prev,
-        [provider]: { ...prev[provider], reqs: prev[provider].reqs + 1 }
-      }));
-    }
+    else if (url.includes('/agents/knowledge')) provider = 'groq';
 
     try {
       const res = await originalFetchAPI(url, options);
@@ -219,6 +265,7 @@ function AppContent() {
             if (mappedProv !== used && updated[mappedProv]) {
               updated[mappedProv] = {
                 ...updated[mappedProv],
+                reqs: updated[mappedProv].reqs + 1,
                 errs: updated[mappedProv].errs + 1,
                 status: 'DEGRADED'
               };
@@ -264,6 +311,7 @@ function AppContent() {
 
             updated[provider] = {
               ...updated[provider],
+              reqs: updated[provider].reqs + 1,
               totalLatency: updated[provider].totalLatency + latency,
               status: nextStatus
             };
@@ -278,7 +326,6 @@ function AppContent() {
       const latency = performance.now() - start;
       const timestamp = new Date().toLocaleTimeString();
 
-      // Log fallback/failure events
       const actionName = url.split('/').pop();
       const failedProvider = provider || 'unknown';
       const logMsg = `[${timestamp}] Provider ${failedProvider.toUpperCase()} (${actionName}) failed: ${err.message || 'Network error'}`;
@@ -287,12 +334,14 @@ function AppContent() {
 
       if (provider) {
         setTelemetry(prev => {
+          const nextReqs = prev[provider].reqs + 1;
           const nextErrs = prev[provider].errs + 1;
-          const nextStatus = nextErrs >= prev[provider].reqs ? 'OFFLINE' : 'DEGRADED';
+          const nextStatus = nextErrs >= nextReqs ? 'OFFLINE' : 'DEGRADED';
           return {
             ...prev,
             [provider]: {
               ...prev[provider],
+              reqs: nextReqs,
               errs: nextErrs,
               totalLatency: prev[provider].totalLatency + latency,
               status: nextStatus
@@ -365,12 +414,15 @@ function AppContent() {
 
   const [riskAgentResult, setRiskAgentResult] = useState(null);
   const [riskAgentLoading, setRiskAgentLoading] = useState(false);
+  const [riskAgentError, setRiskAgentError] = useState(null);
 
   const [complianceAgentResult, setComplianceAgentResult] = useState(null);
   const [complianceAgentLoading, setComplianceAgentLoading] = useState(false);
+  const [complianceAgentError, setComplianceAgentError] = useState(null);
 
   const [lessonsResult, setLessonsResult] = useState(null);
   const [lessonsLoading, setLessonsLoading] = useState(false);
+  const [lessonsError, setLessonsError] = useState(null);
 
   // ── AI Investigation Mode State ──────────────────────────────────────────
   const [isInvestigating, setIsInvestigating] = useState(false);
@@ -489,7 +541,7 @@ function AppContent() {
   // Live Telemetry EventSource Connection
   useEffect(() => {
     if (!liveAlarmsActive) {
-      setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
+      setTelemetry(prev => ({ ...prev, telemetryStream: 'IDLE' }));
       return;
     }
 
@@ -580,17 +632,17 @@ function AppContent() {
 
       eventSource.onerror = (err) => {
         console.error("Telemetry EventSource error. Falling back to local simulation.", err);
-        setTelemetry(prev => ({ ...prev, telemetryStream: 'FALLBACK_LOCAL' }));
+        setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
         triggerLocalAlarmFallback();
       };
     } catch (err) {
       console.error("Failed to initialize EventSource. Falling back to local simulation.", err);
-      setTelemetry(prev => ({ ...prev, telemetryStream: 'FALLBACK_LOCAL' }));
+      setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
       triggerLocalAlarmFallback();
     }
 
     return () => {
-      setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
+      setTelemetry(prev => ({ ...prev, telemetryStream: 'IDLE' }));
       if (eventSource) {
         eventSource.close();
         if (eventSource.localInterval) {
@@ -767,153 +819,180 @@ function AppContent() {
     setRcaError(null);
     setRcaResult(null);
 
-    const apiPromise = fetchAPI('/agents/rca', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Investigate and determine the root cause of the most recent failure or active incident.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'rca', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/rca', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Investigate and determine the root cause of the most recent failure or active incident.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setRcaResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
       } catch (err) {
-        setRcaError(err.message || 'RCA Agent failed.');
+        setRcaError(err.message || 'RCA analysis failed. Please retry.');
       } finally {
         setRcaLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'rca', runCall);
+    } else {
+      runCall();
+    }
   };
 
   const runRiskAgent = async () => {
     if (!selectedAssetTag) return;
     setRiskAgentLoading(true);
+    setRiskAgentError(null);
     setRiskAgentResult(null);
 
-    const apiPromise = fetchAPI('/agents/risk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Calculate the current risk profile including all incident, compliance and maintenance factors.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'risk', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/risk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Calculate the current risk profile including all incident, compliance and maintenance factors.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setRiskAgentResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
         loadAssetDetails(selectedAssetTag);
         loadExecutiveData();
       } catch (err) {
-        console.error('Risk Agent error:', err);
+        setRiskAgentError(err.message || 'Risk analysis failed. Please retry.');
       } finally {
         setRiskAgentLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'risk', runCall);
+    } else {
+      runCall();
+    }
   };
 
   const runComplianceAgent = async () => {
     if (!selectedAssetTag) return;
     setComplianceAgentLoading(true);
+    setComplianceAgentError(null);
     setComplianceAgentResult(null);
 
-    const apiPromise = fetchAPI('/agents/compliance', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Assess current regulatory and safety compliance status against all applicable regulations.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'compliance', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/compliance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Assess current regulatory and safety compliance status against all applicable regulations.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setComplianceAgentResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
       } catch (err) {
-        console.error('Compliance Agent error:', err);
+        setComplianceAgentError(err.message || 'Compliance analysis failed. Please retry.');
       } finally {
         setComplianceAgentLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'compliance', runCall);
+    } else {
+      runCall();
+    }
   };
 
   const runLessonsLearnedAgent = async () => {
     if (!selectedAssetTag) return;
     setLessonsLoading(true);
+    setLessonsError(null);
     setLessonsResult(null);
 
-    const apiPromise = fetchAPI('/agents/lessons-learned', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Extract key lessons learned from failure history and generate preventive safety checklists.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'lessons', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/lessons-learned', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Extract key lessons learned from failure history and generate preventive safety checklists.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setLessonsResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
       } catch (err) {
-        console.error('Lessons Learned Agent error:', err);
+        setLessonsError(err.message || 'Lessons extraction failed. Please retry.');
       } finally {
         setLessonsLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'lessons', runCall);
+    } else {
+      runCall();
+    }
   };
 
   // Clear agent results when selected asset changes
@@ -1476,7 +1555,45 @@ function AppContent() {
                         </button>
                       </div>
                       {rcaError && (
-                        <p className="mt-2 text-xs text-rose-400">{rcaError}</p>
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          RCA analysis failed: {rcaError} Please retry.
+                        </div>
+                      )}
+                      {riskAgentError && (
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          Risk analysis failed: {riskAgentError} Please retry.
+                        </div>
+                      )}
+                      {complianceAgentError && (
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          Compliance analysis failed: {complianceAgentError} Please retry.
+                        </div>
+                      )}
+                      {lessonsError && (
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          Lessons extraction failed: {lessonsError} Please retry.
+                        </div>
+                      )}
+
+                      {rcaLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-rose-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Running RCA analysis...
+                        </div>
+                      )}
+                      {riskAgentLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-orange-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Running Risk Score calculation...
+                        </div>
+                      )}
+                      {complianceAgentLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-fuchsia-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Running Compliance safety audit...
+                        </div>
+                      )}
+                      {lessonsLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Extracting Lessons learned...
+                        </div>
                       )}
                     </div>
 
@@ -2082,12 +2199,20 @@ function AppContent() {
                   <span className="text-[9px] font-mono text-slate-500 normal-case font-normal lowercase">— monitor LLM latency and fallback routing</span>
                 </h2>
               </div>
-              <button
-                onClick={() => setIsMonitorOpen(false)}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleClearTelemetry}
+                  className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg transition"
+                >
+                  Clear Logs
+                </button>
+                <button
+                  onClick={() => setIsMonitorOpen(false)}
+                  className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             {/* Providers Grid */}
@@ -2194,6 +2319,7 @@ function AppContent() {
               <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">SCADA Telemetry Stream (SSE)</span>
               <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase ${
                 telemetry.telemetryStream === 'CONNECTED' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+                : telemetry.telemetryStream === 'DISCONNECTED' ? 'text-rose-400 border-rose-500/30 bg-rose-500/10'
                 : telemetry.telemetryStream === 'FALLBACK_LOCAL' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10'
                 : 'text-slate-500 border-slate-500/30 bg-slate-500/10'
               }`}>
@@ -2237,7 +2363,7 @@ function AppContent() {
       )}
 
       {/* AI Traversal Auditing Engine Viewport HUD Overlay */}
-      {isInvestigating && (
+      {isInvestigating && ENABLE_INVESTIGATION_HUD && (
         <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-8 animate-backdrop-in">
           <div className="w-full max-w-4xl max-h-[70vh] bg-slate-900 border border-[var(--accent-ai)]/30 rounded-lg flex flex-col p-6 font-mono text-xs shadow-2xl relative overflow-hidden card-premium animate-modal-in">
             {renderCadCorners()}

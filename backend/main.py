@@ -89,7 +89,12 @@ async def health_check():
         "data": {
             "status": "healthy",
             "project": settings.PROJECT_NAME,
-            "version": "1.0.0"
+            "version": "1.0.0",
+            "providers": {
+                "groq": bool(settings.GROQ_API_KEY),
+                "gemini": bool(settings.GEMINI_API_KEY),
+                "mistral": bool(settings.MISTRAL_API_KEY)
+            }
         }
     }
 

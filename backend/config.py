@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str
     MISTRAL_API_KEY: str = ""
 
+    # Provider routing order (comma-separated, e.g. "gemini,groq,mistral")
+    AI_PROVIDER_ORDER: str = "gemini,groq,mistral"
+
     # Supabase / DB Configurations
     SUPABASE_URL: str
     SUPABASE_KEY: str
