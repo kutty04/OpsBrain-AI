@@ -173,7 +173,45 @@ async def seed_vizag_coke_oven_scenario():
 
         conn.commit()
         cur.close()
+        release_db_connection(conn)
+        conn = None
         logger.info("Vizag Coke Oven Battery scenario successfully seeded and indexed!")
+
+        # 10. Seed Tribal Knowledge Notes (Phase 5A) - safely isolated
+        notes_conn = get_db_connection()
+        try:
+            notes_cur = notes_conn.cursor()
+            notes_cur.execute("""
+                CREATE TABLE IF NOT EXISTS tribal_knowledge_notes (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    asset_tag VARCHAR(50) NOT NULL,
+                    note_text TEXT NOT NULL,
+                    source_type VARCHAR(100) DEFAULT 'Field Note',
+                    author_role VARCHAR(100),
+                    confidence VARCHAR(100),
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+                );
+            """)
+            notes_cur.execute("TRUNCATE TABLE tribal_knowledge_notes CASCADE;")
+            
+            demo_notes = [
+                ("PSV-202", "During monsoon, valve response becomes sticky after long idle time. Inspect actuator before restart.", "Field Note", "Senior Technician", "Operator observed"),
+                ("GCM-104", "Night shift operators report pressure drift when upstream charging rhythm changes rapidly.", "Field Note", "Shift Engineer", "Repeated field observation"),
+                ("COB-1", "Door seal wear is usually noticed first as short smoke bursts during charging cycles.", "Field Note", "Maintenance Supervisor", "Maintenance experience")
+            ]
+            for tag, text, st, role, conf in demo_notes:
+                notes_cur.execute(
+                    "INSERT INTO tribal_knowledge_notes (asset_tag, note_text, source_type, author_role, confidence) VALUES (%s, %s, %s, %s, %s);",
+                    (tag, text, st, role, conf)
+                )
+            notes_conn.commit()
+            notes_cur.close()
+            logger.info("Demo tribal knowledge notes seeded successfully.")
+        except Exception as e:
+            logger.warning(f"Failed to seed tribal knowledge notes (non-fatal): {e}")
+            notes_conn.rollback()
+        finally:
+            release_db_connection(notes_conn)
 
         # Load all assets back to return in response
         seeded_assets = assets_repo.get_all_assets()

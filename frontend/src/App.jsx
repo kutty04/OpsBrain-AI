@@ -422,6 +422,15 @@ function AppContent() {
   const [lessonsLoading, setLessonsLoading] = useState(false);
   const [lessonsError, setLessonsError] = useState(null);
 
+  // ── Phase 5A: Tribal Knowledge / Field Notes ────────────────────────────
+  const [tribalNotes, setTribalNotes] = useState([]);
+  const [tribalNotesLoading, setTribalNotesLoading] = useState(false);
+  const [tribalNoteText, setTribalNoteText] = useState('');
+  const [tribalNoteRole, setTribalNoteRole] = useState('');
+  const [tribalNoteConf, setTribalNoteConf] = useState('');
+  const [tribalNoteSaving, setTribalNoteSaving] = useState(false);
+  const [tribalNoteSaveError, setTribalNoteSaveError] = useState(null);
+
   // ── AI Investigation Mode State ──────────────────────────────────────────
   const [isInvestigating, setIsInvestigating] = useState(false);
   const [investigationStep, setInvestigationStep] = useState(0);
@@ -490,6 +499,50 @@ function AppContent() {
     }
   };
 
+  // Load tribal knowledge notes for the selected asset
+  const loadTribalNotes = async (tag) => {
+    if (!tag) return;
+    setTribalNotesLoading(true);
+    try {
+      const res = await fetchAPI(`/tribal-notes?asset_tag=${encodeURIComponent(tag)}`);
+      setTribalNotes(res.data || []);
+    } catch (err) {
+      console.error('Tribal notes load error:', err);
+      setTribalNotes([]);
+    } finally {
+      setTribalNotesLoading(false);
+    }
+  };
+
+  // Save a new tribal knowledge note
+  const saveTribalNote = async () => {
+    if (!tribalNoteText.trim() || !selectedAssetTag || tribalNoteSaving) return;
+    setTribalNoteSaving(true);
+    setTribalNoteSaveError(null);
+    try {
+      await fetchAPI('/tribal-notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_tag: selectedAssetTag,
+          note_text: tribalNoteText.trim(),
+          source_type: 'Field Note',
+          author_role: tribalNoteRole.trim() || null,
+          confidence: tribalNoteConf.trim() || null,
+        }),
+      });
+      setTribalNoteText('');
+      setTribalNoteRole('');
+      setTribalNoteConf('');
+      await loadTribalNotes(selectedAssetTag);
+    } catch (err) {
+      console.error('Tribal note save error:', err);
+      setTribalNoteSaveError('Failed to save field note. Please try again.');
+    } finally {
+      setTribalNoteSaving(false);
+    }
+  };
+
   // Load documents
   const loadDocuments = async () => {
     setLoadingDocs(true);
@@ -533,6 +586,12 @@ function AppContent() {
     if (selectedAssetTag) {
       setActiveGraphTrace(null);
       loadAssetDetails(selectedAssetTag);
+      loadTribalNotes(selectedAssetTag);
+      setTribalNotes([]);
+      setTribalNoteText('');
+      setTribalNoteRole('');
+      setTribalNoteConf('');
+      setTribalNoteSaveError(null);
     }
   }, [selectedAssetTag]);
 
@@ -1796,7 +1855,88 @@ function AppContent() {
                       </div>
                     </div>
 
+                    {/* P5A: Tribal Knowledge / Field Notes */}
+                    <div className={`p-5 bg-[var(--bg-card)] border border-amber-900/30 rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                      {renderCadCorners()}
+                      <div className="flex flex-wrap justify-between items-center gap-2">
+                        <h4 className="font-bold text-amber-400/90 text-sm flex items-center gap-2 uppercase tracking-wider">
+                          <BookOpen className="h-4 w-4 flex-shrink-0" /> Tribal Knowledge / Field Notes
+                        </h4>
+                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex-shrink-0">[SYS_FIELD_NOTES // {selectedAssetTag}]</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-medium italic">Capture informal operational knowledge from technicians and engineers. Not yet connected to Copilot RAG (Phase 5A).</p>
+
+                      {/* Existing Notes */}
+                      {tribalNotesLoading ? (
+                        <div className="flex items-center gap-2 text-xs text-slate-500 py-2">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Loading field notes...
+                        </div>
+                      ) : tribalNotes.length === 0 ? (
+                        <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg text-xs text-slate-500 italic text-center">
+                          No field notes captured for this asset yet.
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                          {tribalNotes.map((note) => (
+                            <div key={note.id} className="p-3 bg-slate-950/50 border border-amber-900/20 rounded-lg space-y-1.5">
+                              <p className="text-xs text-slate-200 leading-relaxed break-words">{note.note_text}</p>
+                              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-500 font-mono">
+                                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded font-bold">{note.source_type}</span>
+                                {note.author_role && <span>👤 {note.author_role}</span>}
+                                {note.confidence && <span>📊 {note.confidence}</span>}
+                                {note.created_at && <span className="text-slate-600">{new Date(note.created_at).toLocaleDateString()}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Add New Note Form */}
+                      <div className="border-t border-[var(--border-color)]/60 pt-3 space-y-2">
+                        <div className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Add Field Note</div>
+                        <textarea
+                          value={tribalNoteText}
+                          onChange={(e) => setTribalNoteText(e.target.value)}
+                          placeholder="Describe what you observed in the field..."
+                          rows={3}
+                          className="w-full px-3 py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 resize-none"
+                        />
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={tribalNoteRole}
+                            onChange={(e) => setTribalNoteRole(e.target.value)}
+                            placeholder="Role (optional, e.g. Senior Technician)"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/30"
+                          />
+                          <input
+                            type="text"
+                            value={tribalNoteConf}
+                            onChange={(e) => setTribalNoteConf(e.target.value)}
+                            placeholder="Confidence (optional)"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/30"
+                          />
+                          <button
+                            type="button"
+                            onClick={saveTribalNote}
+                            disabled={tribalNoteSaving || !tribalNoteText.trim()}
+                            className="w-full sm:w-auto px-4 py-1.5 min-h-[36px] bg-amber-500/80 hover:bg-amber-500 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0"
+                          >
+                            {tribalNoteSaving ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                            {tribalNoteSaving ? 'Saving...' : 'Save Note'}
+                          </button>
+                        </div>
+                        {tribalNoteSaveError && (
+                          <div className="p-2.5 bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs rounded-lg flex items-center gap-2">
+                            <AlertOctagon className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{tribalNoteSaveError}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     {/* P3: Lessons Learned Result */}
+
                     {lessonsResult && (
                       <div className={`p-5 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-4 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
