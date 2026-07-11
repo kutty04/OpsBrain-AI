@@ -815,6 +815,7 @@ function AppContent() {
 
   const runRCAAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setRcaLoading(true);
     setRcaError(null);
     setRcaResult(null);
@@ -860,6 +861,7 @@ function AppContent() {
 
   const runRiskAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setRiskAgentLoading(true);
     setRiskAgentError(null);
     setRiskAgentResult(null);
@@ -887,8 +889,6 @@ function AppContent() {
         if (ENABLE_INVESTIGATION_HUD) {
           await new Promise(r => setTimeout(r, 800));
         }
-        loadAssetDetails(selectedAssetTag);
-        loadExecutiveData();
       } catch (err) {
         setRiskAgentError(err.message || 'Risk analysis failed. Please retry.');
       } finally {
@@ -907,6 +907,7 @@ function AppContent() {
 
   const runComplianceAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setComplianceAgentLoading(true);
     setComplianceAgentError(null);
     setComplianceAgentResult(null);
@@ -952,6 +953,7 @@ function AppContent() {
 
   const runLessonsLearnedAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setLessonsLoading(true);
     setLessonsError(null);
     setLessonsResult(null);
@@ -1519,8 +1521,9 @@ function AppContent() {
                       <div className="flex flex-wrap gap-2">
                         {/* Run RCA */}
                         <button
-                          onClick={runRCAAgent}
-                          disabled={rcaLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRCAAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition disabled:opacity-50"
                         >
                           {rcaLoading ? <Loader className="h-3 w-3 animate-spin" /> : <AlertOctagon className="h-3 w-3" />}
@@ -1528,8 +1531,9 @@ function AppContent() {
                         </button>
                         {/* Run Risk */}
                         <button
-                          onClick={runRiskAgent}
-                          disabled={riskAgentLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRiskAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 transition disabled:opacity-50"
                         >
                           {riskAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
@@ -1537,8 +1541,9 @@ function AppContent() {
                         </button>
                         {/* Run Compliance */}
                         <button
-                          onClick={runComplianceAgent}
-                          disabled={complianceAgentLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runComplianceAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/20 transition disabled:opacity-50"
                         >
                           {complianceAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
@@ -1546,8 +1551,9 @@ function AppContent() {
                         </button>
                         {/* Lessons Learned */}
                         <button
-                          onClick={runLessonsLearnedAgent}
-                          disabled={lessonsLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runLessonsLearnedAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition disabled:opacity-50"
                         >
                           {lessonsLoading ? <Loader className="h-3 w-3 animate-spin" /> : <BookOpen className="h-3 w-3" />}
