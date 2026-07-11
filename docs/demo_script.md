@@ -47,11 +47,19 @@ This script guides the presenter step-by-step through a professional, high-impac
 
 ---
 
-### 🎬 Scene 6: Evaluation Dashboard & Conclusion (3:45 - 4:15)
-*   **What to do:** Close the monitor modal. Click the **"Evaluation & Benchmarks"** tab in the sidebar.
-*   **What to click:** Close modal button `X`, then **"Evaluation & Benchmarks"** tab.
+### 🎬 Scene 6: Scalability Proof (3:45 - 4:15)
+*   **What to do:** In the sidebar, click the **"Seed Refinery Demo"** button. Accept the confirmation dialog.
+*   **What to click:** **"Seed Refinery Demo"** button.
 *   **Narration:**
-    > *"We conclude with our Evaluation Dashboard. OpsBrain delivers 97.8% entity parsing accuracy on blueprints, and slashes safety retrieval lookups from 35 minutes to 1.8 seconds—a 99.9% operational efficiency gain. OpsBrain AI transforms coking battery management, ensuring zero-harm operations through graph-aware safety intelligence. Thank you."*
+    > *"To demonstrate the portability of our architecture, we click 'Seed Refinery Demo' in our presentation controls. This clean-wipes the Vizag Steel Coke Oven Battery data and seeds a completely different facility—the Refinery Pump Station. Without changing any database schemas, router configurations, or agent code, the Digital Twin dynamically renders 7 pump station assets (such as P-101 and TK-501) on the ReactFlow canvas, proving the plant-agnostic scalability of our digital twin system."*
+
+---
+
+### 🎬 Scene 7: Evaluation Dashboard & Conclusion (4:15 - 4:45)
+*   **What to do:** Select **"Evaluation & Benchmarks"** tab in the sidebar.
+*   **What to click:** **"Evaluation & Benchmarks"** tab.
+*   **Narration:**
+    > *"We conclude with our Evaluation Dashboard. OpsBrain delivers 97.8% entity parsing accuracy on blueprints, and slashes safety retrieval lookups from 35 minutes to 1.8 seconds—a 99.9% operational efficiency gain. OpsBrain AI transforms industrial management, ensuring zero-harm operations through graph-aware safety intelligence. Thank you."*
 
 ---
 

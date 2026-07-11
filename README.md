@@ -82,6 +82,7 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 | **🛡️ Compliance Auditor** | Automatic regulatory checks | Checks live metrics against vector-stored regulatory safety guidelines (e.g. OISD standards). |
 | **📚 Lessons Learned** | Preventive safety checklists | Extracts specific guidelines from past work orders and failures to guide active maintenance tasks. |
 | **🔀 AI Provider Router** | Multi-provider LLM failover | Routes text agents (Groq→Mistral→Gemini), RAG queries, and P&ID vision to the best available provider with circuit-breaker protection. |
+| **🏭 Refinery Pump Station Demo** | Plant scalability proof | Exposes an optional dataset button in the sidebar (styled in neutral amber) to demonstrate database schema and topology scaling to other facilities with zero code changes. |
 | **📊 Evaluation & Benchmarks** | Transparent performance metrics | Displays entity extraction accuracy, graph linkage completeness, answer quality, and compliance detection rates against seeded Vizag demo data. |
 | **📡 AI Runtime Monitor** | Live telemetry audit modal | Tracks request rates, model latencies, token cache stats, fallback events, and provider health. |
 
@@ -244,6 +245,7 @@ Open `http://localhost:3000` in your web browser.
 4.  **Query Copilot:** Type *"Why is COB-1 at critical risk?"* in the search interface to inspect vector-grounded citations.
 5.  **Audit API Performance:** Click the green **API STATUS** indicator in the top header to review active latency logs and fallback events.
 6.  **View Benchmarks:** Click **Evaluation & Benchmarks** in the sidebar to view entity extraction accuracy, graph linkage completeness, compliance detection rates, and time-to-answer metrics based on the seeded Vizag demo dataset.
+7.  **Test Scalability (Refinery Demo):** Click **"Seed Refinery Demo"** in the sidebar. Accept the confirmation to clean-wipe Vizag data and load the Refinery Pump Station dataset. Switch to the **Digital Twin** tab to verify that the topology graph renders 7 pump station assets (e.g., P-101, TK-501) on the ReactFlow canvas, proving that all database models and agent routing scale seamlessly.
 
 ---
 
