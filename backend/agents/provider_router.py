@@ -28,7 +28,9 @@ def coerce_to_schema(data: Dict[str, Any], schema: Any) -> Dict[str, Any]:
     preventing validation errors from LLM output inconsistencies.
     """
     # 1. Normalize confidence float
-    if "confidence" in data:
+    if "confidence" not in data or data["confidence"] is None or data["confidence"] == "":
+        data["confidence"] = 0.8
+    else:
         try:
             val = data["confidence"]
             if isinstance(val, str):
@@ -54,6 +56,16 @@ def coerce_to_schema(data: Dict[str, Any], schema: Any) -> Dict[str, Any]:
         else:
             if "affected_nodes" not in gt or not isinstance(gt["affected_nodes"], list):
                 gt["affected_nodes"] = []
+            else:
+                cleaned_nodes = []
+                for node in gt["affected_nodes"]:
+                    if isinstance(node, str):
+                        cleaned_nodes.append(node)
+                    elif isinstance(node, dict):
+                        val = node.get("node_id") or node.get("id") or node.get("tag") or node.get("tag_number") or node.get("name") or node.get("label") or (list(node.values())[0] if node.values() else None)
+                        if val:
+                            cleaned_nodes.append(str(val))
+                gt["affected_nodes"] = cleaned_nodes
             if "affected_edges" not in gt or not isinstance(gt["affected_edges"], list):
                 gt["affected_edges"] = []
             else:
@@ -78,8 +90,29 @@ def coerce_to_schema(data: Dict[str, Any], schema: Any) -> Dict[str, Any]:
                 gt["affected_edges"] = cleaned_edges
             if "reasoning_steps" not in gt or not isinstance(gt["reasoning_steps"], list):
                 gt["reasoning_steps"] = []
+            else:
+                cleaned_steps = []
+                for step in gt["reasoning_steps"]:
+                    if isinstance(step, str):
+                        cleaned_steps.append(step)
+                    elif isinstance(step, dict):
+                        val = step.get("step") or step.get("log") or step.get("text") or (list(step.values())[0] if step.values() else None)
+                        if val:
+                            cleaned_steps.append(str(val))
+                gt["reasoning_steps"] = cleaned_steps
+
             if "evidence_refs" not in gt or not isinstance(gt["evidence_refs"], list):
                 gt["evidence_refs"] = []
+            else:
+                cleaned_refs = []
+                for ref in gt["evidence_refs"]:
+                    if isinstance(ref, str):
+                        cleaned_refs.append(ref)
+                    elif isinstance(ref, dict):
+                        val = ref.get("ref") or ref.get("document") or ref.get("file") or (list(ref.values())[0] if ref.values() else None)
+                        if val:
+                            cleaned_refs.append(str(val))
+                gt["evidence_refs"] = cleaned_refs
 
     # 4. Fill missing or invalid required fields
     for field_name, field_def in schema.model_fields.items():
@@ -106,12 +139,16 @@ def coerce_to_schema(data: Dict[str, Any], schema: Any) -> Dict[str, Any]:
                     data[field_name] = "Medium"
                 elif field_name == "severity_assessment":
                     data[field_name] = "Medium"
+                elif field_name == "confidence":
+                    data[field_name] = 0.8
                 else:
                     data[field_name] = ""
         else:
             # Validate types for list fields
-            if field_name in ["related_tags", "contributing_factors", "suggested_mitigations", "lessons_extracted", "preventive_actions", "safety_recommendations"]:
-                if not isinstance(data[field_name], list):
+            if field_name in ["violations", "related_tags", "contributing_factors", "suggested_mitigations", "lessons_extracted", "preventive_actions", "safety_recommendations"]:
+                if not data[field_name]:
+                    data[field_name] = []
+                elif not isinstance(data[field_name], list):
                     data[field_name] = [str(data[field_name])]
             elif field_name == "calculated_score":
                 try:

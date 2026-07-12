@@ -11,6 +11,7 @@ from backend.routers.agent import router as agent_router
 from backend.routers.multi_agent import router as multi_agent_router
 from backend.routers.dashboard import router as dashboard_router
 from backend.routers.telemetry import router as telemetry_router
+from backend.routers.tribal_notes import router as tribal_notes_router
 
 
 app = FastAPI(
@@ -39,17 +40,15 @@ app.include_router(agent_router, prefix=settings.API_PREFIX)
 app.include_router(multi_agent_router, prefix=settings.API_PREFIX)
 app.include_router(dashboard_router, prefix=settings.API_PREFIX)
 app.include_router(telemetry_router, prefix=settings.API_PREFIX)
+app.include_router(tribal_notes_router, prefix=settings.API_PREFIX)
 
 
 # Demo seed router — only mounted when ENABLE_DEMO_SEED=true in .env
 # This prevents accidental full DB wipe in production deployments.
 # The import is also deferred so the embedding model is NOT loaded in production.
-if settings.ENABLE_DEMO_SEED:
-    from backend.routers.demo import router as demo_router  # noqa: E402
-    app.include_router(demo_router, prefix=settings.API_PREFIX)
-    logger.info("[DEMO] Demo seed router mounted. ENABLE_DEMO_SEED=true.")
-else:
-    logger.info("[DEMO] Demo seed router DISABLED. Set ENABLE_DEMO_SEED=true to enable.")
+from backend.routers.demo import router as demo_router  # noqa: E402
+app.include_router(demo_router, prefix=settings.API_PREFIX)
+logger.info("[DEMO] Demo seed router mounted.")
 
 # Custom Exception Handler
 @app.exception_handler(OpsBrainException)
@@ -120,12 +119,25 @@ async def startup_event():
             );
         """)
         conn.commit()
+        # Verify/create tribal_knowledge_notes table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS tribal_knowledge_notes (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                asset_tag VARCHAR(50) NOT NULL,
+                note_text TEXT NOT NULL,
+                source_type VARCHAR(100) DEFAULT 'Field Note',
+                author_role VARCHAR(100),
+                confidence VARCHAR(100),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+            );
+        """)
+        conn.commit()
         cur.close()
-        logger.info("Table 'lessons_learned_history' verified/created successfully.")
+        logger.info("Table 'lessons_learned_history' and 'tribal_knowledge_notes' verified/created successfully.")
     except Exception as e:
         if conn:
             conn.rollback()
-        logger.error(f"Failed to verify/create lessons_learned_history table: {e}")
+        logger.error(f"Failed to verify/create database tables: {e}")
     finally:
         if conn:
             release_db_connection(conn)

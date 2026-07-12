@@ -1,0 +1,10 @@
+Environmental Emissions Excerpt
+
+[PROTOTYPE BENCHMARK REFERENCE - NOT A SUBSTITUTE FOR CERTIFIED COMPLIANCE REVIEW]
+
+Title: Coke Oven Emissions and Visible Smoke Event Logging
+Source Type: Public Validation Sample Excerpt
+Relevant Asset Examples: COB-1 (Coke Oven Battery), STACK-1 (Emission Stack)
+Threshold/Rule Examples: Visible smoke emissions from oven doors or charge holes must not exceed 3 minutes cumulative in any 2-hour window. Any emission event exceeding 5 minutes continuous must be logged immediately. Cumulative emissions exceeding 15 minutes per day trigger regulatory non-compliance.
+Why It Matters: Excessive leakage of coke oven gas containing particulates and volatile organic compounds violates environmental air quality limits and carries severe financial penalties.
+Expected OpsBrain Use Case: Used to validate that the Compliance agent properly tags visible leakages as non-compliant based on cumulative duration thresholds.

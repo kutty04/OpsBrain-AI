@@ -1,0 +1,10 @@
+OISD Coke Oven Safety Excerpt
+
+[PROTOTYPE BENCHMARK REFERENCE - NOT A SUBSTITUTE FOR CERTIFIED COMPLIANCE REVIEW]
+
+Title: Coke Oven Gas Collector Safety and Pressure Limits
+Source Type: Public Validation Sample Excerpt
+Relevant Asset Examples: COB-1 (Coke Oven Battery), GCM-104 (Gas Collector Main), PSV-202 (Safety Valve)
+Threshold/Rule Examples: The operating pressure of the gas collector main (GCM-104) must be maintained between 10 mmWC and 15 mmWC under normal operations. Any deviation exceeding 25 mmWC triggers automated warnings. Pressure must not exceed the structural limit of 35 mmWC to prevent raw emissions.
+Why It Matters: Incorrect collector main pressure leads to structural leakages, toxic gas release, or hazardous air ingress, posing severe explosion and environmental hazards.
+Expected OpsBrain Use Case: Used to validate that the RAG pipeline correctly retrieves pressure limits and explains safety actions when GCM-104 exhibits unstable pressure.

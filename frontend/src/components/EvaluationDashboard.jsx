@@ -165,9 +165,55 @@ export default function EvaluationDashboard() {
               <span className="font-semibold text-slate-300">Audit Rule Verification</span>
               <span className="text-[10px] text-emerald-400 font-bold border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded">PASSED</span>
             </div>
+            <div className="flex justify-between items-center p-2 bg-slate-950/40 border border-[var(--border-color)] rounded-md">
+              <span className="font-semibold text-slate-300">Explainable Compliance Flags</span>
+              <span className="text-[10px] text-emerald-400 font-bold border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 rounded">AVAILABLE</span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-slate-950/40 border border-amber-500/10 rounded-md">
+              <span className="font-semibold text-amber-300/80">Tribal Knowledge Capture</span>
+              <span className="text-[10px] text-amber-400 font-bold border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 rounded">AVAILABLE</span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-slate-950/40 border border-amber-500/10 rounded-md">
+              <span className="font-semibold text-amber-300/80">Tribal Knowledge Retrieval</span>
+              <span className="text-[10px] text-amber-400 font-bold border border-amber-500/20 bg-amber-500/10 px-2 py-0.5 rounded">AVAILABLE</span>
+            </div>
           </div>
         </div>
 
+      </div>
+
+      {/* Validation & Benchmark Readiness */}
+      <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium">
+        {renderCadCorners()}
+        <div className="flex justify-between items-center border-b border-[var(--border-color)]/60 pb-3 mb-2">
+          <div className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-[var(--accent-primary)]" />
+            Validation & Benchmark Readiness
+          </div>
+          <span className="text-[9px] font-mono text-emerald-400 font-bold border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 rounded uppercase">
+            Prototype benchmark ready
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg">
+            <span className="text-[9px] text-slate-500 block uppercase font-bold">Public Validation Samples</span>
+            <span className="text-xl font-black font-mono text-slate-200">3</span>
+            <span className="text-[9px] text-slate-500 block mt-1 font-medium italic">OSHA, OISD & Environmental Excerpts</span>
+          </div>
+          <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg">
+            <span className="text-[9px] text-slate-500 block uppercase font-bold">Benchmark Questions</span>
+            <span className="text-xl font-black font-mono text-slate-200">15</span>
+            <span className="text-[9px] text-slate-500 block mt-1 font-medium italic">BQ-001 to BQ-015 Dataset</span>
+          </div>
+          <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg">
+            <span className="text-[9px] text-slate-500 block uppercase font-bold">Categories Covered</span>
+            <span className="text-xl font-black font-mono text-slate-200">5</span>
+            <span className="text-[9px] text-slate-500 block mt-1 font-medium italic">Lookup, RCA, Compliance, Graph, Maintenance</span>
+          </div>
+        </div>
+        <div className="text-[9px] text-slate-500 font-mono italic">
+          * Warning: Paraphrased prototype benchmark references only. Not a substitute for certified compliance review.
+        </div>
       </div>
 
       {/* Note about benchmarking */}

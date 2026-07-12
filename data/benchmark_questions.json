@@ -1,0 +1,172 @@
+[
+  {
+    "id": "BQ-001",
+    "category": "Document lookup",
+    "question": "What is the normal pressure range for GCM-104?",
+    "expected_answer_summary": "The normal operating pressure range is between 10 mmWC and 15 mmWC.",
+    "expected_sources": ["oisd_coke_oven_safety_excerpt.txt"],
+    "expected_assets": ["GCM-104"],
+    "difficulty": "easy",
+    "evaluation_focus": "Validates exact retrieval of numeric range thresholds from safety documentation."
+  },
+  {
+    "id": "BQ-002",
+    "category": "Asset relationship",
+    "question": "How does COB-1 connect to GCM-104 in the knowledge graph?",
+    "expected_answer_summary": "COB-1 (Coke Oven Battery #1) feeds gas into GCM-104 (Gas Collector Main).",
+    "expected_sources": ["graph_topology"],
+    "expected_assets": ["COB-1", "GCM-104"],
+    "difficulty": "easy",
+    "evaluation_focus": "Checks topological edge and directional path extraction between parent and child nodes."
+  },
+  {
+    "id": "BQ-003",
+    "category": "RCA reasoning",
+    "question": "What should be checked if GCM-104 pressure is unstable?",
+    "expected_answer_summary": "Check for door seals, safety valve (PSV-202) malfunction, and mechanical integrity of GCM-104.",
+    "expected_sources": ["oisd_coke_oven_safety_excerpt.txt"],
+    "expected_assets": ["GCM-104", "PSV-202"],
+    "difficulty": "medium",
+    "evaluation_focus": "Evaluates causal analysis reasoning linking anomalous symptoms to specific inspection tasks."
+  },
+  {
+    "id": "BQ-004",
+    "category": "Compliance threshold",
+    "question": "What compliance issue is triggered by prolonged smoke emission?",
+    "expected_answer_summary": "Visible smoke emissions must not exceed 3 minutes cumulative in a 2-hour window, or 15 minutes per day.",
+    "expected_sources": ["environmental_emissions_excerpt.txt"],
+    "expected_assets": ["COB-1", "STACK-1"],
+    "difficulty": "medium",
+    "evaluation_focus": "Verifies correct threshold matching of event durations against local regulatory limits."
+  },
+  {
+    "id": "BQ-005",
+    "category": "Maintenance action",
+    "question": "Which maintenance action should be recommended before restarting after a high-pressure event?",
+    "expected_answer_summary": "Perform a physical inspection of safety valve PSV-202 and recalibrate GCM-104 pressure sensors.",
+    "expected_sources": ["oisd_coke_oven_safety_excerpt.txt"],
+    "expected_assets": ["PSV-202", "GCM-104"],
+    "difficulty": "hard",
+    "evaluation_focus": "Tests ability to recommend proactive maintenance steps to clear a safety risk before restarting."
+  },
+  {
+    "id": "BQ-006",
+    "category": "Safety procedure",
+    "question": "Which asset protects against overpressure?",
+    "expected_answer_summary": "Safety valve PSV-202 protects the gas collector main from pressure exceeding limits.",
+    "expected_sources": ["oisd_coke_oven_safety_excerpt.txt"],
+    "expected_assets": ["PSV-202"],
+    "difficulty": "easy",
+    "evaluation_focus": "Validates identification of safety instrumentation and relief devices in the topology."
+  },
+  {
+    "id": "BQ-007",
+    "category": "Evidence/citation behavior",
+    "question": "What evidence should the Copilot cite when explaining a pressure deviation?",
+    "expected_answer_summary": "It should cite the specific section of the Coke Oven Safety Excerpt (OISD) and active sensor readings.",
+    "expected_sources": ["oisd_coke_oven_safety_excerpt.txt"],
+    "expected_assets": ["GCM-104"],
+    "difficulty": "medium",
+    "evaluation_focus": "Assesses strict provenance mapping to confirm the LLM lists exact document sources in answers."
+  },
+  {
+    "id": "BQ-008",
+    "category": "Field technician style query",
+    "question": "What is the difference between a maintenance finding and a compliance gap?",
+    "expected_answer_summary": "A maintenance finding is a physical defect (e.g. wear), while a compliance gap is a violation of a policy or standard.",
+    "expected_sources": ["osha_process_safety_excerpt.txt"],
+    "expected_assets": ["CC-101"],
+    "difficulty": "hard",
+    "evaluation_focus": "Checks understanding of industrial vocabulary and standard operational safety terms."
+  },
+  {
+    "id": "BQ-009",
+    "category": "Document lookup",
+    "question": "How quickly must an incident investigation be initiated after a torque limit spike on CC-101 according to OSHA guidelines?",
+    "expected_answer_summary": "An incident investigation must be initiated within 48 hours.",
+    "expected_sources": ["osha_process_safety_excerpt.txt"],
+    "expected_assets": ["CC-101"],
+    "difficulty": "easy",
+    "evaluation_focus": "Confirms timeline parameter lookup in process safety regulations."
+  },
+  {
+    "id": "BQ-010",
+    "category": "Asset relationship",
+    "question": "Which asset feeds coal to Coke Oven Battery #1 (COB-1)?",
+    "expected_answer_summary": "The Coal Charging Car (CC-101) feeds coal blends directly into COB-1.",
+    "expected_sources": ["graph_topology"],
+    "expected_assets": ["CC-101", "COB-1"],
+    "difficulty": "easy",
+    "evaluation_focus": "Checks topological connection logic of material flow dependencies."
+  },
+  {
+    "id": "BQ-011",
+    "category": "RCA reasoning",
+    "question": "What are the common root causes of a torque limit spike on the Coal Charging Car CC-101?",
+    "expected_answer_summary": "Gearbox lubrication failures, bearing wear, mechanical binding, or incorrect PID gains.",
+    "expected_sources": ["osha_process_safety_excerpt.txt"],
+    "expected_assets": ["CC-101"],
+    "difficulty": "medium",
+    "evaluation_focus": "Checks diagnostic capabilities matching sensor alarms to potential mechanical faults."
+  },
+  {
+    "id": "BQ-012",
+    "category": "Compliance threshold",
+    "question": "What is the pressure limit warning threshold for the Gas Collector Main GCM-104?",
+    "expected_answer_summary": "Pressure deviations exceeding 25 mmWC trigger warning alerts.",
+    "expected_sources": ["oisd_coke_oven_safety_excerpt.txt"],
+    "expected_assets": ["GCM-104"],
+    "difficulty": "medium",
+    "evaluation_focus": "Validates extraction of warning and secondary threshold boundaries."
+  },
+  {
+    "id": "BQ-013",
+    "category": "Maintenance action",
+    "question": "How often must equipment mechanical integrity audits be performed under OSHA process safety guidelines?",
+    "expected_answer_summary": "Mechanical integrity audits must be performed annually.",
+    "expected_sources": ["osha_process_safety_excerpt.txt"],
+    "expected_assets": ["CC-101", "CP-102"],
+    "difficulty": "easy",
+    "evaluation_focus": "Validates lookup of recurring safety inspection schedules."
+  },
+  {
+    "id": "BQ-014",
+    "category": "Safety procedure",
+    "question": "What is the cumulative daily limit of visible smoke emissions before causing non-compliance?",
+    "expected_answer_summary": "Cumulative visible smoke emissions must not exceed 15 minutes per day.",
+    "expected_sources": ["environmental_emissions_excerpt.txt"],
+    "expected_assets": ["COB-1", "STACK-1"],
+    "difficulty": "medium",
+    "evaluation_focus": "Evaluates cumulative emissions threshold checks."
+  },
+  {
+    "id": "BQ-015",
+    "category": "Field technician style query",
+    "question": "What safety valves are installed on Coke Oven Battery #1?",
+    "expected_answer_summary": "Safety valve PSV-202 is installed to protect GCM-104 connected to COB-1.",
+    "expected_sources": ["graph_topology"],
+    "expected_assets": ["COB-1", "PSV-202"],
+    "difficulty": "hard",
+    "evaluation_focus": "Checks topological isolation and instrumentation containment audit capability."
+  },
+  {
+    "id": "BQ-018",
+    "category": "Asset relationship",
+    "question": "What asset does PT-301 measure in the refinery pump station?",
+    "expected_answer_summary": "PT-301 measures P-101 discharge pressure or Feed Transfer Pump pressure.",
+    "expected_sources": ["refinery_pump_station_sop.txt"],
+    "expected_assets": ["PT-301", "P-101"],
+    "difficulty": "easy",
+    "evaluation_focus": "Validates refinery pump station instrumentation measurement relationships."
+  },
+  {
+    "id": "BQ-019",
+    "category": "Compliance threshold",
+    "question": "What should be checked when P-101 discharge pressure reaches 18 bar?",
+    "expected_answer_summary": "Check VLV-201 blockage/opening status, verify PT-301 calibration, and inspect M-101 motor load.",
+    "expected_sources": ["refinery_pump_station_sop.txt"],
+    "expected_assets": ["P-101", "VLV-201", "PT-301", "M-101"],
+    "difficulty": "medium",
+    "evaluation_focus": "Validates refinery pump station high-pressure causal inspection mapping."
+  }
+]

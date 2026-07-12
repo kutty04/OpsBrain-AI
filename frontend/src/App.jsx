@@ -148,14 +148,12 @@ const renderProviderMetadataChip = (result) => {
   } else if (meta.provider_used === 'extractive_fallback') {
     text = 'Extractive fallback: generated from retrieved document evidence';
     colorClass = 'text-amber-400 border-amber-500/30 bg-amber-500/10';
-  } else if (meta.fallback_used) {
-    const formattedName = meta.provider_used.charAt(0).toUpperCase() + meta.provider_used.slice(1);
-    text = `Answered using fallback provider: ${formattedName}`;
-    colorClass = 'text-amber-400 border-amber-500/30 bg-amber-500/10';
   } else {
+    // All live providers (Gemini, Groq, Mistral) — show as green AI Source
     const formattedName = meta.provider_used.charAt(0).toUpperCase() + meta.provider_used.slice(1);
-    text = `AI Source: ${formattedName} (${meta.latency_ms ? `${meta.latency_ms}ms` : 'online'})`;
-    colorClass = 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10';
+    const latency = meta.latency_ms ? `${meta.latency_ms}ms` : 'live';
+    text = `AI Source: ${formattedName} (${latency})`;
+    colorClass = 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
   }
 
   return (
@@ -390,6 +388,9 @@ function AppContent() {
   const [loadingExecutive, setLoadingExecutive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [seedMessage, setSeedMessage] = useState(null); // Non-blocking seed status toast
+  const [activeDataset, setActiveDataset] = useState('vizag'); // 'vizag' | 'refinery'
+  const [seedingDataset, setSeedingDataset] = useState(false); // prevent concurrent seed calls
 
   // Ingestion File State
   const [selectedFile, setSelectedFile] = useState(null);
@@ -423,6 +424,15 @@ function AppContent() {
   const [lessonsResult, setLessonsResult] = useState(null);
   const [lessonsLoading, setLessonsLoading] = useState(false);
   const [lessonsError, setLessonsError] = useState(null);
+
+  // ── Phase 5A: Tribal Knowledge / Field Notes ────────────────────────────
+  const [tribalNotes, setTribalNotes] = useState([]);
+  const [tribalNotesLoading, setTribalNotesLoading] = useState(false);
+  const [tribalNoteText, setTribalNoteText] = useState('');
+  const [tribalNoteRole, setTribalNoteRole] = useState('');
+  const [tribalNoteConf, setTribalNoteConf] = useState('');
+  const [tribalNoteSaving, setTribalNoteSaving] = useState(false);
+  const [tribalNoteSaveError, setTribalNoteSaveError] = useState(null);
 
   // ── AI Investigation Mode State ──────────────────────────────────────────
   const [isInvestigating, setIsInvestigating] = useState(false);
@@ -492,6 +502,50 @@ function AppContent() {
     }
   };
 
+  // Load tribal knowledge notes for the selected asset
+  const loadTribalNotes = async (tag) => {
+    if (!tag) return;
+    setTribalNotesLoading(true);
+    try {
+      const res = await fetchAPI(`/tribal-notes?asset_tag=${encodeURIComponent(tag)}`);
+      setTribalNotes(res.data || []);
+    } catch (err) {
+      console.error('Tribal notes load error:', err);
+      setTribalNotes([]);
+    } finally {
+      setTribalNotesLoading(false);
+    }
+  };
+
+  // Save a new tribal knowledge note
+  const saveTribalNote = async () => {
+    if (!tribalNoteText.trim() || !selectedAssetTag || tribalNoteSaving) return;
+    setTribalNoteSaving(true);
+    setTribalNoteSaveError(null);
+    try {
+      await fetchAPI('/tribal-notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_tag: selectedAssetTag,
+          note_text: tribalNoteText.trim(),
+          source_type: 'Field Note',
+          author_role: tribalNoteRole.trim() || null,
+          confidence: tribalNoteConf.trim() || null,
+        }),
+      });
+      setTribalNoteText('');
+      setTribalNoteRole('');
+      setTribalNoteConf('');
+      await loadTribalNotes(selectedAssetTag);
+    } catch (err) {
+      console.error('Tribal note save error:', err);
+      setTribalNoteSaveError('Failed to save field note. Please try again.');
+    } finally {
+      setTribalNoteSaving(false);
+    }
+  };
+
   // Load documents
   const loadDocuments = async () => {
     setLoadingDocs(true);
@@ -535,6 +589,12 @@ function AppContent() {
     if (selectedAssetTag) {
       setActiveGraphTrace(null);
       loadAssetDetails(selectedAssetTag);
+      loadTribalNotes(selectedAssetTag);
+      setTribalNotes([]);
+      setTribalNoteText('');
+      setTribalNoteRole('');
+      setTribalNoteConf('');
+      setTribalNoteSaveError(null);
     }
   }, [selectedAssetTag]);
 
@@ -815,6 +875,7 @@ function AppContent() {
 
   const runRCAAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setRcaLoading(true);
     setRcaError(null);
     setRcaResult(null);
@@ -860,6 +921,7 @@ function AppContent() {
 
   const runRiskAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setRiskAgentLoading(true);
     setRiskAgentError(null);
     setRiskAgentResult(null);
@@ -887,8 +949,6 @@ function AppContent() {
         if (ENABLE_INVESTIGATION_HUD) {
           await new Promise(r => setTimeout(r, 800));
         }
-        loadAssetDetails(selectedAssetTag);
-        loadExecutiveData();
       } catch (err) {
         setRiskAgentError(err.message || 'Risk analysis failed. Please retry.');
       } finally {
@@ -907,6 +967,7 @@ function AppContent() {
 
   const runComplianceAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setComplianceAgentLoading(true);
     setComplianceAgentError(null);
     setComplianceAgentResult(null);
@@ -952,6 +1013,7 @@ function AppContent() {
 
   const runLessonsLearnedAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setLessonsLoading(true);
     setLessonsError(null);
     setLessonsResult(null);
@@ -1228,34 +1290,107 @@ function AppContent() {
             Hackathon Mode
           </div>
           
+          {/* Phase 6B: Active Dataset Label */}
+          <div className="flex items-center gap-1.5 px-1">
+            <span className="text-[9px] uppercase font-black tracking-widest text-slate-500">Active Dataset:</span>
+            <span className={`text-[9px] font-bold uppercase tracking-wide ${activeDataset === 'refinery' ? 'text-amber-400' : 'text-[var(--accent-primary)]'}`}>
+              {activeDataset === 'refinery' ? 'Refinery Pump Station' : 'Vizag Steel Coke Oven'}
+            </span>
+          </div>
+
+          {/* Seed Vizag button */}
           <button
+            type="button"
+            disabled={seedingDataset}
             onClick={async () => {
               if (confirm("Reset database and seed Vizag Steel Coke Oven Battery dataset?")) {
                 try {
+                  setSeedingDataset(true);
                   setLoadingAssets(true);
+                  setSelectedAssetDetails(null);
+                  setIsInvestigating(false);
+                  setInvestigationStep(0);
+                  setInvestigationLogs([]);
+                  // Reset any in-flight agent loading states to clean slate
+                  setRcaLoading(false); setRcaResult(null); setRcaError(null);
+                  setRiskAgentLoading(false); setRiskAgentResult(null); setRiskAgentError(null);
+                  setComplianceAgentLoading(false); setComplianceAgentResult(null); setComplianceAgentError(null);
+                  setLessonsLoading(false); setLessonsResult(null); setLessonsError(null);
                   const res = await fetchAPI('/demo/seed-vizag', { method: 'POST' });
-                  alert("Successfully seeded Vizag Steel Coke Oven Battery dataset!");
-                  
-                  // Reload datasets
+                  setActiveDataset('vizag');
+                  setSeedMessage({ type: 'success', text: 'Vizag demo seeded successfully.' });
+                  setTimeout(() => setSeedMessage(null), 4000);
                   await loadAssets();
                   await loadExecutiveData();
-                  
-                  // Switch to Executive view
                   setActiveTab('executive');
                   if (res.data && res.data.assets && res.data.assets.length > 0) {
                     setSelectedAssetTag(res.data.assets[0].tag_number);
                   }
                 } catch (err) {
-                  alert("Failed to seed scenario: " + err.message);
+                  setSeedMessage({ type: 'error', text: 'Seed failed: ' + err.message });
+                  setTimeout(() => setSeedMessage(null), 5000);
                 } finally {
                   setLoadingAssets(false);
+                  setSeedingDataset(false);
                 }
               }
             }}
-            className="w-full py-1.5 px-3 bg-[var(--bg-pill)] hover:bg-[var(--bg-pill)]/20 text-[var(--accent-primary)] border border-[var(--border-pill)] hover:border-[var(--accent-primary)] rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5"
+            className="w-full py-1.5 px-3 bg-[var(--bg-pill)] hover:bg-[var(--bg-pill)]/20 text-[var(--accent-primary)] border border-[var(--border-pill)] hover:border-[var(--accent-primary)] rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Seed Vizag Steel
+            {seedingDataset && activeDataset !== 'refinery' ? 'Seeding...' : 'Seed Vizag Steel'}
           </button>
+
+          {/* Phase 6B: Seed Refinery Demo button */}
+          <button
+            type="button"
+            disabled={seedingDataset}
+            onClick={async () => {
+              if (confirm("Switch to Refinery Pump Station scalability demo? This will replace Vizag data.")) {
+                try {
+                  setSeedingDataset(true);
+                  setLoadingAssets(true);
+                  setSelectedAssetDetails(null);
+                  setSelectedAssetTag(null);
+                  setIsInvestigating(false);
+                  setInvestigationStep(0);
+                  setInvestigationLogs([]);
+                  // Reset any in-flight agent loading states to clean slate
+                  setRcaLoading(false); setRcaResult(null); setRcaError(null);
+                  setRiskAgentLoading(false); setRiskAgentResult(null); setRiskAgentError(null);
+                  setComplianceAgentLoading(false); setComplianceAgentResult(null); setComplianceAgentError(null);
+                  setLessonsLoading(false); setLessonsResult(null); setLessonsError(null);
+                  await fetchAPI('/demo/seed-refinery', { method: 'POST' });
+                  setActiveDataset('refinery');
+                  setSeedMessage({ type: 'success', text: 'Refinery Pump Station demo seeded.' });
+                  setTimeout(() => setSeedMessage(null), 4000);
+                  await loadAssets();
+                  await loadExecutiveData();
+                  setActiveTab('twin');
+                } catch (err) {
+                  setSeedMessage({ type: 'error', text: 'Refinery seed failed: ' + err.message });
+                  setTimeout(() => setSeedMessage(null), 5000);
+                } finally {
+                  setLoadingAssets(false);
+                  setSeedingDataset(false);
+                }
+              }
+            }}
+            className="w-full py-1.5 px-3 bg-amber-900/30 hover:bg-amber-900/50 text-amber-400 border border-amber-800/50 hover:border-amber-600 rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {seedingDataset && activeDataset !== 'vizag' ? 'Seeding...' : 'Seed Refinery Demo'}
+          </button>
+
+          {/* Phase 6B: Optional scalability note */}
+          <p className="text-[9px] text-slate-600 leading-tight px-1">
+            Optional scalability proof. Uses the same knowledge graph and asset schema on a second plant dataset.
+          </p>
+
+          {/* Seed toast */}
+          {seedMessage && (
+            <div className={`w-full text-xs px-2 py-1 rounded-md mt-1 font-medium transition-all ${seedMessage.type === 'success' ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`}>
+              {seedMessage.text}
+            </div>
+          )}
           
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] font-semibold text-slate-400">Live Alarms</span>
@@ -1519,8 +1654,9 @@ function AppContent() {
                       <div className="flex flex-wrap gap-2">
                         {/* Run RCA */}
                         <button
-                          onClick={runRCAAgent}
-                          disabled={rcaLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRCAAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition disabled:opacity-50"
                         >
                           {rcaLoading ? <Loader className="h-3 w-3 animate-spin" /> : <AlertOctagon className="h-3 w-3" />}
@@ -1528,8 +1664,9 @@ function AppContent() {
                         </button>
                         {/* Run Risk */}
                         <button
-                          onClick={runRiskAgent}
-                          disabled={riskAgentLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRiskAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 transition disabled:opacity-50"
                         >
                           {riskAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
@@ -1537,8 +1674,9 @@ function AppContent() {
                         </button>
                         {/* Run Compliance */}
                         <button
-                          onClick={runComplianceAgent}
-                          disabled={complianceAgentLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runComplianceAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/20 transition disabled:opacity-50"
                         >
                           {complianceAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
@@ -1546,8 +1684,9 @@ function AppContent() {
                         </button>
                         {/* Lessons Learned */}
                         <button
-                          onClick={runLessonsLearnedAgent}
-                          disabled={lessonsLoading}
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runLessonsLearnedAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition disabled:opacity-50"
                         >
                           {lessonsLoading ? <Loader className="h-3 w-3 animate-spin" /> : <BookOpen className="h-3 w-3" />}
@@ -1697,6 +1836,61 @@ function AppContent() {
                           </div>
                         )}
                         <p className="text-sm text-slate-300 leading-relaxed font-medium">{complianceAgentResult.findings}</p>
+
+                        {/* Explainable Compliance Evidence Section */}
+                        <div className="mt-4 pt-4 border-t border-slate-800/60 space-y-3">
+                          <div className="text-[10px] text-fuchsia-400/80 uppercase font-black tracking-widest font-mono">
+                            Explainable Compliance Evidence
+                          </div>
+                          {complianceAgentResult.compliance_evidence && complianceAgentResult.compliance_evidence.length > 0 ? (
+                            <div className="space-y-3">
+                              {complianceAgentResult.compliance_evidence.map((ev, idx) => (
+                                <div key={idx} className="p-3 bg-slate-950/40 border border-slate-800/40 rounded-lg space-y-2 text-xs">
+                                  <div className="flex justify-between items-start gap-2 flex-wrap">
+                                    <div>
+                                      <span className="font-bold text-slate-300">Asset:</span> <span className="font-mono text-cyan-400 bg-cyan-500/10 px-1 py-0.5 rounded">{ev.affected_asset || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex gap-2 text-[9px] font-mono">
+                                      <span className="text-rose-400 border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.2 rounded uppercase">{ev.severity || 'Medium'}</span>
+                                      <span className="text-slate-400 border border-slate-500/20 bg-slate-500/10 px-1.5 py-0.2 rounded uppercase">Confidence: {ev.confidence || 'High'}</span>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-slate-400">Issue:</span> <span className="text-slate-200">{ev.issue || 'Compliance review required'}</span>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] bg-slate-900/30 p-2 rounded">
+                                    <div>
+                                      <span className="text-slate-500 font-medium">Observed Value:</span> <span className="font-bold text-slate-300">{ev.observed_value || 'N/A'} {ev.unit || ''}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-500 font-medium">Allowed Threshold:</span> <span className="font-bold text-emerald-400">{ev.allowed_threshold || 'N/A'} {ev.unit || ''}</span>
+                                    </div>
+                                  </div>
+                                  <div className="text-[11px] text-slate-400">
+                                    <span className="text-slate-500 font-medium">Source Document:</span> <span className="italic text-slate-300">{ev.source_document || 'N/A'}</span> 
+                                    {ev.citation && <span className="text-slate-500 text-[10px] ml-1">({ev.citation})</span>}
+                                  </div>
+                                  {ev.recommended_action && (
+                                    <div className="pt-1.5 border-t border-slate-800/60">
+                                      <span className="font-bold text-emerald-400 block mb-0.5">Recommended Action:</span>
+                                      <p className="text-slate-300 text-[11px] leading-relaxed">{ev.recommended_action}</p>
+                                    </div>
+                                  )}
+                                  {ev.why_it_matters && (
+                                    <div className="text-[10px] text-slate-500 italic">
+                                      * {ev.why_it_matters}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-[11px] text-slate-500 font-mono italic">
+                              No structured compliance evidence returned for this run.
+                            </div>
+                          )}
+                        </div>
+
                         {renderProviderMetadataChip(complianceAgentResult)}
                       </div>
                     )}
@@ -1737,7 +1931,88 @@ function AppContent() {
                       </div>
                     </div>
 
+                    {/* P5A: Tribal Knowledge / Field Notes */}
+                    <div className={`p-5 bg-[var(--bg-card)] border border-amber-900/30 rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                      {renderCadCorners()}
+                      <div className="flex flex-wrap justify-between items-center gap-2">
+                        <h4 className="font-bold text-amber-400/90 text-sm flex items-center gap-2 uppercase tracking-wider">
+                          <BookOpen className="h-4 w-4 flex-shrink-0" /> Tribal Knowledge / Field Notes
+                        </h4>
+                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex-shrink-0">[SYS_FIELD_NOTES // {selectedAssetTag}]</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 font-medium italic">Capture informal operational knowledge from technicians and engineers. Not yet connected to Copilot RAG (Phase 5A).</p>
+
+                      {/* Existing Notes */}
+                      {tribalNotesLoading ? (
+                        <div className="flex items-center gap-2 text-xs text-slate-500 py-2">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Loading field notes...
+                        </div>
+                      ) : tribalNotes.length === 0 ? (
+                        <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg text-xs text-slate-500 italic text-center">
+                          No field notes captured for this asset yet.
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                          {tribalNotes.map((note) => (
+                            <div key={note.id} className="p-3 bg-slate-950/50 border border-amber-900/20 rounded-lg space-y-1.5">
+                              <p className="text-xs text-slate-200 leading-relaxed break-words">{note.note_text}</p>
+                              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-500 font-mono">
+                                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded font-bold">{note.source_type}</span>
+                                {note.author_role && <span>👤 {note.author_role}</span>}
+                                {note.confidence && <span>📊 {note.confidence}</span>}
+                                {note.created_at && <span className="text-slate-600">{new Date(note.created_at).toLocaleDateString()}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Add New Note Form */}
+                      <div className="border-t border-[var(--border-color)]/60 pt-3 space-y-2">
+                        <div className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Add Field Note</div>
+                        <textarea
+                          value={tribalNoteText}
+                          onChange={(e) => setTribalNoteText(e.target.value)}
+                          placeholder="Describe what you observed in the field..."
+                          rows={3}
+                          className="w-full px-3 py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 resize-none"
+                        />
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={tribalNoteRole}
+                            onChange={(e) => setTribalNoteRole(e.target.value)}
+                            placeholder="Role (optional, e.g. Senior Technician)"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/30"
+                          />
+                          <input
+                            type="text"
+                            value={tribalNoteConf}
+                            onChange={(e) => setTribalNoteConf(e.target.value)}
+                            placeholder="Confidence (optional)"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/30"
+                          />
+                          <button
+                            type="button"
+                            onClick={saveTribalNote}
+                            disabled={tribalNoteSaving || !tribalNoteText.trim()}
+                            className="w-full sm:w-auto px-4 py-1.5 min-h-[36px] bg-amber-500/80 hover:bg-amber-500 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0"
+                          >
+                            {tribalNoteSaving ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                            {tribalNoteSaving ? 'Saving...' : 'Save Note'}
+                          </button>
+                        </div>
+                        {tribalNoteSaveError && (
+                          <div className="p-2.5 bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs rounded-lg flex items-center gap-2">
+                            <AlertOctagon className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{tribalNoteSaveError}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     {/* P3: Lessons Learned Result */}
+
                     {lessonsResult && (
                       <div className={`p-5 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-4 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
@@ -1787,26 +2062,26 @@ function AppContent() {
                     {/* P1 + P4: Agent Knowledge Copilot Chat Panel */}
                     <div className={`p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       {renderCadCorners()}
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-bold text-[var(--accent-ai)] text-[16px] flex items-center gap-2 uppercase tracking-wider">
-                          <MessageSquare className="h-4.5 w-4.5" /> Knowledge Copilot
-                          <span className="text-[10px] font-normal text-slate-500 ml-1 lowercase normal-case">— Ask anything about safety SOPs, manuals, or failures</span>
+                      <div className="flex flex-wrap justify-between items-start gap-y-1">
+                        <h4 className="font-bold text-[var(--accent-ai)] text-[15px] sm:text-[16px] flex items-center gap-2 uppercase tracking-wider min-w-0">
+                          <MessageSquare className="h-4 w-4 flex-shrink-0" /> Knowledge Copilot
+                          <span className="text-[10px] font-normal text-slate-500 ml-1 lowercase normal-case hidden sm:inline">— Ask anything about safety SOPs, manuals, or failures</span>
                         </h4>
-                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">[SYS_KNOWLEDGE_RAG]</span>
+                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex-shrink-0">[SYS_KNOWLEDGE_RAG]</span>
                       </div>
 
-                      <form onSubmit={runKnowledgeAgent} className="flex gap-2">
+                      <form onSubmit={runKnowledgeAgent} className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           value={agentQuery}
                           onChange={(e) => setAgentQuery(e.target.value)}
-                          placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}... e.g. "Why is ${selectedAssetTag} at risk?"` : 'Select an asset first...'}
-                          className="flex-1 px-4 py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
+                          placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}...` : 'Select an asset first...'}
+                          className="w-full min-w-0 flex-1 px-4 py-2.5 sm:py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-[14px] sm:text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
                         />
                         <button
                           type="submit"
                           disabled={knowledgeLoading || !agentQuery.trim()}
-                          className="px-5 py-2 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center gap-1.5 flex-shrink-0 hover:shadow-md"
+                          className="w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0 hover:shadow-md"
                         >
                           {knowledgeLoading
                             ? <Loader className="h-4 w-4 animate-spin text-slate-950" />
@@ -1815,7 +2090,7 @@ function AppContent() {
                         </button>
                       </form>
 
-                      <div className="flex items-center gap-3 text-[9px] font-mono text-slate-500 uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-mono text-slate-500 uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
                         <span className="font-extrabold text-[var(--accent-ai)]">Powered by:</span>
                         <span>Groq LLM</span>
                         <span className="opacity-40">|</span>
@@ -1847,7 +2122,7 @@ function AppContent() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap font-medium">{knowledgeResult.answer}</p>
+                            <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap break-words font-medium">{knowledgeResult.answer}</p>
                             {renderProviderMetadataChip(knowledgeResult)}
                             {knowledgeResult.related_tags?.length > 0 && (
                               <div className="flex flex-wrap gap-1 pt-1">
@@ -1926,22 +2201,44 @@ function AppContent() {
                             <div className="space-y-2">
                               <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Source Citations</div>
                               <div className="flex flex-wrap gap-2">
-                                {knowledgeResult.sources.map((src, i) => (
-                                  <div
-                                    key={i}
-                                    className="flex items-center gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm"
-                                  >
-                                    <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0" />
-                                    <div>
-                                      <div className="text-[10px] font-bold text-slate-300 truncate max-w-[180px]">{src.title || src.label}</div>
-                                      <div className="text-[9px] text-slate-500 font-mono">
-                                        {src.page_number ? `Page ${src.page_number}` : ''}
-                                        {src.page_number && src.similarity_score ? ' · ' : ''}
-                                        {src.similarity_score ? `${Math.round(src.similarity_score * 100)}% match` : ''}
+                                {knowledgeResult.sources.map((src, i) => {
+                                  if (src.source_type === 'Field Note / Tribal Knowledge') {
+                                    return (
+                                      <div
+                                        key={i}
+                                        className="flex flex-col gap-1.5 p-3 bg-amber-500/5 border border-amber-500/25 rounded-lg shadow-sm w-full sm:max-w-[280px]"
+                                      >
+                                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-amber-400">
+                                          <BookOpen className="h-3.5 w-3.5 flex-shrink-0" />
+                                          <span>Field Note / Tribal Knowledge</span>
+                                        </div>
+                                        <div className="min-w-0 space-y-1">
+                                          <div className="text-[10px] font-bold text-slate-200">Asset: {src.asset_tag}</div>
+                                          {src.author_role && <div className="text-[9px] text-slate-400">Role: {src.author_role}</div>}
+                                          {src.confidence && <div className="text-[9px] text-slate-400">Confidence: {src.confidence}</div>}
+                                          <div className="text-[9px] text-slate-400 leading-normal italic line-clamp-3">"{src.note_text}"</div>
+                                        </div>
+                                      </div>
+                                    );
+                                  }
+
+                                  return (
+                                    <div
+                                      key={i}
+                                      className="flex items-start gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full sm:max-w-[280px]"
+                                    >
+                                      <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
+                                      <div className="min-w-0">
+                                        <div className="text-[10px] font-bold text-slate-300 break-words max-w-[160px] sm:max-w-[200px]">{src.title || src.label}</div>
+                                        <div className="text-[9px] text-slate-500 font-mono">
+                                          {src.page_number ? `Page ${src.page_number}` : ''}
+                                          {src.page_number && src.similarity_score ? ' · ' : ''}
+                                          {src.similarity_score ? `${Math.round(src.similarity_score * 100)}% match` : ''}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           ) : (
