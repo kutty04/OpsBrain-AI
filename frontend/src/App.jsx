@@ -1110,47 +1110,100 @@ function AppContent() {
         :root {
           --theme-accent: var(--accent-primary);
         }
-        /* Bright cockpit overrides */
-        .theme-slate, .theme-steel {
-          --tw-bg-opacity: 1;
-        }
-        /* Override hardcoded slate bg classes with our card token */
-        .bg-slate-900, .bg-slate-900\/40, .bg-slate-900\/60, .bg-slate-900\/70, .bg-slate-950, .bg-slate-950\/40, .bg-slate-950\/50 {
+        .theme-slate, .theme-steel { --tw-bg-opacity: 1; }
+
+        /* ── Replace dark slate bg classes with themed surface ── */
+        .bg-slate-900,
+        .bg-slate-950,
+        .bg-slate-900\/40, .bg-slate-900\/60, .bg-slate-900\/70,
+        .bg-slate-950\/40, .bg-slate-950\/50, .bg-slate-950\/60 {
           background-color: var(--bg-card-tinted) !important;
         }
-        .border-slate-800, .border-slate-850, .border-slate-700\/60, .border-slate-700\/40 {
+        .border-slate-800, .border-slate-850,
+        .border-slate-700\/60, .border-slate-700\/40 {
           border-color: var(--border-color) !important;
         }
+
+        /* ── Text: strong contrast on light theme ── */
         .text-slate-100, .text-slate-200, .text-slate-300 {
-          color: var(--text-primary) !important;
+          color: var(--text-secondary) !important;
         }
         .text-slate-400, .text-slate-500 {
           color: var(--text-muted) !important;
         }
-        .text-cyan-400 {
-          color: var(--accent-primary) !important;
-        }
-        .text-fuchsia-400 {
-          color: var(--accent-ai) !important;
-        }
-        .bg-cyan-500\/10, .bg-fuchsia-500\/10, .bg-emerald-500\/10 {
+        .text-slate-600 { color: var(--text-label) !important; }
+
+        /* ── Semantic accent colors ── */
+        .text-cyan-400  { color: var(--accent-primary-text) !important; }
+        .text-cyan-300  { color: var(--accent-primary-text) !important; }
+        .text-fuchsia-400 { color: var(--accent-ai-text) !important; }
+        .text-emerald-400 { color: var(--color-healthy) !important; }
+        .text-amber-300, .text-amber-400 { color: var(--color-warning) !important; }
+        .text-rose-400 { color: var(--color-critical) !important; }
+
+        /* ── Badge / pill backgrounds ── */
+        .bg-cyan-500\/10, .bg-fuchsia-500\/10 {
           background-color: var(--bg-pill) !important;
           border-color: var(--border-pill) !important;
         }
-        .border-cyan-500\/10, .border-cyan-500\/20, .border-cyan-500\/30, .border-fuchsia-500\/20 {
+        .bg-emerald-500\/10 {
+          background-color: var(--color-healthy-light) !important;
+          border-color: var(--color-healthy-border) !important;
+        }
+        .bg-amber-500\/5, .bg-amber-500\/10 {
+          background-color: var(--color-warning-light) !important;
+          border-color: var(--color-warning-border) !important;
+        }
+        .bg-rose-500\/5, .bg-rose-500\/10 {
+          background-color: var(--color-critical-light) !important;
+          border-color: var(--color-critical-border) !important;
+        }
+        .border-cyan-500\/10, .border-cyan-500\/20,
+        .border-cyan-500\/30, .border-fuchsia-500\/20 {
           border-color: var(--border-pill) !important;
         }
-        .text-cyan-300 {
-          color: var(--accent-primary) !important;
+        .border-amber-500\/20, .border-amber-900\/30, .border-amber-900\/20 {
+          border-color: var(--color-warning-border) !important;
         }
-        /* Ensure sidebar inner elements inherit dark text */
+        .border-emerald-500\/20, .border-emerald-500\/30 {
+          border-color: var(--color-healthy-border) !important;
+        }
+        .border-rose-500\/20, .border-rose-500\/25, .border-rose-500\/30 {
+          border-color: var(--color-critical-border) !important;
+        }
+
+        /* ── Inputs: must look like real inputs, not disabled ── */
+        input[type="text"], input[type="search"], textarea {
+          background-color: var(--bg-input) !important;
+          color: var(--text-primary) !important;
+          border-color: var(--border-input) !important;
+        }
+        input::placeholder, textarea::placeholder {
+          color: var(--text-label) !important;
+          opacity: 1 !important;
+        }
+        input:focus, textarea:focus {
+          border-color: var(--accent-primary) !important;
+          outline: none !important;
+          box-shadow: 0 0 0 3px var(--bg-pill) !important;
+          background-color: var(--bg-input-focus) !important;
+        }
+
+        /* ── Sidebar: keep dark, fix text opacity ── */
         .cockpit-sidebar * { color: inherit; }
-        .cockpit-sidebar .text-slate-400, .cockpit-sidebar .text-slate-500 {
-          color: rgba(255,255,255,0.40) !important;
+        .cockpit-sidebar .text-slate-400,
+        .cockpit-sidebar .text-slate-500 {
+          color: rgba(255,255,255,0.44) !important;
         }
-        .cockpit-sidebar .border-slate-800, .cockpit-sidebar .border-\[var\(--border-color\)\] {
+        .cockpit-sidebar .border-slate-800 {
           border-color: rgba(255,255,255,0.07) !important;
         }
+        .cockpit-sidebar .sidebar-nav-item-active,
+        .cockpit-sidebar .sidebar-nav-item-active * {
+          color: var(--accent-primary) !important;
+        }
+        .cockpit-sidebar .text-amber-400 { color: #fbbf24 !important; }
+        .cockpit-sidebar .text-cyan-400  { color: #22d3ee !important; }
       `}</style>
       {/* P5: Mobile overlay backdrop */}
       {sidebarOpen && (
@@ -1338,7 +1391,7 @@ function AppContent() {
                 }
               }
             }}
-            className="w-full py-1.5 px-3 bg-[var(--bg-pill)] hover:bg-[var(--bg-pill)]/20 text-[var(--accent-primary)] border border-[var(--border-pill)] hover:border-[var(--accent-primary)] rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full py-1.5 px-3 bg-sky-600 hover:bg-sky-700 text-white border border-sky-700 rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
           >
             {seedingDataset && activeDataset !== 'refinery' ? 'Seeding...' : 'Seed Vizag Steel'}
           </button>
@@ -1378,7 +1431,7 @@ function AppContent() {
                 }
               }
             }}
-            className="w-full py-1.5 px-3 bg-amber-900/30 hover:bg-amber-900/50 text-amber-400 border border-amber-800/50 hover:border-amber-600 rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white border border-amber-700 rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
           >
             {seedingDataset && activeDataset !== 'vizag' ? 'Seeding...' : 'Seed Refinery Demo'}
           </button>
@@ -1697,7 +1750,7 @@ function AppContent() {
                           type="button"
                           onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRCAAgent(); }}
                           disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white border border-rose-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {rcaLoading ? <Loader className="h-3 w-3 animate-spin" /> : <AlertOctagon className="h-3 w-3" />}
                           {rcaLoading ? 'Analyzing...' : 'Run RCA'}
@@ -1707,7 +1760,7 @@ function AppContent() {
                           type="button"
                           onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRiskAgent(); }}
                           disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 transition disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white border border-amber-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {riskAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
                           {riskAgentLoading ? 'Calculating...' : 'Run Risk Score'}
@@ -1717,7 +1770,7 @@ function AppContent() {
                           type="button"
                           onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runComplianceAgent(); }}
                           disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/20 transition disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 hover:bg-violet-700 text-white border border-violet-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {complianceAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
                           {complianceAgentLoading ? 'Checking...' : 'Run Compliance'}
@@ -1727,7 +1780,7 @@ function AppContent() {
                           type="button"
                           onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runLessonsLearnedAgent(); }}
                           disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white border border-sky-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {lessonsLoading ? <Loader className="h-3 w-3 animate-spin" /> : <BookOpen className="h-3 w-3" />}
                           {lessonsLoading ? 'Extracting...' : 'Extract Lessons'}
@@ -1781,7 +1834,7 @@ function AppContent() {
                       <div className={`p-5 bg-rose-500/5 border border-rose-500/20 rounded-lg space-y-3 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-rose-300 text-sm flex items-center gap-2">
+                          <h4 className="font-bold text-[var(--color-critical)] text-sm flex items-center gap-2">
                             <AlertOctagon className="h-4 w-4" /> Root Cause Analysis Result
                           </h4>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase ${
@@ -1792,15 +1845,15 @@ function AppContent() {
                         </div>
                         <div>
                           <div className="text-[10px] text-rose-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Root Cause</div>
-                          <p className="text-sm text-slate-200 leading-relaxed font-medium">{rcaResult.identified_root_cause}</p>
+                          <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{rcaResult.identified_root_cause}</p>
                         </div>
                         {rcaResult.contributing_factors?.length > 0 && (
                           <div>
                             <div className="text-[10px] text-rose-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Contributing Factors</div>
                             <ul className="space-y-1">
                               {rcaResult.contributing_factors.map((f, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <span className="text-rose-400 font-bold mt-0.5">›</span>{f}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)]">
+                                  <span className="text-[var(--color-critical)] font-bold mt-0.5">›</span>{f}
                                 </li>
                               ))}
                             </ul>
@@ -1811,7 +1864,7 @@ function AppContent() {
                             <div className="text-[10px] text-emerald-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Suggested Mitigations</div>
                             <ul className="space-y-1">
                               {rcaResult.suggested_mitigations.map((m, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)]">
                                   <CheckCircle className="h-3 w-3 text-emerald-400 flex-shrink-0 mt-0.5" />{m}
                                 </li>
                               ))}
@@ -1827,8 +1880,8 @@ function AppContent() {
                       <div className={`p-5 border rounded-lg space-y-3 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${riskLevelBg(riskAgentResult.risk_level)} ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-sm flex items-center gap-2 text-slate-200">
-                            <Activity className="h-4 w-4 text-orange-400" /> Risk Agent Assessment
+                          <h4 className="font-bold text-sm flex items-center gap-2 text-[var(--text-primary)]">
+                            <Activity className="h-4 w-4 text-[var(--color-warning)]" /> Risk Agent Assessment
                           </h4>
                           <div className="flex items-center gap-2">
                             <span className={`text-2xl font-black font-mono ${riskLevelColor(riskAgentResult.risk_level)}`}>
@@ -1839,8 +1892,8 @@ function AppContent() {
                             </span>
                           </div>
                         </div>
-                        <p className="text-sm text-slate-300 leading-relaxed font-medium">{riskAgentResult.explanation}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">Risk score written to database. Refresh Executive Dashboard to see updated distribution.</p>
+                        <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{riskAgentResult.explanation}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] font-mono">Risk score written to database. Refresh Executive Dashboard to see updated distribution.</p>
                         {renderProviderMetadataChip(riskAgentResult)}
                       </div>
                     )}
@@ -1854,8 +1907,8 @@ function AppContent() {
                       }`}>
                         {renderCadCorners()}
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-sm flex items-center gap-2 text-slate-200">
-                            <ShieldCheck className="h-4 w-4 text-fuchsia-400" /> Compliance Agent Result
+                          <h4 className="font-bold text-sm flex items-center gap-2 text-[var(--text-primary)]">
+                            <ShieldCheck className="h-4 w-4 text-[var(--accent-ai-text)]" /> Compliance Agent Result
                           </h4>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase ${
                             complianceAgentResult.status === 'NON_COMPLIANT' ? 'text-rose-400 border-rose-500/30 bg-rose-500/10'
@@ -1875,7 +1928,7 @@ function AppContent() {
                             </ul>
                           </div>
                         )}
-                        <p className="text-sm text-slate-300 leading-relaxed font-medium">{complianceAgentResult.findings}</p>
+                        <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{complianceAgentResult.findings}</p>
 
                         {/* Explainable Compliance Evidence Section */}
                         <div className="mt-4 pt-4 border-t border-slate-800/60 space-y-3">
@@ -1885,10 +1938,10 @@ function AppContent() {
                           {complianceAgentResult.compliance_evidence && complianceAgentResult.compliance_evidence.length > 0 ? (
                             <div className="space-y-3">
                               {complianceAgentResult.compliance_evidence.map((ev, idx) => (
-                                <div key={idx} className="p-3 bg-slate-950/40 border border-slate-800/40 rounded-lg space-y-2 text-xs">
+                                <div key={idx} className="p-3 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 text-xs">
                                   <div className="flex justify-between items-start gap-2 flex-wrap">
                                     <div>
-                                      <span className="font-bold text-slate-300">Asset:</span> <span className="font-mono text-cyan-400 bg-cyan-500/10 px-1 py-0.5 rounded">{ev.affected_asset || 'N/A'}</span>
+                                      <span className="font-bold text-[var(--text-secondary)]">Asset:</span> <span className="font-mono text-[var(--accent-primary-text)] bg-[var(--bg-pill)] px-1 py-0.5 rounded">{ev.affected_asset || 'N/A'}</span>
                                     </div>
                                     <div className="flex gap-2 text-[9px] font-mono">
                                       <span className="text-rose-400 border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.2 rounded uppercase">{ev.severity || 'Medium'}</span>
@@ -1938,18 +1991,18 @@ function AppContent() {
                     {/* Middle grid: Risk Score & Compliance */}
                     <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Risk Profile</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Risk Profile</h3>
                         <RiskScorePanel latestRisk={selectedAssetDetails.latest_risk} />
                       </div>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Compliance Audit Status</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Compliance Audit Status</h3>
                         <CompliancePanel complianceRecords={selectedAssetDetails.compliance_records} />
                       </div>
                     </div>
 
                     {/* Graph Neighborhood Visualizer */}
                     <div className="space-y-4">
-                      <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Graph Topology Connections</h3>
+                      <h3 className="section-label text-[var(--text-muted)]">Graph Topology Connections</h3>
                       <GraphVisualizer 
                         graphData={selectedAssetDetails.neighborhood} 
                         selectedNodeName={selectedAssetDetails.asset.tag_number}
@@ -1962,11 +2015,11 @@ function AppContent() {
                     {/* Timeline & Maintenance log list */}
                     <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Active Incidents timeline</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Active Incidents Timeline</h3>
                         <IncidentTimeline incidents={selectedAssetDetails.incidents} />
                       </div>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Maintenance history logs</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Maintenance History Logs</h3>
                         <MaintenanceLogs maintenanceLogs={selectedAssetDetails.maintenance_logs} />
                       </div>
                     </div>
@@ -2145,7 +2198,6 @@ function AppContent() {
                           <span>{knowledgeError}</span>
                         </div>
                       )}
-
                       {knowledgeResult && (
                         <div className="space-y-3.5">
                           {/* Answer block */}
@@ -2180,8 +2232,8 @@ function AppContent() {
                           </div>
 
                           {/* Evidence Path Panel */}
-                          <div className="p-3.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-3 shadow-sm relative overflow-hidden">
-                            <div className="text-[10px] text-cyan-400/80 uppercase font-black tracking-widest flex items-center gap-1.5">
+                          <div className="p-3.5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-3 shadow-sm relative overflow-hidden">
+                            <div className="text-[10px] text-[var(--accent-primary-text)] uppercase font-black tracking-widest flex items-center gap-1.5">
                               <Network className="h-3.5 w-3.5" />
                               Graph-Aware Evidence Path
                             </div>
@@ -2192,7 +2244,7 @@ function AppContent() {
                                 {selectedAssetTag || "N/A"}
                               </div>
                               
-                              <span className="text-slate-600 hidden sm:inline">→</span>
+                              <span className="text-[var(--text-muted)] hidden sm:inline">→</span>
                               
                               {/* Related Graph Nodes */}
                               <div className="flex flex-wrap gap-1.5 items-center">
@@ -2207,7 +2259,7 @@ function AppContent() {
                                 )}
                               </div>
                               
-                              <span className="text-slate-600 hidden sm:inline">→</span>
+                              <span className="text-[var(--text-muted)] hidden sm:inline">→</span>
                               
                               {/* Retrieved Documents & Regulations */}
                               <div className="flex flex-wrap gap-1.5 items-center">
