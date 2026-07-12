@@ -2,182 +2,357 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   OPSBRAIN AI — BRIGHT PREMIUM COCKPIT DESIGN SYSTEM
+   "Titanium Glass Industrial Command Center"
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
 :root {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --transition-speed: 150ms;
+  --transition-speed: 200ms;
+  --radius-card: 12px;
+  --radius-chip: 6px;
 }
 
-/* Slate Obsidian (Default Theme) */
+/* ── THEME 1: Titanium Cockpit (default bright) ─────────────────
+   Soft mist/white-graphite, electric cyan accents.
+   Think: Apple HIG + industrial precision instrument panel.         */
 .theme-slate {
-  --bg-app: #090d16;
-  --bg-card: #0f172a;
-  --border-color: #1e293b;
-  --border-hover: #334155;
-  --text-primary: #f8fafc;
-  --text-muted: #94a3b8;
-  --shadow-color: rgba(0, 0, 0, 0.5);
-  
-  /* Strict Semantic Color Mappings */
-  --accent-primary: #3b82f6;   /* Steel-Blue dominant accent */
-  --accent-ai: #06b6d4;        /* Cyan for AI and Copilot interactions */
-  --color-warning: #d97706;    /* Amber exclusively for Warnings */
-  --color-critical: #dc2626;   /* Red exclusively for Critical alerts */
-  --color-healthy: #16a34a;    /* Emerald exclusively for Healthy states */
-  
-  --bg-pill: rgba(59, 130, 246, 0.08);
-  --border-pill: rgba(59, 130, 246, 0.2);
-  --bg-grid-color: rgba(59, 130, 246, 0.025);
-}
+  --bg-app: #eef1f6;           /* pale blue-gray mist */
+  --bg-sidebar: #1c2333;       /* deep graphite sidebar rail */
+  --bg-card: rgba(255, 255, 255, 0.82);
+  --bg-card-solid: #ffffff;
+  --bg-card-tinted: rgba(240, 245, 255, 0.6);
+  --bg-header: rgba(255, 255, 255, 0.75);
 
-/* Industrial Steel Theme */
-.theme-steel {
-  --bg-app: #11151c;
-  --bg-card: #1e222b;
-  --border-color: #2d323f;
-  --border-hover: #474f63;
-  --text-primary: #f1f5f9;
-  --text-muted: #a0aec0;
-  --shadow-color: rgba(0, 0, 0, 0.6);
-  
-  /* Strict Semantic Color Mappings */
-  --accent-primary: #3b82f6;   /* Steel-Blue */
-  --accent-ai: #06b6d4;        /* Cyan (AI only) */
-  --color-warning: #d97706;    /* Amber (Warning only) */
-  --color-critical: #dc2626;   /* Red (Critical only) */
-  --color-healthy: #16a34a;    /* Emerald (Healthy only) */
-  
-  --bg-pill: rgba(59, 130, 246, 0.08);
-  --border-pill: rgba(59, 130, 246, 0.2);
-  --bg-grid-color: rgba(59, 130, 246, 0.02);
-}
+  --border-color: rgba(100, 130, 180, 0.18);
+  --border-hover: rgba(6, 182, 212, 0.45);
+  --border-strong: rgba(100, 130, 180, 0.35);
 
-/* Midnight Graphite Theme */
-.theme-graphite {
-  --bg-app: #050505;
-  --bg-card: #121212;
-  --border-color: #222222;
-  --border-hover: #333333;
-  --text-primary: #e2e8f0;
+  --text-primary: #0f172a;     /* near-black graphite */
+  --text-secondary: #334155;
   --text-muted: #64748b;
-  --shadow-color: rgba(0, 0, 0, 0.8);
-  
-  /* Strict Semantic Color Mappings */
-  --accent-primary: #2563eb;   /* Steel-Blue (Cobalt) */
-  --accent-ai: #06b6d4;        /* Cyan (AI only) */
-  --color-warning: #d97706;    /* Amber (Warning only) */
-  --color-critical: #dc2626;   /* Red (Critical only) */
-  --color-healthy: #16a34a;    /* Emerald (Healthy only) */
-  
-  --bg-pill: rgba(37, 99, 235, 0.06);
-  --border-pill: rgba(37, 99, 235, 0.18);
-  --bg-grid-color: rgba(37, 99, 235, 0.015);
+  --text-on-dark: #f1f5f9;     /* text on dark sidebar */
+  --shadow-color: rgba(15, 30, 60, 0.10);
+  --shadow-strong: rgba(15, 30, 60, 0.18);
+
+  --accent-primary: #0891b2;   /* deep electric cyan */
+  --accent-primary-light: #e0f7fa;
+  --accent-ai: #7c3aed;        /* violet for AI/RAG */
+  --accent-ai-light: #ede9fe;
+
+  --color-warning: #d97706;
+  --color-warning-light: #fef3c7;
+  --color-critical: #dc2626;
+  --color-critical-light: #fee2e2;
+  --color-healthy: #059669;
+  --color-healthy-light: #d1fae5;
+
+  --bg-pill: rgba(8, 145, 178, 0.08);
+  --border-pill: rgba(8, 145, 178, 0.25);
+  --bg-grid-color: rgba(8, 145, 178, 0.04);
+
+  --glow-cyan: rgba(8, 145, 178, 0.22);
+  --glow-amber: rgba(217, 119, 6, 0.18);
 }
 
+/* ── THEME 2: Industrial Amber ──────────────────────────────────
+   Warm ivory-cream, amber industrial energy, graphite panels.      */
+.theme-steel {
+  --bg-app: #f5f0e8;           /* warm cream-ivory */
+  --bg-sidebar: #1a1a12;       /* deep warm graphite */
+  --bg-card: rgba(255, 252, 244, 0.88);
+  --bg-card-solid: #fffcf4;
+  --bg-card-tinted: rgba(255, 248, 230, 0.65);
+  --bg-header: rgba(255, 252, 244, 0.78);
+
+  --border-color: rgba(180, 140, 60, 0.18);
+  --border-hover: rgba(217, 119, 6, 0.50);
+  --border-strong: rgba(180, 140, 60, 0.35);
+
+  --text-primary: #1c1208;
+  --text-secondary: #3d2b0c;
+  --text-muted: #78614a;
+  --text-on-dark: #fef3c7;
+  --shadow-color: rgba(60, 40, 8, 0.12);
+  --shadow-strong: rgba(60, 40, 8, 0.22);
+
+  --accent-primary: #b45309;   /* warm amber */
+  --accent-primary-light: #fef3c7;
+  --accent-ai: #0891b2;        /* cyan for AI */
+  --accent-ai-light: #e0f7fa;
+
+  --color-warning: #d97706;
+  --color-warning-light: #fef3c7;
+  --color-critical: #dc2626;
+  --color-critical-light: #fee2e2;
+  --color-healthy: #059669;
+  --color-healthy-light: #d1fae5;
+
+  --bg-pill: rgba(180, 83, 9, 0.08);
+  --border-pill: rgba(180, 83, 9, 0.28);
+  --bg-grid-color: rgba(180, 83, 9, 0.04);
+
+  --glow-cyan: rgba(8, 145, 178, 0.20);
+  --glow-amber: rgba(217, 119, 6, 0.25);
+}
+
+/* ── THEME 3: Command Dark (premium, structured dark) ──────────
+   Deep graphite-blue. NOT flat black — sophisticated layered dark. */
+.theme-graphite {
+  --bg-app: #111827;           /* deep blue-graphite (not pure black) */
+  --bg-sidebar: #0d1220;       /* slightly deeper rail */
+  --bg-card: rgba(30, 40, 58, 0.85);
+  --bg-card-solid: #1e2a3a;
+  --bg-card-tinted: rgba(22, 32, 50, 0.70);
+  --bg-header: rgba(20, 28, 44, 0.80);
+
+  --border-color: rgba(148, 163, 184, 0.12);
+  --border-hover: rgba(6, 182, 212, 0.38);
+  --border-strong: rgba(148, 163, 184, 0.25);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --text-on-dark: #f1f5f9;
+  --shadow-color: rgba(0, 0, 0, 0.38);
+  --shadow-strong: rgba(0, 0, 0, 0.55);
+
+  --accent-primary: #06b6d4;   /* electric cyan */
+  --accent-primary-light: rgba(6, 182, 212, 0.12);
+  --accent-ai: #a78bfa;        /* soft violet */
+  --accent-ai-light: rgba(167, 139, 250, 0.12);
+
+  --color-warning: #f59e0b;
+  --color-warning-light: rgba(245, 158, 11, 0.12);
+  --color-critical: #ef4444;
+  --color-critical-light: rgba(239, 68, 68, 0.10);
+  --color-healthy: #10b981;
+  --color-healthy-light: rgba(16, 185, 129, 0.10);
+
+  --bg-pill: rgba(6, 182, 212, 0.08);
+  --border-pill: rgba(6, 182, 212, 0.22);
+  --bg-grid-color: rgba(6, 182, 212, 0.025);
+
+  --glow-cyan: rgba(6, 182, 212, 0.25);
+  --glow-amber: rgba(245, 158, 11, 0.20);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BASE LAYER
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 @layer base {
   html, body, #root {
     margin: 0;
     padding: 0;
     min-height: 100%;
     height: 100%;
-    background-color: #030712; /* Fallback dark background */
-    overscroll-behavior: none; /* Prevent white overscroll/bounce */
+    background-color: #eef1f6;
+    overscroll-behavior: none;
   }
 
   body {
     background-color: var(--bg-app);
     color: var(--text-primary);
     transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
-    font-size: 14px; /* Confident body text size */
+    font-size: 14px;
     @apply antialiased;
   }
 
-  /* Confident Border Radius specs */
-  .rounded-lg {
-    border-radius: 8px !important;
-  }
-  .rounded-xl {
-    border-radius: 8px !important;
-  }
-  .rounded-2xl {
-    border-radius: 8px !important;
-  }
-  .modal-theme-rounded {
-    border-radius: 10px !important;
-  }
+  /* Border radius */
+  .rounded-lg  { border-radius: 10px !important; }
+  .rounded-xl  { border-radius: 14px !important; }
+  .rounded-2xl { border-radius: 18px !important; }
+  .modal-theme-rounded { border-radius: 14px !important; }
 
-  /* Structural Blueprint Grid background overlay */
+  /* ── Blueprint Grid ──────────────────────────────────────────── */
   .bg-grid-blueprint {
-    background-size: 32px 32px;
-    background-image: 
-      linear-gradient(to right, var(--bg-grid-color) 1px, transparent 1px),
+    background-size: 36px 36px;
+    background-image:
+      linear-gradient(to right,  var(--bg-grid-color) 1px, transparent 1px),
       linear-gradient(to bottom, var(--bg-grid-color) 1px, transparent 1px);
     background-attachment: local;
+    position: relative;
   }
 
-  /* Precision shadows */
+  /* Animated drift shimmer overlay on grid */
+  .bg-grid-blueprint::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(
+      135deg,
+      transparent 0%,
+      var(--glow-cyan) 45%,
+      transparent 55%,
+      var(--glow-amber) 85%,
+      transparent 100%
+    );
+    background-size: 400% 400%;
+    animation: shimmerDrift 18s ease infinite;
+    opacity: 0.35;
+  }
+
+  @keyframes shimmerDrift {
+    0%   { background-position: 0% 0%; }
+    50%  { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bg-grid-blueprint::before { animation: none; opacity: 0.15; }
+  }
+
+  /* ── Precision Shadows ──────────────────────────────────────── */
   .shadow-sm {
-    box-shadow: 0 1px 2px var(--shadow-color) !important;
+    box-shadow: 0 1px 3px var(--shadow-color), 0 1px 2px var(--shadow-color) !important;
   }
   .shadow-md {
-    box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color) !important;
+    box-shadow: 0 4px 8px -2px var(--shadow-color), 0 2px 4px -2px var(--shadow-color) !important;
   }
   .shadow-lg, .shadow-xl {
-    box-shadow: 0 8px 12px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color) !important;
+    box-shadow: 0 10px 24px -4px var(--shadow-strong), 0 4px 8px -4px var(--shadow-color) !important;
   }
 
-  /* Premium transition animation class */
+  /* ── Premium Card ────────────────────────────────────────────── */
   .card-premium {
     position: relative;
-    transition: transform var(--transition-speed) ease, border-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease !important;
-  }
-  .card-premium:hover {
-    border-color: var(--border-hover) !important;
-    box-shadow: 0 4px 12px var(--shadow-color) !important;
+    background: var(--bg-card);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-card);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    transition:
+      transform 240ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 200ms ease,
+      box-shadow 240ms ease !important;
   }
 
-  /* CAD layout corners ticks */
-  .cad-corner-tl {
+  /* Soft gradient top accent line */
+  .card-premium::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+    opacity: 0.25;
+    pointer-events: none;
+    transition: opacity 220ms ease;
+    border-radius: 1px;
+  }
+
+  .card-premium:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-hover) !important;
+    box-shadow:
+      0 8px 24px -4px var(--shadow-strong),
+      0 0 20px -6px var(--glow-cyan) !important;
+  }
+
+  .card-premium:hover::after {
+    opacity: 0.65;
+  }
+
+  /* ── Metric Card (bold stat blocks) ─────────────────────────── */
+  .metric-card {
+    background: var(--bg-card-solid);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 4px var(--shadow-color), 0 4px 16px -6px var(--shadow-color);
+    position: relative;
+    overflow: hidden;
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .metric-card::before {
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
-    width: 6px;
-    height: 6px;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-ai));
+    opacity: 0.55;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px -4px var(--shadow-strong) !important;
+  }
+
+  /* ── Sidebar: forced dark graphite rail ──────────────────────── */
+  .cockpit-sidebar {
+    background: var(--bg-sidebar) !important;
+    color: var(--text-on-dark) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+  }
+
+  /* Active tab indicator — glowing left bar */
+  .sidebar-nav-item-active {
+    position: relative;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--accent-primary) !important;
+    border-color: rgba(255, 255, 255, 0.10) !important;
+  }
+
+  .sidebar-nav-item-active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 18%;
+    bottom: 18%;
+    width: 3px;
+    background: var(--accent-primary);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px var(--accent-primary);
+  }
+
+  .sidebar-nav-item-inactive {
+    color: rgba(255, 255, 255, 0.45) !important;
+    border-color: transparent !important;
+  }
+
+  .sidebar-nav-item-inactive:hover {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: rgba(255, 255, 255, 0.80) !important;
+  }
+
+  /* ── CAD Corners ─────────────────────────────────────────────── */
+  .cad-corner-tl {
+    position: absolute; top: 0; left: 0;
+    width: 7px; height: 7px;
     border-top: 1.5px solid var(--accent-primary);
     border-left: 1.5px solid var(--accent-primary);
-    opacity: 0.45;
+    opacity: 0.40;
   }
   .cad-corner-tr {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 6px;
-    height: 6px;
+    position: absolute; top: 0; right: 0;
+    width: 7px; height: 7px;
     border-top: 1.5px solid var(--accent-primary);
     border-right: 1.5px solid var(--accent-primary);
-    opacity: 0.45;
+    opacity: 0.40;
   }
   .cad-corner-bl {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 6px;
-    height: 6px;
+    position: absolute; bottom: 0; left: 0;
+    width: 7px; height: 7px;
     border-bottom: 1.5px solid var(--accent-primary);
     border-left: 1.5px solid var(--accent-primary);
-    opacity: 0.45;
+    opacity: 0.40;
   }
   .cad-corner-br {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 6px;
-    height: 6px;
+    position: absolute; bottom: 0; right: 0;
+    width: 7px; height: 7px;
     border-bottom: 1.5px solid var(--accent-primary);
     border-right: 1.5px solid var(--accent-primary);
-    opacity: 0.45;
+    opacity: 0.40;
   }
 
-  /* CAD-inspired separators */
+  /* ── Dividers ─────────────────────────────────────────────────── */
   .divider-cad {
     position: relative;
     height: 1px;
@@ -191,35 +366,101 @@
     font-size: 8px;
     font-family: monospace;
     color: var(--accent-primary);
-    opacity: 0.4;
+    opacity: 0.45;
   }
 
-  /* Motion animations */
+  /* ── Live Pulse Indicator ────────────────────────────────────── */
+  .pulse-live {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-healthy);
+    box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5);
+    animation: liveRing 1.8s ease-in-out infinite;
+  }
+
+  @keyframes liveRing {
+    0%   { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.55); }
+    70%  { box-shadow: 0 0 0 7px rgba(5, 150, 105, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+  }
+
+  /* ── Status Chip ─────────────────────────────────────────────── */
+  .chip-premium {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    transition: all 160ms ease;
+  }
+
+  /* ── Number Glow ─────────────────────────────────────────────── */
+  .stat-num {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── ReactFlow Overrides ─────────────────────────────────────── */
+  .react-flow__renderer {
+    background: rgba(240, 245, 255, 0.55) !important;
+  }
+  .theme-graphite .react-flow__renderer {
+    background: rgba(10, 14, 22, 0.90) !important;
+  }
+  .react-flow__controls button {
+    background: var(--bg-card-solid) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 4px var(--shadow-color) !important;
+  }
+  .react-flow__controls button:hover {
+    border-color: var(--accent-primary) !important;
+    background: var(--bg-pill) !important;
+  }
+  .react-flow__minimap {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+  }
+
+  /* ── Modal Animations ────────────────────────────────────────── */
   @keyframes modalFadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.97) translateY(6px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
   }
 
   @keyframes backdropFadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 
   .animate-modal-in {
-    animation: modalFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: modalFadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .animate-backdrop-in {
-    animation: backdropFadeIn 150ms ease-out forwards;
+    animation: backdropFadeIn 180ms ease-out forwards;
+  }
+
+  /* ── Scrollbar ───────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
   }
 }

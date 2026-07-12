@@ -1110,29 +1110,15 @@ function AppContent() {
         :root {
           --theme-accent: var(--accent-primary);
         }
-        /* Custom scrollbar to match industrial look */
-        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-          background: var(--bg-app);
-        }
-        ::-webkit-scrollbar-thumb {
-          background: var(--border-color);
-          border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: var(--border-hover);
-        }
-        /* Standard card override rules for custom themes */
-        .theme-slate, .theme-steel, .theme-graphite {
+        /* Bright cockpit overrides */
+        .theme-slate, .theme-steel {
           --tw-bg-opacity: 1;
         }
-        .bg-slate-900, .bg-slate-900\\/40, .bg-slate-900\\/60, .bg-slate-900\\/70, .bg-slate-950, .bg-slate-950\\/40, .bg-slate-950\\/50 {
-          background-color: var(--bg-card) !important;
+        /* Override hardcoded slate bg classes with our card token */
+        .bg-slate-900, .bg-slate-900\/40, .bg-slate-900\/60, .bg-slate-900\/70, .bg-slate-950, .bg-slate-950\/40, .bg-slate-950\/50 {
+          background-color: var(--bg-card-tinted) !important;
         }
-        .border-slate-800, .border-slate-850, .border-slate-700\\/60, .border-slate-700\\/40 {
+        .border-slate-800, .border-slate-850, .border-slate-700\/60, .border-slate-700\/40 {
           border-color: var(--border-color) !important;
         }
         .text-slate-100, .text-slate-200, .text-slate-300 {
@@ -1141,18 +1127,29 @@ function AppContent() {
         .text-slate-400, .text-slate-500 {
           color: var(--text-muted) !important;
         }
-        .text-cyan-400, .text-fuchsia-400 {
+        .text-cyan-400 {
           color: var(--accent-primary) !important;
         }
-        .bg-cyan-500\\/10, .bg-fuchsia-500\\/10, .bg-emerald-500\\/10 {
+        .text-fuchsia-400 {
+          color: var(--accent-ai) !important;
+        }
+        .bg-cyan-500\/10, .bg-fuchsia-500\/10, .bg-emerald-500\/10 {
           background-color: var(--bg-pill) !important;
           border-color: var(--border-pill) !important;
         }
-        .border-cyan-500\\/10, .border-cyan-500\\/20, .border-cyan-500\\/30, .border-fuchsia-500\\/20 {
+        .border-cyan-500\/10, .border-cyan-500\/20, .border-cyan-500\/30, .border-fuchsia-500\/20 {
           border-color: var(--border-pill) !important;
         }
         .text-cyan-300 {
           color: var(--accent-primary) !important;
+        }
+        /* Ensure sidebar inner elements inherit dark text */
+        .cockpit-sidebar * { color: inherit; }
+        .cockpit-sidebar .text-slate-400, .cockpit-sidebar .text-slate-500 {
+          color: rgba(255,255,255,0.40) !important;
+        }
+        .cockpit-sidebar .border-slate-800, .cockpit-sidebar .border-\[var\(--border-color\)\] {
+          border-color: rgba(255,255,255,0.07) !important;
         }
       `}</style>
       {/* P5: Mobile overlay backdrop */}
@@ -1165,35 +1162,41 @@ function AppContent() {
 
       {/* P5: Responsive sidebar — fixed on mobile, static on md+ */}
       <aside className={`
+        cockpit-sidebar
         fixed md:static inset-y-0 left-0 z-30
-        w-64 bg-[var(--bg-card)] border-r border-[var(--border-color)] flex flex-col flex-shrink-0
+        w-64 flex flex-col flex-shrink-0
         transform transition-transform duration-200 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <div className="p-5 border-b border-[var(--border-color)] flex flex-col gap-1 bg-slate-950/20">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-5.5 w-5.5 text-[var(--accent-primary)]" />
-            <span className="font-black text-[16px] tracking-wider text-[var(--text-primary)] uppercase">OPSBRAIN AI</span>
+        <div className="p-5 border-b border-white/[0.07] flex flex-col gap-1.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
+            </div>
+            <span className="font-black text-[15px] tracking-widest text-white uppercase">OPSBRAIN AI</span>
           </div>
-          <div className="text-[9px] font-mono text-slate-500 uppercase leading-none tracking-widest mt-1">
-            SYS: OPSBRAIN_V1.2 // REGION: VIZAG_STEEL // STATUS: ACTIVE
+          <div className="flex items-center gap-1.5 ml-0.5">
+            <span className="pulse-live flex-shrink-0"></span>
+            <span className="text-[9px] font-mono text-white/35 uppercase leading-none tracking-widest">
+              V1.2 · VIZAG_STEEL · ACTIVE
+            </span>
           </div>
         </div>
         
-        <nav className="flex-1 py-6 px-4 space-y-1.5">
+        <nav className="flex-1 py-5 px-3 space-y-0.5">
           <button 
             onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'dashboard' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Database className="h-4.5 w-4.5" />
+              <Database className="h-4 w-4" />
               <span>Dashboard</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[01]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">01</span>
           </button>
 
           <button 
@@ -1201,32 +1204,32 @@ function AppContent() {
               setActiveTab('executive');
               loadExecutiveData();
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'executive' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <TrendingUp className="h-4.5 w-4.5" />
+              <TrendingUp className="h-4 w-4" />
               <span>Executive View</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[02]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">02</span>
           </button>
           
           <button 
             onClick={() => setActiveTab('twin')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'twin' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Network className="h-4.5 w-4.5" />
+              <Network className="h-4 w-4" />
               <span>Digital Twin</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[03]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">03</span>
           </button>
           
           <button 
@@ -1234,58 +1237,58 @@ function AppContent() {
               setActiveTab('ingestion');
               loadDocuments();
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'ingestion' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <UploadCloud className="h-4.5 w-4.5" />
+              <UploadCloud className="h-4 w-4" />
               <span>Ingestion</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[04]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">04</span>
           </button>
 
           <button 
             onClick={() => {
               setActiveTab('pid_parser');
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'pid_parser' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Network className="h-4.5 w-4.5" />
+              <Network className="h-4 w-4" />
               <span>P&ID Parser</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[05]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">05</span>
           </button>
 
           <button 
             onClick={() => {
               setActiveTab('evaluation');
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'evaluation' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <ShieldCheck className="h-4.5 w-4.5" />
+              <ShieldCheck className="h-4 w-4" />
               <span>Evaluation & Benchmarks</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[06]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">06</span>
           </button>
         </nav>
 
         
         {/* Presentation & Demo Control Panel */}
-        <div className="p-4 border-t border-[var(--border-color)] space-y-3 bg-[var(--bg-app)]/30">
-          <div className="text-[10px] uppercase font-black tracking-widest text-[var(--text-muted)] flex items-center gap-1.5">
+        <div className="p-4 border-t border-white/[0.07] space-y-3">
+          <div className="text-[9px] uppercase font-black tracking-widest text-white/35 flex items-center gap-1.5">
             <TrendingUp className="h-3 w-3 text-[var(--accent-primary)]" />
             Hackathon Mode
           </div>
@@ -1392,82 +1395,92 @@ function AppContent() {
             </div>
           )}
           
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[10px] font-semibold text-slate-400">Live Alarms</span>
-            <button
-              onClick={() => {
-                setLiveAlarmsActive(!liveAlarmsActive);
-              }}
-              className={`px-2 py-0.5 rounded text-[9px] font-bold border transition ${
-                liveAlarmsActive
-                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                  : 'bg-slate-800 text-slate-400 border-slate-700'
-              }`}
-            >
-              {liveAlarmsActive ? 'SIMULATING' : 'INACTIVE'}
-            </button>
-          </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-semibold text-white/45">Live Alarms</span>
+              <button
+                onClick={() => {
+                  setLiveAlarmsActive(!liveAlarmsActive);
+                }}
+                className={`px-2 py-0.5 rounded text-[9px] font-bold border transition ${
+                  liveAlarmsActive
+                    ? 'bg-rose-500/15 text-rose-400 border-rose-500/40'
+                    : 'bg-white/5 text-white/30 border-white/10'
+                }`}
+              >
+                {liveAlarmsActive ? 'SIMULATING' : 'INACTIVE'}
+              </button>
+            </div>
         </div>
 
-        <div className="p-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
-          <span>Engine Online</span>
+        <div className="p-4 border-t border-white/[0.06] flex items-center justify-between text-[10px] text-white/25">
+          <span className="flex items-center gap-1.5">
+            <span className="pulse-live"></span>
+            Engine Online
+          </span>
           <span>v1.0.0</span>
         </div>
       </aside>
 
       {/* Main Workspace */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="h-16 border-b border-[var(--border-color)] flex items-center justify-between px-4 md:px-8 bg-[var(--bg-card)]/40 backdrop-blur-md">
+        {/* Header — glass surface */}
+        <header className="h-14 border-b border-[var(--border-color)] flex items-center justify-between px-4 md:px-6 bg-[var(--bg-header)] backdrop-blur-xl shadow-sm">
           <div className="flex items-center gap-3">
             {/* P5: Hamburger — mobile only */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+              className="md:hidden p-2 rounded-lg hover:bg-[var(--bg-pill)] text-[var(--text-muted)]"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <h1 className="text-base md:text-lg font-bold tracking-tight text-[var(--text-primary)] capitalize">
-              {activeTab === 'twin' ? 'Asset Digital Twin'
-                : activeTab === 'executive' ? 'Executive View'
-                : activeTab === 'pid_parser' ? 'P&ID Blueprint Parser'
-                : `${activeTab} Workspace`}
-            </h1>
+            <div>
+              <h1 className="text-[15px] font-bold tracking-tight text-[var(--text-primary)] capitalize leading-tight">
+                {activeTab === 'twin' ? 'Asset Digital Twin'
+                  : activeTab === 'executive' ? 'Executive Intelligence'
+                  : activeTab === 'pid_parser' ? 'P&ID Blueprint Parser'
+                  : activeTab === 'ingestion' ? 'Document Ingestion'
+                  : activeTab === 'evaluation' ? 'Evaluation & Benchmarks'
+                  : 'Command Dashboard'}
+              </h1>
+              <div className="text-[10px] text-[var(--text-muted)] font-mono tracking-wider hidden md:block">
+                OPSBRAIN AI · {activeDataset === 'refinery' ? 'REFINERY_PUMP_STATION' : 'VIZAG_STEEL_COB'}
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 md:gap-3 flex-wrap justify-end py-1">
-            {/* Theme Selector */}
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/60 border border-[var(--border-color)] rounded-full text-xs transition duration-300">
-              <span className="font-semibold opacity-60">THEME:</span>
+          <div className="flex items-center gap-2 md:gap-2.5 flex-wrap justify-end">
+            {/* Theme Selector — refined pill */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-xs shadow-sm transition-all duration-300 hover:border-[var(--border-hover)]">
+              <span className="font-semibold text-[var(--text-muted)] text-[10px] tracking-wider">THEME</span>
               <select
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
-                className="bg-transparent border-none text-slate-200 focus:outline-none cursor-pointer pr-1 text-xs font-bold"
+                className="bg-transparent border-none text-[var(--text-primary)] focus:outline-none cursor-pointer pr-1 text-[11px] font-bold"
               >
-                <option value="slate" className="bg-slate-900 text-slate-200">Slate Obsidian 🌑</option>
-                <option value="steel" className="bg-slate-900 text-slate-200">Industrial Steel ⚙️</option>
-                <option value="graphite" className="bg-slate-900 text-slate-200">Midnight Graphite ⬢</option>
+                <option value="slate">Titanium ✦</option>
+                <option value="steel">Amber ⚡</option>
+                <option value="graphite">Command ◈</option>
               </select>
             </div>
 
-            {/* API Status Pill */}
+            {/* API Status Pill — elegant */}
             <button
               onClick={() => setIsMonitorOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/40 border border-[var(--border-color)] rounded-full text-[10px] md:text-xs font-semibold tracking-wider transition duration-200 hover:bg-slate-800/40 focus:outline-none cursor-pointer text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              className="chip-premium hover:border-[var(--border-hover)] hover:text-[var(--text-primary)] cursor-pointer"
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${apiStatus === 'healthy' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-              <span>API STATUS</span>
+              <span className={`inline-block w-1.5 h-1.5 rounded-full flex-shrink-0 ${apiStatus === 'healthy' ? 'bg-[var(--color-healthy)]' : 'bg-[var(--color-critical)]'}`}></span>
+              <span>AI Runtime</span>
             </button>
 
-            {/* Online Pill */}
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/40 border border-[var(--border-color)] rounded-full text-[10px] md:text-xs font-semibold tracking-wider text-[var(--text-muted)]">
-              <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-              <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+            {/* Online status chip */}
+            <div className="chip-premium">
+              <span className={isOnline ? 'pulse-live flex-shrink-0' : 'inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-critical)] flex-shrink-0'}></span>
+              <span>{isOnline ? 'Online' : 'Offline'}</span>
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 bg-slate-950 relative">
+        {/* Content Area — bright mist background */}
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[var(--bg-app)] bg-grid-blueprint relative">
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/25 text-red-400 rounded-xl text-sm">
               {error}
@@ -1491,78 +1504,105 @@ function AppContent() {
 
           {/* --- DASHBOARD TAB --- */}
           {activeTab === 'dashboard' && (
-            <div className="max-w-7xl mx-auto space-y-6 px-2">
-              {/* Hero Banner */}
-              <div className="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg relative overflow-hidden shadow-sm card-premium">
+            <div className="max-w-7xl mx-auto space-y-5">
+
+              {/* ── Hero Command Panel ─────────────────────────────── */}
+              <div className="relative overflow-hidden rounded-2xl card-premium p-7 md:p-8">
                 {renderCadCorners()}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--accent-primary)]/5 rounded-full filter blur-3xl"></div>
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-[26px] md:text-[30px] font-black text-[var(--text-primary)] tracking-tight">OpsBrain AI Command Center</h2>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">[SYS_CENTRAL_CONSOLE // NODE: 001]</span>
-                </div>
-                <p className="text-[14px] text-[var(--text-muted)] max-w-xl leading-relaxed mb-6 font-medium">
-                  Industrial plant operations optimizer. Map P&IDs into graph digital twins, ingestion SOP documentation, and query RAG agents for safety assessments.
-                </p>
-                
-                {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Digital twins</div>
-                    <div className="text-[28px] font-black text-[var(--accent-primary)] font-mono mt-1">{stats.totalAssets} Assets</div>
-                  </div>
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Active Failures</div>
-                    <div className="text-[28px] font-black text-[var(--color-critical)] font-mono mt-1">
-                      {selectedAssetDetails && selectedAssetDetails.incidents ? selectedAssetDetails.incidents.length : 0} Active
+                {/* Gradient orb backgrounds */}
+                <div className="absolute -top-20 -right-20 w-72 h-72 bg-[var(--accent-primary)]/10 rounded-full filter blur-3xl pointer-events-none"></div>
+                <div className="absolute -bottom-16 -left-10 w-56 h-56 bg-[var(--accent-ai)]/8 rounded-full filter blur-3xl pointer-events-none"></div>
+
+                <div className="relative z-10">
+                  {/* Top row */}
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="pulse-live"></span>
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--accent-primary)]">System Active · Node 001</span>
+                      </div>
+                      <h2 className="text-[28px] md:text-[34px] font-black tracking-tight text-[var(--text-primary)] leading-none">
+                        OpsBrain AI
+                        <span className="block text-[16px] md:text-[18px] font-semibold text-[var(--text-muted)] mt-1 tracking-normal">
+                          Unified Asset & Operations Brain
+                        </span>
+                      </h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="chip-premium border-[var(--border-pill)] bg-[var(--bg-pill)] text-[var(--accent-primary)]">Multi-Agent RAG</span>
+                      <span className="chip-premium border-[var(--border-pill)] bg-[var(--accent-ai-light)] text-[var(--accent-ai)]">Knowledge Graph</span>
+                      <span className="chip-premium">
+                        {activeDataset === 'refinery' ? '⚡ Refinery Pump Station' : '🏭 Vizag Steel COB'}
+                      </span>
                     </div>
                   </div>
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Compliance checks</div>
-                    <div className="text-[28px] font-black font-mono mt-1"
-                      style={{ color: executiveData?.compliance_summary?.non_compliant > 0 ? 'var(--color-critical)' : 'var(--color-healthy)' }}
-                    >
-                      {executiveData?.compliance_summary
-                        ? `${executiveData.compliance_summary.compliant}/${executiveData.compliance_summary.total} OK`
-                        : 'N/A'}
+
+                  <p className="text-[14px] text-[var(--text-muted)] max-w-2xl leading-relaxed mb-6">
+                    Map P&IDs into graph digital twins, ingest SOP documentation, and run multi-agent investigations for root-cause analysis, compliance checks, and risk assessments — all in one intelligent command center.
+                  </p>
+
+                  {/* Quick Stats Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Digital Twins</div>
+                      <div className="stat-num text-[30px] text-[var(--accent-primary)]">{stats.totalAssets}</div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Active Assets</div>
                     </div>
-                  </div>
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Embedding Dim</div>
-                    <div className="text-[28px] font-black text-[var(--accent-ai)] font-mono mt-1">384 Dim</div>
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Active Failures</div>
+                      <div className="stat-num text-[30px]" style={{ color: 'var(--color-critical)' }}>
+                        {selectedAssetDetails && selectedAssetDetails.incidents ? selectedAssetDetails.incidents.length : 0}
+                      </div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Open Incidents</div>
+                    </div>
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Compliance</div>
+                      <div className="stat-num text-[30px]" style={{ color: executiveData?.compliance_summary?.non_compliant > 0 ? 'var(--color-critical)' : 'var(--color-healthy)' }}>
+                        {executiveData?.compliance_summary
+                          ? `${executiveData.compliance_summary.compliant}/${executiveData.compliance_summary.total}`
+                          : '—'}
+                      </div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Checks Passed</div>
+                    </div>
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Embedding</div>
+                      <div className="stat-num text-[30px] text-[var(--accent-ai)]">384</div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Vector Dimensions</div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Recent Failures Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 relative card-premium">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="p-5 card-premium space-y-4 relative">
                   {renderCadCorners()}
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-[var(--text-primary)] text-[16px] tracking-wider uppercase flex items-center gap-2">
-                      <AlertOctagon className="h-4.5 w-4.5 text-[var(--color-critical)]" />
+                    <h3 className="font-bold text-[var(--text-primary)] text-[15px] tracking-wide flex items-center gap-2">
+                      <AlertOctagon className="h-4 w-4 text-[var(--color-critical)]" />
                       Failures & Critical Events
                     </h3>
-                    <span className="text-[9px] font-mono text-slate-500">[LOG_INCIDENTS]</span>
+                    <span className="chip-premium text-[var(--color-critical)] border-[var(--color-critical-light)] bg-[var(--color-critical-light)]">Live Feed</span>
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto pr-2">
+                  <div className="max-h-[300px] overflow-y-auto pr-1">
                     <IncidentTimeline incidents={recentIncidents} />
                   </div>
                 </div>
 
-                <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 relative card-premium">
+                <div className="p-5 card-premium space-y-4 relative">
                   {renderCadCorners()}
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-[var(--text-primary)] text-[16px] tracking-wider uppercase flex items-center gap-2">
-                      <Wrench className="h-4.5 w-4.5 text-[var(--accent-primary)]" />
+                    <h3 className="font-bold text-[var(--text-primary)] text-[15px] tracking-wide flex items-center gap-2">
+                      <Wrench className="h-4 w-4 text-[var(--accent-primary)]" />
                       Maintenance Operations
                     </h3>
-                    <span className="text-[9px] font-mono text-slate-500">[LOG_WORKORDERS]</span>
+                    <span className="chip-premium">Work Orders</span>
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto pr-2">
+                  <div className="max-h-[300px] overflow-y-auto pr-1">
                     <MaintenanceLogs maintenanceLogs={selectedAssetDetails ? selectedAssetDetails.maintenance_logs : []} />
                   </div>
                 </div>

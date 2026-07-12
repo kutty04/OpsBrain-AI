@@ -8,34 +8,43 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 const getNodeStyle = (type) => {
+  // Node fills are intentionally deep/saturated so they read clearly on BOTH
+  // the bright titanium theme (mist bg) and the dark command theme.
   const base = {
-    padding: '10px 14px',
-    borderRadius: '8px',
+    padding: '10px 16px',
+    borderRadius: '10px',
     fontSize: '11px',
     fontWeight: '700',
-    borderWidth: '1.5px',
+    borderWidth: '2px',
     borderStyle: 'solid',
     color: '#ffffff',
     textAlign: 'center',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
     fontFamily: 'Inter, system-ui, sans-serif',
-    transition: 'all 150ms ease-in-out',
+    transition: 'all 180ms ease-in-out',
+    backdropFilter: 'blur(4px)',
+    letterSpacing: '0.02em',
   };
 
   switch (type) {
     case 'Vessel':
-      return { ...base, style: { ...base, background: '#0c2333', borderColor: '#0ea5e9' } };
+      // Deep ocean blue — Vessel/Tank
+      return { ...base, style: { ...base, background: 'rgba(12, 35, 51, 0.92)', borderColor: '#38bdf8', boxShadow: '0 2px 12px rgba(56, 189, 248, 0.15)' } };
     case 'Instrument':
-      return { ...base, style: { ...base, background: '#2c1230', borderColor: '#d946ef' } };
+      // Electric violet — Instruments/Sensors
+      return { ...base, style: { ...base, background: 'rgba(44, 18, 48, 0.92)', borderColor: '#e879f9', boxShadow: '0 2px 12px rgba(232, 121, 249, 0.15)' } };
     case 'Valve':
-      return { ...base, style: { ...base, background: '#2a1a08', borderColor: '#f59e0b' } };
+      // Warm amber — Valves (industrial energy)
+      return { ...base, style: { ...base, background: 'rgba(42, 26, 8, 0.92)', borderColor: '#fbbf24', boxShadow: '0 2px 12px rgba(251, 191, 36, 0.18)' } };
     case 'Exchanger':
-      return { ...base, style: { ...base, background: '#052320', borderColor: '#14b8a6' } };
+      // Teal-cyan — Heat Exchangers
+      return { ...base, style: { ...base, background: 'rgba(5, 35, 32, 0.92)', borderColor: '#2dd4bf', boxShadow: '0 2px 12px rgba(45, 212, 191, 0.15)' } };
     case 'Pump':
-      return { ...base, style: { ...base, background: '#04211a', borderColor: '#10b981' } };
+      // Bright emerald — Pumps (healthy flow)
+      return { ...base, style: { ...base, background: 'rgba(4, 33, 26, 0.92)', borderColor: '#34d399', boxShadow: '0 2px 12px rgba(52, 211, 153, 0.15)' } };
     case 'Line':
     default:
-      return { ...base, style: { ...base, background: '#111827', borderColor: '#4b5563' } };
+      // Cool graphite — Process Lines
+      return { ...base, style: { ...base, background: 'rgba(17, 24, 39, 0.88)', borderColor: '#6b7280', boxShadow: '0 2px 8px rgba(0,0,0,0.30)' } };
   }
 };
 
