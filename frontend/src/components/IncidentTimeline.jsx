@@ -22,8 +22,8 @@ export default function IncidentTimeline({ incidents }) {
     return (
       <div className="p-8 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg text-center text-[var(--text-muted)] flex flex-col items-center justify-center gap-2">
         <AlertOctagon className="h-8 w-8 text-[var(--color-healthy)]/80 mb-1" />
-        <span className="text-sm font-semibold text-slate-300">Facility anomaly feed healthy</span>
-        <span className="text-xs text-slate-500">Zero active incidents or sensor violations logged.</span>
+        <span className="text-sm font-semibold text-[var(--text-secondary)]">Facility anomaly feed healthy</span>
+        <span className="text-xs text-[var(--text-muted)]">Zero active incidents or sensor violations logged.</span>
       </div>
     );
   }
@@ -54,21 +54,21 @@ export default function IncidentTimeline({ incidents }) {
             <p className="text-xs text-[var(--text-muted)] leading-relaxed font-medium">{incident.description}</p>
 
             {incident.root_cause && (
-              <div className="p-2.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-0.5">
-                <div className="text-[10px] font-bold text-[var(--accent-ai)] flex items-center gap-1">
+              <div className="p-2.5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-0.5">
+                <div className="text-[10px] font-bold text-[var(--accent-ai-text)] flex items-center gap-1">
                   <HelpCircle className="h-3 w-3" />
                   RCA ROOT CAUSE IDENTIFIED (AI)
                 </div>
-                <div className="text-xs text-[var(--text-primary)] font-medium leading-normal">
+                <div className="text-xs text-[var(--text-primary)] font-semibold leading-normal">
                   {incident.root_cause}
                 </div>
               </div>
             )}
 
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-semibold pt-1 uppercase">
+            <div className="flex items-center gap-1 text-[10px] text-[var(--text-muted)] font-bold pt-1 uppercase">
               <Calendar className="h-3 w-3" />
               <span>Logged:</span>
-              <span className="text-slate-400 font-mono font-normal normal-case">
+              <span className="text-[var(--text-primary)] font-mono font-normal normal-case">
                 {new Date(incident.incident_date).toLocaleDateString()} {new Date(incident.incident_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>

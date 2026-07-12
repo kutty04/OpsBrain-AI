@@ -22,6 +22,141 @@ PROVIDER_FAILURES: Dict[str, List[float]] = {
 COOLDOWN_SECONDS = 60
 FAILURE_THRESHOLD = 3
 
+def coerce_to_schema(data: Dict[str, Any], schema: Any) -> Dict[str, Any]:
+    """
+    Coerces dictionary values to match Pydantic schema definitions,
+    preventing validation errors from LLM output inconsistencies.
+    """
+    # 1. Normalize confidence float
+    if "confidence" not in data or data["confidence"] is None or data["confidence"] == "":
+        data["confidence"] = 0.8
+    else:
+        try:
+            val = data["confidence"]
+            if isinstance(val, str):
+                val = val.replace("%", "").strip()
+                val = float(val)
+            if val > 1.0:
+                val = val / 100.0
+            data["confidence"] = max(0.0, min(1.0, float(val)))
+        except:
+            data["confidence"] = 0.8
+
+    # 2. Normalize severity_assessment if it is returned as a dictionary
+    if "severity_assessment" in data and isinstance(data["severity_assessment"], dict):
+        sa = data["severity_assessment"]
+        val = sa.get("severity_level") or sa.get("level") or sa.get("severity") or list(sa.values())[0]
+        data["severity_assessment"] = str(val)
+
+    # 3. Clean up graph_trace nested schemas to prevent sub-object validation errors
+    if "graph_trace" in data:
+        gt = data["graph_trace"]
+        if not isinstance(gt, dict) or not gt:
+            data["graph_trace"] = None
+        else:
+            if "affected_nodes" not in gt or not isinstance(gt["affected_nodes"], list):
+                gt["affected_nodes"] = []
+            else:
+                cleaned_nodes = []
+                for node in gt["affected_nodes"]:
+                    if isinstance(node, str):
+                        cleaned_nodes.append(node)
+                    elif isinstance(node, dict):
+                        val = node.get("node_id") or node.get("id") or node.get("tag") or node.get("tag_number") or node.get("name") or node.get("label") or (list(node.values())[0] if node.values() else None)
+                        if val:
+                            cleaned_nodes.append(str(val))
+                gt["affected_nodes"] = cleaned_nodes
+            if "affected_edges" not in gt or not isinstance(gt["affected_edges"], list):
+                gt["affected_edges"] = []
+            else:
+                cleaned_edges = []
+                for edge in gt["affected_edges"]:
+                    if isinstance(edge, str) and "->" in edge:
+                        parts = edge.split("->")
+                        cleaned_edges.append({
+                            "source": parts[0].strip(),
+                            "target": parts[1].strip(),
+                            "reason": None
+                        })
+                    elif isinstance(edge, dict):
+                        source = edge.get("source") or edge.get("from")
+                        target = edge.get("target") or edge.get("to")
+                        if source and target:
+                            cleaned_edges.append({
+                                "source": str(source),
+                                "target": str(target),
+                                "reason": edge.get("reason")
+                            })
+                gt["affected_edges"] = cleaned_edges
+            if "reasoning_steps" not in gt or not isinstance(gt["reasoning_steps"], list):
+                gt["reasoning_steps"] = []
+            else:
+                cleaned_steps = []
+                for step in gt["reasoning_steps"]:
+                    if isinstance(step, str):
+                        cleaned_steps.append(step)
+                    elif isinstance(step, dict):
+                        val = step.get("step") or step.get("log") or step.get("text") or (list(step.values())[0] if step.values() else None)
+                        if val:
+                            cleaned_steps.append(str(val))
+                gt["reasoning_steps"] = cleaned_steps
+
+            if "evidence_refs" not in gt or not isinstance(gt["evidence_refs"], list):
+                gt["evidence_refs"] = []
+            else:
+                cleaned_refs = []
+                for ref in gt["evidence_refs"]:
+                    if isinstance(ref, str):
+                        cleaned_refs.append(ref)
+                    elif isinstance(ref, dict):
+                        val = ref.get("ref") or ref.get("document") or ref.get("file") or (list(ref.values())[0] if ref.values() else None)
+                        if val:
+                            cleaned_refs.append(str(val))
+                gt["evidence_refs"] = cleaned_refs
+
+    # 4. Fill missing or invalid required fields
+    for field_name, field_def in schema.model_fields.items():
+        if field_name not in data or data[field_name] is None:
+            # Supply default or fallback value
+            if field_def.default is not None and str(field_def.default) != "PydanticUndefined":
+                data[field_name] = field_def.default
+            elif field_def.default is None:
+                data[field_name] = None
+            elif getattr(field_def, "default_factory", None) is not None:
+                data[field_name] = field_def.default_factory()
+            else:
+                # Required field lacks default
+                if field_name in ["answer", "identified_root_cause", "findings", "explanation", "status"]:
+                    if field_name == "status":
+                        data[field_name] = "UNDER_REVIEW"
+                    else:
+                        data[field_name] = "Analysis compiled successfully."
+                elif field_name in ["related_tags", "contributing_factors", "suggested_mitigations", "lessons_extracted", "preventive_actions", "safety_recommendations"]:
+                    data[field_name] = []
+                elif field_name == "calculated_score":
+                    data[field_name] = 50
+                elif field_name == "risk_level":
+                    data[field_name] = "Medium"
+                elif field_name == "severity_assessment":
+                    data[field_name] = "Medium"
+                elif field_name == "confidence":
+                    data[field_name] = 0.8
+                else:
+                    data[field_name] = ""
+        else:
+            # Validate types for list fields
+            if field_name in ["violations", "related_tags", "contributing_factors", "suggested_mitigations", "lessons_extracted", "preventive_actions", "safety_recommendations"]:
+                if not data[field_name]:
+                    data[field_name] = []
+                elif not isinstance(data[field_name], list):
+                    data[field_name] = [str(data[field_name])]
+            elif field_name == "calculated_score":
+                try:
+                    data[field_name] = int(float(data[field_name]))
+                except:
+                    data[field_name] = 50
+    return data
+
 def is_provider_degraded(provider_name: str) -> bool:
     """
     Checks if a provider is marked degraded/offline due to consecutive failures.
@@ -73,105 +208,112 @@ class AIProviderRouter:
 
     def route_text_agent(self, prompt: str, system_prompt: str, schema: Any, tag_number: str = None) -> Dict[str, Any]:
         """
-        Routes text agents with fallback: Groq -> Mistral -> Gemini -> Demo fallback.
+        Routes text agents with fallback based on settings.AI_PROVIDER_ORDER.
         """
         attempted = []
         start_time = time.time()
 
-        # 1. Attempt Groq
-        if self.groq_client and not is_provider_degraded("groq"):
-            attempted.append("groq")
-            try:
-                logger.info("Router: Route text_agent to primary 'groq'...")
-                chat_completion = self.groq_client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt}
-                    ],
-                    model="llama-3.3-70b-versatile",
-                    response_format={"type": "json_object"},
-                    temperature=0.1,
-                    timeout=15.0
-                )
-                content = chat_completion.choices[0].message.content
-                data = json.loads(content)
-                # Schema validation check
-                validated = schema(**data)
-                res = validated.model_dump()
-                res["provider_metadata"] = {
-                    "provider_used": "groq",
-                    "fallback_used": False,
-                    "fallback_reason": None,
-                    "attempted_providers": attempted,
-                    "latency_ms": int((time.time() - start_time) * 1000)
-                }
-                return res
-            except Exception as e:
-                logger.warning(f"Router: Groq execution failed: {e}")
-                record_provider_failure("groq")
+        providers = [p.strip().lower() for p in settings.AI_PROVIDER_ORDER.split(",") if p.strip()]
+        for provider in providers:
+            # 1. Attempt Groq
+            if provider == "groq" and self.groq_client and not is_provider_degraded("groq"):
+                attempted.append("groq")
+                try:
+                    logger.info("Router: Route text_agent to 'groq'...")
+                    groq_system_prompt = system_prompt
+                    if "json" not in groq_system_prompt.lower():
+                        groq_system_prompt = groq_system_prompt + "\nOutput must be a valid JSON object."
 
-        # 2. Attempt Mistral fallback
-        if self.mistral_client and not is_provider_degraded("mistral"):
-            attempted.append("mistral")
-            try:
-                logger.info("Router: Failover: Route text_agent to 'mistral'...")
-                chat_response = self.mistral_client.chat.complete(
-                    model="open-mistral-7b",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt}
-                    ],
-                    response_format={"type": "json_object"},
-                    temperature=0.1,
-                    timeout=15.0
-                )
-                content = chat_response.choices[0].message.content
-                data = json.loads(content)
-                validated = schema(**data)
-                res = validated.model_dump()
-                res["provider_metadata"] = {
-                    "provider_used": "mistral",
-                    "fallback_used": True,
-                    "fallback_reason": "Primary Groq provider failed or rate-limited.",
-                    "attempted_providers": attempted,
-                    "latency_ms": int((time.time() - start_time) * 1000)
-                }
-                return res
-            except Exception as e:
-                logger.warning(f"Router: Mistral execution failed: {e}")
-                record_provider_failure("mistral")
-
-        # 3. Attempt Gemini text fallback
-        if self.gemini_client and not is_provider_degraded("gemini"):
-            attempted.append("gemini")
-            try:
-                logger.info("Router: Failover: Route text_agent to 'gemini' (text)...")
-                # Using Gemini structured schema generation
-                response = self.gemini_client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_prompt,
-                        response_mime_type="application/json",
-                        response_schema=schema,
-                        temperature=0.1
+                    chat_completion = self.groq_client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": groq_system_prompt},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile",
+                        response_format={"type": "json_object"},
+                        temperature=0.1,
+                        timeout=15.0
                     )
-                )
-                content = response.text
-                data = json.loads(content)
-                validated = schema(**data)
-                res = validated.model_dump()
-                res["provider_metadata"] = {
-                    "provider_used": "gemini",
-                    "fallback_used": True,
-                    "fallback_reason": "Groq and Mistral providers failed or rate-limited.",
-                    "attempted_providers": attempted,
-                    "latency_ms": int((time.time() - start_time) * 1000)
-                }
-                return res
-            except Exception as e:
-                logger.warning(f"Router: Gemini text execution failed: {e}")
-                record_provider_failure("gemini")
+                    content = chat_completion.choices[0].message.content
+                    data = json.loads(content)
+                    data = coerce_to_schema(data, schema)
+                    validated = schema(**data)
+                    res = validated.model_dump()
+                    res["provider_metadata"] = {
+                        "provider_used": "groq",
+                        "fallback_used": (len(attempted) > 1),
+                        "fallback_reason": f"Prior providers failed: {attempted[:-1]}" if len(attempted) > 1 else None,
+                        "attempted_providers": attempted,
+                        "latency_ms": int((time.time() - start_time) * 1000)
+                    }
+                    return res
+                except Exception as e:
+                    logger.warning(f"Router: Groq execution failed: {e}")
+                    record_provider_failure("groq")
+
+            # 2. Attempt Mistral fallback
+            elif provider == "mistral" and self.mistral_client and not is_provider_degraded("mistral"):
+                attempted.append("mistral")
+                try:
+                    logger.info("Router: Route text_agent to 'mistral'...")
+                    chat_response = self.mistral_client.chat.complete(
+                        model="open-mistral-7b",
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": prompt}
+                        ],
+                        response_format={"type": "json_object"},
+                        temperature=0.1,
+                        timeout_ms=15000
+                    )
+                    content = chat_response.choices[0].message.content
+                    data = json.loads(content)
+                    data = coerce_to_schema(data, schema)
+                    validated = schema(**data)
+                    res = validated.model_dump()
+                    res["provider_metadata"] = {
+                        "provider_used": "mistral",
+                        "fallback_used": (len(attempted) > 1),
+                        "fallback_reason": f"Prior providers failed: {attempted[:-1]}" if len(attempted) > 1 else None,
+                        "attempted_providers": attempted,
+                        "latency_ms": int((time.time() - start_time) * 1000)
+                    }
+                    return res
+                except Exception as e:
+                    logger.warning(f"Router: Mistral execution failed: {e}")
+                    record_provider_failure("mistral")
+
+            # 3. Attempt Gemini text fallback
+            elif provider == "gemini" and self.gemini_client and not is_provider_degraded("gemini"):
+                attempted.append("gemini")
+                try:
+                    logger.info("Router: Route text_agent to 'gemini' (text)...")
+                    response = self.gemini_client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_prompt,
+                            response_mime_type="application/json",
+                            response_schema=schema,
+                            temperature=0.1
+                        )
+                    )
+                    content = response.text
+                    data = json.loads(content)
+                    data = coerce_to_schema(data, schema)
+                    validated = schema(**data)
+                    res = validated.model_dump()
+                    res["provider_metadata"] = {
+                        "provider_used": "gemini",
+                        "fallback_used": (len(attempted) > 1),
+                        "fallback_reason": f"Prior providers failed: {attempted[:-1]}" if len(attempted) > 1 else None,
+                        "attempted_providers": attempted,
+                        "latency_ms": int((time.time() - start_time) * 1000)
+                    }
+                    return res
+                except Exception as e:
+                    logger.warning(f"Router: Gemini text execution failed: {e}")
+                    record_provider_failure("gemini")
 
         # 4. Final: Demo fallback matching asset tags
         logger.warning("Router: All live providers unavailable. Triggering labeled seeded demo fallback...")
@@ -247,96 +389,98 @@ class AIProviderRouter:
 
     def route_rag_answer(self, prompt: str, system_prompt: str, retrieved_chunks: List[str]) -> Dict[str, Any]:
         """
-        Routes RAG compiling: Groq -> Mistral -> Gemini -> Extractive fallback -> Seeded demo fallback.
+        Routes RAG compiling based on settings.AI_PROVIDER_ORDER.
         """
         attempted = []
         start_time = time.time()
 
-        # 1. Attempt Groq
-        if self.groq_client and not is_provider_degraded("groq"):
-            attempted.append("groq")
-            try:
-                logger.info("Router: Route RAG compilation to 'groq'...")
-                chat_completion = self.groq_client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt}
-                    ],
-                    model="llama-3.3-70b-versatile",
-                    temperature=0.2,
-                    timeout=15.0
-                )
-                answer = chat_completion.choices[0].message.content
-                return {
-                    "answer": answer,
-                    "provider_metadata": {
-                        "provider_used": "groq",
-                        "fallback_used": False,
-                        "fallback_reason": None,
-                        "attempted_providers": attempted,
-                        "latency_ms": int((time.time() - start_time) * 1000)
-                    }
-                }
-            except Exception as e:
-                logger.warning(f"Router: RAG Groq compilation failed: {e}")
-                record_provider_failure("groq")
-
-        # 2. Attempt Mistral fallback
-        if self.mistral_client and not is_provider_degraded("mistral"):
-            attempted.append("mistral")
-            try:
-                logger.info("Router: Failover: Route RAG compilation to 'mistral'...")
-                chat_response = self.mistral_client.chat.complete(
-                    model="open-mistral-7b",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": prompt}
-                    ],
-                    temperature=0.2,
-                    timeout=15.0
-                )
-                answer = chat_response.choices[0].message.content
-                return {
-                    "answer": answer,
-                    "provider_metadata": {
-                        "provider_used": "mistral",
-                        "fallback_used": True,
-                        "fallback_reason": "Primary RAG compiler failed or rate-limited.",
-                        "attempted_providers": attempted,
-                        "latency_ms": int((time.time() - start_time) * 1000)
-                    }
-                }
-            except Exception as e:
-                logger.warning(f"Router: RAG Mistral compilation failed: {e}")
-                record_provider_failure("mistral")
-
-        # 3. Attempt Gemini text fallback
-        if self.gemini_client and not is_provider_degraded("gemini"):
-            attempted.append("gemini")
-            try:
-                logger.info("Router: Failover: Route RAG compilation to 'gemini'...")
-                response = self.gemini_client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_prompt,
-                        temperature=0.2
+        providers = [p.strip().lower() for p in settings.AI_PROVIDER_ORDER.split(",") if p.strip()]
+        for provider in providers:
+            # 1. Attempt Groq
+            if provider == "groq" and self.groq_client and not is_provider_degraded("groq"):
+                attempted.append("groq")
+                try:
+                    logger.info("Router: Route RAG compilation to 'groq'...")
+                    chat_completion = self.groq_client.chat.completions.create(
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": prompt}
+                        ],
+                        model="llama-3.3-70b-versatile",
+                        temperature=0.2,
+                        timeout=15.0
                     )
-                )
-                answer = response.text
-                return {
-                    "answer": answer,
-                    "provider_metadata": {
-                        "provider_used": "gemini",
-                        "fallback_used": True,
-                        "fallback_reason": "Groq and Mistral RAG compilers timed out.",
-                        "attempted_providers": attempted,
-                        "latency_ms": int((time.time() - start_time) * 1000)
+                    answer = chat_completion.choices[0].message.content
+                    return {
+                        "answer": answer,
+                        "provider_metadata": {
+                            "provider_used": "groq",
+                            "fallback_used": (len(attempted) > 1),
+                            "fallback_reason": f"Prior RAG compilers failed: {attempted[:-1]}" if len(attempted) > 1 else None,
+                            "attempted_providers": attempted,
+                            "latency_ms": int((time.time() - start_time) * 1000)
+                        }
                     }
-                }
-            except Exception as e:
-                logger.warning(f"Router: RAG Gemini compilation failed: {e}")
-                record_provider_failure("gemini")
+                except Exception as e:
+                    logger.warning(f"Router: RAG Groq compilation failed: {e}")
+                    record_provider_failure("groq")
+
+            # 2. Attempt Mistral fallback
+            elif provider == "mistral" and self.mistral_client and not is_provider_degraded("mistral"):
+                attempted.append("mistral")
+                try:
+                    logger.info("Router: Route RAG compilation to 'mistral'...")
+                    chat_response = self.mistral_client.chat.complete(
+                        model="open-mistral-7b",
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": prompt}
+                        ],
+                        temperature=0.2,
+                        timeout_ms=15000
+                    )
+                    answer = chat_response.choices[0].message.content
+                    return {
+                        "answer": answer,
+                        "provider_metadata": {
+                            "provider_used": "mistral",
+                            "fallback_used": (len(attempted) > 1),
+                            "fallback_reason": f"Prior RAG compilers failed: {attempted[:-1]}" if len(attempted) > 1 else None,
+                            "attempted_providers": attempted,
+                            "latency_ms": int((time.time() - start_time) * 1000)
+                        }
+                    }
+                except Exception as e:
+                    logger.warning(f"Router: RAG Mistral compilation failed: {e}")
+                    record_provider_failure("mistral")
+
+            # 3. Attempt Gemini text fallback
+            elif provider == "gemini" and self.gemini_client and not is_provider_degraded("gemini"):
+                attempted.append("gemini")
+                try:
+                    logger.info("Router: Route RAG compilation to 'gemini'...")
+                    response = self.gemini_client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_prompt,
+                            temperature=0.2
+                        )
+                    )
+                    answer = response.text
+                    return {
+                        "answer": answer,
+                        "provider_metadata": {
+                            "provider_used": "gemini",
+                            "fallback_used": (len(attempted) > 1),
+                            "fallback_reason": f"Prior RAG compilers failed: {attempted[:-1]}" if len(attempted) > 1 else None,
+                            "attempted_providers": attempted,
+                            "latency_ms": int((time.time() - start_time) * 1000)
+                        }
+                    }
+                except Exception as e:
+                    logger.warning(f"Router: RAG Gemini compilation failed: {e}")
+                    record_provider_failure("gemini")
 
         # 4. Extractive fallback from retrieved document chunks
         if retrieved_chunks:

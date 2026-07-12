@@ -1,0 +1,10 @@
+OSHA Process Safety Excerpt
+
+[PROTOTYPE BENCHMARK REFERENCE - NOT A SUBSTITUTE FOR CERTIFIED COMPLIANCE REVIEW]
+
+Title: Process Safety Management and Mechanical Integrity
+Source Type: Public Validation Sample Excerpt
+Relevant Asset Examples: CC-101 (Coal Charging Car), CP-102 (Coke Pusher), HE-301 (Heat Exchanger)
+Threshold/Rule Examples: Operational procedures must specify clear limits for motor current, torque, and pressure limits. Equipment mechanical integrity audits must be performed annually. If an incident (like a torque limit spike on CC-101) occurs, an investigation must be initiated within 48 hours.
+Why It Matters: Operating outside safety boundaries without integrity testing and quick incident follow-ups leads to catastrophic mechanical failures and employee safety hazards.
+Expected OpsBrain Use Case: Used to validate that the Copilot and Compliance agents can cite process safety rules and verify maintenance schedule compliance (within the 90-day window).

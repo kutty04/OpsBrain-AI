@@ -1,0 +1,18 @@
+Refinery Pump Station 1 (RPS-1) Operating Standard:
+Refinery Pump Station 1 (RPS-1) is a critical subsystem regulating feed transfers.
+The Feed Storage Tank (TK-501) stores primary feedstock and directly feeds the Feed Transfer Pump (P-101).
+The Feed Transfer Pump (P-101) discharges pressurized feedstock through the Discharge Isolation Valve (VLV-201) to downstream refinery processes.
+The Pump Motor (M-101) drives the rotation of the transfer pump P-101.
+
+Pressure Monitoring Loop:
+The Discharge Pressure Transmitter (PT-301) measures the raw discharge pressure at the outlet of pump P-101.
+The normal operating pressure limit of the station is 12 bar.
+
+Operating Limits and Alarms:
+If the discharge pressure reaches 18 bar, it exceeds the safe regulatory bounds, triggering high-pressure alarms.
+In the event of a pressure spike or high discharge pressure alarm, operators must:
+1. Inspect the opening status of the Discharge Isolation Valve (VLV-201) for blockages or partial closure.
+2. Verify the calibration of the Discharge Pressure Transmitter (PT-301) against the local analog physical gauge.
+3. Check the motor load on the Pump Motor (M-101) for signs of electrical overload.
+
+Disclaimer: This document is a demo validation sample and should not be used as a certified industrial operating procedure.

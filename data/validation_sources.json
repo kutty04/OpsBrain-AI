@@ -1,32 +1,32 @@
 [
   {
-    "id": "VAL-001",
-    "title": "OSHA Standard 1910.119 - Process Safety Management (PSM) Excerpt",
-    "source_type": "public_safety_excerpt",
-    "public_url_or_reference": "https://www.osha.gov/laws-regs/regulations/standardnumber/1910/1910.119",
-    "license_or_public_status": "Public Domain (U.S. Government Work)",
-    "stored_as": "excerpt",
-    "document_category": "Process Safety Regulation",
-    "notes": "Excerpt focusing on Operating Procedures (1910.119(f)) outlining steps for emergency shutdown, operating limits, and safety considerations."
+    "id": "VS-001",
+    "title": "Coke Oven Gas Collector Safety and Pressure Limits",
+    "source_type": "public validation sample",
+    "public_reference_name": "OISD-150-Paraphrased-Safety-Limits",
+    "jurisdiction_or_context": "Refining & Petrochemicals",
+    "file_path": "data/validation_docs/oisd_coke_oven_safety_excerpt.txt",
+    "use_case": "Validating RAG retrieval of gas collector main operating and warning pressure thresholds.",
+    "limitation_note": "Demo validation excerpt only. Prototype benchmark reference, not a substitute for certified compliance review."
   },
   {
-    "id": "VAL-002",
-    "title": "OISD Standard 150 - Safety Design and Operating Practices for Coke Oven Batteries Excerpt",
-    "source_type": "public_safety_excerpt",
-    "public_url_or_reference": "https://www.oisd.gov.in/standards",
-    "license_or_public_status": "Publicly available guidelines (Oil Industry Safety Directorate, India)",
-    "stored_as": "excerpt",
-    "document_category": "Equipment Safety Standard",
-    "notes": "Excerpt focusing on gas collecting main pressure loops, operating limits (10-15 mmWC), safety bleed valves, and graphite rope door seal maintenance cycles."
+    "id": "VS-002",
+    "title": "Process Safety Management and Mechanical Integrity",
+    "source_type": "public validation sample",
+    "public_reference_name": "OSHA-1910.119-Paraphrased-Integrity",
+    "jurisdiction_or_context": "General Industrial Process Safety",
+    "file_path": "data/validation_docs/osha_process_safety_excerpt.txt",
+    "use_case": "Validating process limits, mechanical audits, and incident reporting timelines for equipment assets.",
+    "limitation_note": "Demo validation excerpt only. Prototype benchmark reference, not a substitute for certified compliance review."
   },
   {
-    "id": "VAL-003",
-    "title": "EPA Clean Air Act - Title V Operating Permit Requirements for Coke Ovens Excerpt",
-    "source_type": "public_environmental_excerpt",
-    "public_url_or_reference": "https://www.epa.gov/clean-air-act-overview",
-    "license_or_public_status": "Public Domain (U.S. Government Work)",
-    "stored_as": "excerpt",
-    "document_category": "Environmental Regulation",
-    "notes": "Excerpt detailing visible smoke emission durations, leak percentage limitations on charging lids (1.0%) and doors (5.0%), and monitoring compliance cycles."
+    "id": "VS-003",
+    "title": "Coke Oven Emissions and Visible Smoke Event Logging",
+    "source_type": "public validation sample",
+    "public_reference_name": "EPA-Method-303-Paraphrased-Smoke-Limits",
+    "jurisdiction_or_context": "Environmental Air Quality",
+    "file_path": "data/validation_docs/environmental_emissions_excerpt.txt",
+    "use_case": "Validating environmental compliance assessments for visible stack smoke cumulative duration limits.",
+    "limitation_note": "Demo validation excerpt only. Prototype benchmark reference, not a substitute for certified compliance review."
   }
 ]

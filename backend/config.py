@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str
     MISTRAL_API_KEY: str = ""
 
+    # Provider routing order (comma-separated, e.g. "gemini,groq,mistral")
+    AI_PROVIDER_ORDER: str = "groq,mistral,gemini"
+
     # Supabase / DB Configurations
     SUPABASE_URL: str
     SUPABASE_KEY: str
@@ -30,10 +33,7 @@ class Settings(BaseSettings):
     # Leave unset or set to false in production to prevent accidental DB wipe.
     ENABLE_DEMO_SEED: bool = False
 
-    # Comma-separated list of allowed frontend origins for CORS.
-    # Default covers local Vite dev server (ports 3000 and 5173).
-    # Override in .env for production: ALLOWED_ORIGINS=https://your-domain.com
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,http://localhost:3001,http://localhost:5175,http://127.0.0.1:3000,http://127.0.0.1:5173,http://127.0.0.1:3001,http://127.0.0.1:5175"
 
     # Shared Constants
     PROJECT_NAME: str = "OpsBrain AI"

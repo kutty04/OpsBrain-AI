@@ -8,33 +8,43 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 const getNodeStyle = (type) => {
+  // Node fills are intentionally deep/saturated so they read clearly on BOTH
+  // the bright titanium theme (mist bg) and the dark command theme.
   const base = {
-    padding: '10px 14px',
-    borderRadius: '8px',
+    padding: '10px 16px',
+    borderRadius: '10px',
     fontSize: '11px',
     fontWeight: '700',
-    border: '1.5px solid',
+    borderWidth: '2px',
+    borderStyle: 'solid',
     color: '#ffffff',
     textAlign: 'center',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
     fontFamily: 'Inter, system-ui, sans-serif',
-    transition: 'all 150ms ease-in-out',
+    transition: 'all 180ms ease-in-out',
+    backdropFilter: 'blur(4px)',
+    letterSpacing: '0.02em',
   };
 
   switch (type) {
     case 'Vessel':
-      return { ...base, style: { ...base, background: '#0c2333', borderColor: '#0ea5e9' } };
+      // Deep ocean blue — Vessel/Tank
+      return { ...base, style: { ...base, background: 'rgba(12, 35, 51, 0.92)', borderColor: '#38bdf8', boxShadow: '0 2px 12px rgba(56, 189, 248, 0.15)' } };
     case 'Instrument':
-      return { ...base, style: { ...base, background: '#2c1230', borderColor: '#d946ef' } };
+      // Electric violet — Instruments/Sensors
+      return { ...base, style: { ...base, background: 'rgba(44, 18, 48, 0.92)', borderColor: '#e879f9', boxShadow: '0 2px 12px rgba(232, 121, 249, 0.15)' } };
     case 'Valve':
-      return { ...base, style: { ...base, background: '#2a1a08', borderColor: '#f59e0b' } };
+      // Warm amber — Valves (industrial energy)
+      return { ...base, style: { ...base, background: 'rgba(42, 26, 8, 0.92)', borderColor: '#fbbf24', boxShadow: '0 2px 12px rgba(251, 191, 36, 0.18)' } };
     case 'Exchanger':
-      return { ...base, style: { ...base, background: '#052320', borderColor: '#14b8a6' } };
+      // Teal-cyan — Heat Exchangers
+      return { ...base, style: { ...base, background: 'rgba(5, 35, 32, 0.92)', borderColor: '#2dd4bf', boxShadow: '0 2px 12px rgba(45, 212, 191, 0.15)' } };
     case 'Pump':
-      return { ...base, style: { ...base, background: '#04211a', borderColor: '#10b981' } };
+      // Bright emerald — Pumps (healthy flow)
+      return { ...base, style: { ...base, background: 'rgba(4, 33, 26, 0.92)', borderColor: '#34d399', boxShadow: '0 2px 12px rgba(52, 211, 153, 0.15)' } };
     case 'Line':
     default:
-      return { ...base, style: { ...base, background: '#111827', borderColor: '#4b5563' } };
+      // Cool graphite — Process Lines
+      return { ...base, style: { ...base, background: 'rgba(17, 24, 39, 0.88)', borderColor: '#6b7280', boxShadow: '0 2px 8px rgba(0,0,0,0.30)' } };
   }
 };
 
@@ -152,7 +162,7 @@ export default function GraphVisualizer({ graphData, selectedNodeName, investiga
         source: e.source_id,
         target: e.target_id,
         label: e.relation_type,
-        labelStyle: { fill: '#0f172a', fontSize: '9px', fontWeight: 'bold' },
+        labelStyle: { fill: 'var(--text-primary)', fontSize: '9px', fontWeight: 'bold' },
 
         style: { 
           stroke: strokeColor, 
@@ -179,10 +189,10 @@ export default function GraphVisualizer({ graphData, selectedNodeName, investiga
       <div className="cad-corner-bl" />
       <div className="cad-corner-br" />
       
-      <div className="absolute top-4 left-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[10px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
+      <div className="absolute top-4 left-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider font-semibold">
         Active Topology: {nodes.length} Nodes | {edges.length} Edges
       </div>
-      <div className="absolute top-4 right-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">
+      <div className="absolute top-4 right-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-wider font-bold">
         [SYS_TOPOLOGY_FLOW]
       </div>
       <ReactFlow
@@ -196,7 +206,7 @@ export default function GraphVisualizer({ graphData, selectedNodeName, investiga
         <Controls showInteractive={false} className="fill-slate-900 stroke-slate-900 bg-[var(--bg-card)] border border-[var(--border-color)] rounded" />
         <MiniMap 
           nodeColor={(n) => 'var(--border-color)'} 
-          maskColor="rgba(5, 5, 5, 0.6)"
+          maskColor="rgba(5, 5, 5, 0.4)"
           className="border border-[var(--border-color)] rounded-lg overflow-hidden bg-[var(--bg-card)]"
         />
       </ReactFlow>

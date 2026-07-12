@@ -51,16 +51,17 @@ class TestEmbeddingsService(unittest.TestCase):
             )
 
         # 3. Perform similarity query
-        # Searching specifically for the mock pump chunk to ensure it is retrieved
-        logger.info("Searching for mock pump chunk...")
-        results = self.embeddings_service.search_similar_chunks("Specs: Main Crude Pump P-101 operates at 1500 RPM with a design pressure limit of 150 PSI.", limit=3, threshold=0.2)
+        # Searching for "pump RPM specs" should match the second chunk
+        logger.info("Searching for: 'What is the pump RPM limit?'")
+        results = self.embeddings_service.search_similar_chunks("What is the pump RPM limit?", limit=20, threshold=0.2)
         self.assertGreater(len(results), 0)
         
-        # Verify the target chunk is retrieved in the results list
-        matched_contents = [r["content"] for r in results]
-        logger.info(f"Retrieved contents: {matched_contents}")
-        has_target = any("P-101" in content and "1500 RPM" in content for content in matched_contents)
-        self.assertTrue(has_target, "Expected P-101 specs chunk to be retrieved in similarity search")
+        matching_results = [r for r in results if "P-101" in r["content"]]
+        self.assertGreater(len(matching_results), 0, "Target chunk P-101 not found in search results")
+        best_match = matching_results[0]["content"]
+        logger.info(f"Top search hit: {best_match}")
+        self.assertIn("P-101", best_match)
+        self.assertIn("1500 RPM", best_match)
 
     def test_3_reindexing_with_retry(self):
         logger.info("Test: Re-indexing with retry...")

@@ -58,18 +58,18 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)]">
-          <div className="max-w-lg w-full mx-4 p-8 border border-rose-500/30 bg-rose-950/20 rounded-xl space-y-4 text-center">
-            <div className="text-rose-400 text-4xl">⚠</div>
-            <h2 className="text-lg font-bold text-rose-300 font-mono tracking-wide">PANEL FAILURE DETECTED</h2>
-            <p className="text-sm text-slate-400">
+          <div className="max-w-lg w-full mx-4 p-8 border border-[var(--color-critical-border)] bg-[var(--color-critical-light)] rounded-xl space-y-4 text-center">
+            <div className="text-[var(--color-critical)] text-4xl">⚠</div>
+            <h2 className="text-lg font-bold text-[var(--color-critical)] font-mono tracking-wide">PANEL FAILURE DETECTED</h2>
+            <p className="text-sm text-[var(--text-secondary)] font-medium">
               A component encountered an unexpected error and could not render.
             </p>
-            <p className="text-xs font-mono text-rose-400/60 bg-slate-900/60 rounded px-3 py-2 text-left break-all">
+            <p className="text-xs font-mono text-[var(--color-critical)] bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded px-3 py-2 text-left break-all">
               {this.state.errorMessage}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 px-6 py-2 text-sm font-semibold rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 transition"
+              className="mt-4 px-6 py-2 text-sm font-semibold rounded-lg bg-[var(--color-critical-light)] border border-[var(--color-critical-border)] text-[var(--color-critical)] hover:bg-[var(--color-critical-light)]/80 transition"
             >
               Reload OpsBrain
             </button>
@@ -89,11 +89,11 @@ function LoaderSkeleton({ type = 'card' }) {
         {[1, 2, 3].map((i) => (
           <div key={i} className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-2">
             <div className="flex justify-between items-center">
-              <div className="h-3.5 bg-slate-850 rounded w-1/4"></div>
-              <div className="h-3.5 bg-slate-850 rounded w-1/12"></div>
+              <div className="h-3.5 bg-[var(--border-color)] rounded w-1/4"></div>
+              <div className="h-3.5 bg-[var(--border-color)] rounded w-1/12"></div>
             </div>
-            <div className="h-3 bg-slate-850 rounded w-full"></div>
-            <div className="h-3 bg-slate-850 rounded w-5/6"></div>
+            <div className="h-3 bg-[var(--border-color)] rounded w-full"></div>
+            <div className="h-3 bg-[var(--border-color)] rounded w-5/6"></div>
           </div>
         ))}
       </div>
@@ -104,11 +104,11 @@ function LoaderSkeleton({ type = 'card' }) {
       <div className="space-y-6 animate-pulse">
         <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-3">
           <div className="flex gap-2">
-            <div className="h-4.5 bg-slate-850 rounded w-16"></div>
-            <div className="h-4.5 bg-slate-850 rounded w-28"></div>
+            <div className="h-4.5 bg-[var(--border-color)] rounded w-16"></div>
+            <div className="h-4.5 bg-[var(--border-color)] rounded w-28"></div>
           </div>
-          <div className="h-6 bg-slate-850 rounded w-1/2"></div>
-          <div className="h-3.5 bg-slate-850 rounded w-3/4"></div>
+          <div className="h-6 bg-[var(--border-color)] rounded w-1/2"></div>
+          <div className="h-3.5 bg-[var(--border-color)] rounded w-3/4"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="h-[200px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg"></div>
@@ -119,9 +119,9 @@ function LoaderSkeleton({ type = 'card' }) {
   }
   return (
     <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-3 animate-pulse">
-      <div className="h-3.5 bg-slate-850 rounded w-2/3"></div>
-      <div className="h-3 bg-slate-850 rounded w-full"></div>
-      <div className="h-3 bg-slate-850 rounded w-5/6"></div>
+      <div className="h-3.5 bg-[var(--border-color)] rounded w-2/3"></div>
+      <div className="h-3 bg-[var(--border-color)] rounded w-full"></div>
+      <div className="h-3 bg-[var(--border-color)] rounded w-5/6"></div>
     </div>
   );
 }
@@ -148,14 +148,12 @@ const renderProviderMetadataChip = (result) => {
   } else if (meta.provider_used === 'extractive_fallback') {
     text = 'Extractive fallback: generated from retrieved document evidence';
     colorClass = 'text-amber-400 border-amber-500/30 bg-amber-500/10';
-  } else if (meta.fallback_used) {
-    const formattedName = meta.provider_used.charAt(0).toUpperCase() + meta.provider_used.slice(1);
-    text = `Answered using fallback provider: ${formattedName}`;
-    colorClass = 'text-amber-400 border-amber-500/30 bg-amber-500/10';
   } else {
+    // All live providers (Gemini, Groq, Mistral) — show as green AI Source
     const formattedName = meta.provider_used.charAt(0).toUpperCase() + meta.provider_used.slice(1);
-    text = `AI Source: ${formattedName} (${meta.latency_ms ? `${meta.latency_ms}ms` : 'online'})`;
-    colorClass = 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10';
+    const latency = meta.latency_ms ? `${meta.latency_ms}ms` : 'live';
+    text = `AI Source: ${formattedName} (${latency})`;
+    colorClass = 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
   }
 
   return (
@@ -165,6 +163,8 @@ const renderProviderMetadataChip = (result) => {
   );
 };
 
+const ENABLE_INVESTIGATION_HUD = false;
+
 function AppContent() {
   const [theme, setTheme] = useState('slate');
   const [apiStatus, setApiStatus] = useState('healthy');
@@ -173,31 +173,75 @@ function AppContent() {
   // ── AI Runtime & Fallback Monitor Telemetry States ────────────────────────
   const [isMonitorOpen, setIsMonitorOpen] = useState(false);
   const [telemetry, setTelemetry] = useState({
-    groq: { reqs: 0, errs: 0, totalLatency: 0, status: 'ONLINE' },
-    gemini: { reqs: 0, errs: 0, totalLatency: 0, status: 'ONLINE' },
-    mistral: { reqs: 0, errs: 0, totalLatency: 0, status: 'ONLINE' },
+    groq: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+    gemini: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+    mistral: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
     promptCacheHits: 0,
     searchCacheHits: 0,
-    telemetryStream: 'DISCONNECTED'
+    telemetryStream: 'IDLE'
   });
   const [fallbackLogs, setFallbackLogs] = useState([]);
   const [lastCopilotQuery, setLastCopilotQuery] = useState('');
+
+  const handleClearTelemetry = async () => {
+    try {
+      const res = await fetchAPI('/health');
+      const providers = res.data?.providers || {};
+      setTelemetry(prev => ({
+        groq: { reqs: 0, errs: 0, totalLatency: 0, status: providers.groq ? 'IDLE' : 'NOT CONFIGURED' },
+        gemini: { reqs: 0, errs: 0, totalLatency: 0, status: providers.gemini ? 'IDLE' : 'NOT CONFIGURED' },
+        mistral: { reqs: 0, errs: 0, totalLatency: 0, status: providers.mistral ? 'IDLE' : 'NOT CONFIGURED' },
+        promptCacheHits: 0,
+        searchCacheHits: 0,
+        telemetryStream: prev.telemetryStream
+      }));
+    } catch (e) {
+      setTelemetry(prev => ({
+        groq: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+        gemini: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+        mistral: { reqs: 0, errs: 0, totalLatency: 0, status: 'IDLE' },
+        promptCacheHits: 0,
+        searchCacheHits: 0,
+        telemetryStream: prev.telemetryStream
+      }));
+    }
+    setFallbackLogs([]);
+  };
+
+  useEffect(() => {
+    const initTelemetryConfig = async () => {
+      try {
+        const res = await fetchAPI('/health');
+        if (res.success && res.data && res.data.providers) {
+          setTelemetry(prev => {
+            let updated = { ...prev };
+            Object.keys(res.data.providers).forEach(prov => {
+              if (updated[prov]) {
+                const isConfigured = res.data.providers[prov];
+                updated[prov] = {
+                  ...updated[prov],
+                  status: isConfigured ? 'IDLE' : 'NOT CONFIGURED'
+                };
+              }
+            });
+            return updated;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to retrieve telemetry configuration:', err);
+      }
+    };
+    initTelemetryConfig();
+  }, []);
 
   const fetchAPI = async (url, options) => {
     const start = performance.now();
     let provider = null;
 
-    // Detect provider based on API route
+    // Detect default provider based on API route (only used for fallback/errors before metadata arrives)
     if (url.includes('/pid/parse')) provider = 'gemini';
     else if (url.includes('/agents/rca') || url.includes('/agents/risk') || url.includes('/agents/compliance') || url.includes('/agents/lessons-learned')) provider = 'groq';
-    else if (url.includes('/agents/knowledge')) provider = 'groq'; // defaults to Groq as the router
-
-    if (provider) {
-      setTelemetry(prev => ({
-        ...prev,
-        [provider]: { ...prev[provider], reqs: prev[provider].reqs + 1 }
-      }));
-    }
+    else if (url.includes('/agents/knowledge')) provider = 'groq';
 
     try {
       const res = await originalFetchAPI(url, options);
@@ -219,6 +263,7 @@ function AppContent() {
             if (mappedProv !== used && updated[mappedProv]) {
               updated[mappedProv] = {
                 ...updated[mappedProv],
+                reqs: updated[mappedProv].reqs + 1,
                 errs: updated[mappedProv].errs + 1,
                 status: 'DEGRADED'
               };
@@ -264,6 +309,7 @@ function AppContent() {
 
             updated[provider] = {
               ...updated[provider],
+              reqs: updated[provider].reqs + 1,
               totalLatency: updated[provider].totalLatency + latency,
               status: nextStatus
             };
@@ -278,7 +324,6 @@ function AppContent() {
       const latency = performance.now() - start;
       const timestamp = new Date().toLocaleTimeString();
 
-      // Log fallback/failure events
       const actionName = url.split('/').pop();
       const failedProvider = provider || 'unknown';
       const logMsg = `[${timestamp}] Provider ${failedProvider.toUpperCase()} (${actionName}) failed: ${err.message || 'Network error'}`;
@@ -287,12 +332,14 @@ function AppContent() {
 
       if (provider) {
         setTelemetry(prev => {
+          const nextReqs = prev[provider].reqs + 1;
           const nextErrs = prev[provider].errs + 1;
-          const nextStatus = nextErrs >= prev[provider].reqs ? 'OFFLINE' : 'DEGRADED';
+          const nextStatus = nextErrs >= nextReqs ? 'OFFLINE' : 'DEGRADED';
           return {
             ...prev,
             [provider]: {
               ...prev[provider],
+              reqs: nextReqs,
               errs: nextErrs,
               totalLatency: prev[provider].totalLatency + latency,
               status: nextStatus
@@ -341,6 +388,9 @@ function AppContent() {
   const [loadingExecutive, setLoadingExecutive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  const [seedMessage, setSeedMessage] = useState(null); // Non-blocking seed status toast
+  const [activeDataset, setActiveDataset] = useState('vizag'); // 'vizag' | 'refinery'
+  const [seedingDataset, setSeedingDataset] = useState(false); // prevent concurrent seed calls
 
   // Ingestion File State
   const [selectedFile, setSelectedFile] = useState(null);
@@ -365,12 +415,24 @@ function AppContent() {
 
   const [riskAgentResult, setRiskAgentResult] = useState(null);
   const [riskAgentLoading, setRiskAgentLoading] = useState(false);
+  const [riskAgentError, setRiskAgentError] = useState(null);
 
   const [complianceAgentResult, setComplianceAgentResult] = useState(null);
   const [complianceAgentLoading, setComplianceAgentLoading] = useState(false);
+  const [complianceAgentError, setComplianceAgentError] = useState(null);
 
   const [lessonsResult, setLessonsResult] = useState(null);
   const [lessonsLoading, setLessonsLoading] = useState(false);
+  const [lessonsError, setLessonsError] = useState(null);
+
+  // ── Phase 5A: Tribal Knowledge / Field Notes ────────────────────────────
+  const [tribalNotes, setTribalNotes] = useState([]);
+  const [tribalNotesLoading, setTribalNotesLoading] = useState(false);
+  const [tribalNoteText, setTribalNoteText] = useState('');
+  const [tribalNoteRole, setTribalNoteRole] = useState('');
+  const [tribalNoteConf, setTribalNoteConf] = useState('');
+  const [tribalNoteSaving, setTribalNoteSaving] = useState(false);
+  const [tribalNoteSaveError, setTribalNoteSaveError] = useState(null);
 
   // ── AI Investigation Mode State ──────────────────────────────────────────
   const [isInvestigating, setIsInvestigating] = useState(false);
@@ -440,6 +502,50 @@ function AppContent() {
     }
   };
 
+  // Load tribal knowledge notes for the selected asset
+  const loadTribalNotes = async (tag) => {
+    if (!tag) return;
+    setTribalNotesLoading(true);
+    try {
+      const res = await fetchAPI(`/tribal-notes?asset_tag=${encodeURIComponent(tag)}`);
+      setTribalNotes(res.data || []);
+    } catch (err) {
+      console.error('Tribal notes load error:', err);
+      setTribalNotes([]);
+    } finally {
+      setTribalNotesLoading(false);
+    }
+  };
+
+  // Save a new tribal knowledge note
+  const saveTribalNote = async () => {
+    if (!tribalNoteText.trim() || !selectedAssetTag || tribalNoteSaving) return;
+    setTribalNoteSaving(true);
+    setTribalNoteSaveError(null);
+    try {
+      await fetchAPI('/tribal-notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset_tag: selectedAssetTag,
+          note_text: tribalNoteText.trim(),
+          source_type: 'Field Note',
+          author_role: tribalNoteRole.trim() || null,
+          confidence: tribalNoteConf.trim() || null,
+        }),
+      });
+      setTribalNoteText('');
+      setTribalNoteRole('');
+      setTribalNoteConf('');
+      await loadTribalNotes(selectedAssetTag);
+    } catch (err) {
+      console.error('Tribal note save error:', err);
+      setTribalNoteSaveError('Failed to save field note. Please try again.');
+    } finally {
+      setTribalNoteSaving(false);
+    }
+  };
+
   // Load documents
   const loadDocuments = async () => {
     setLoadingDocs(true);
@@ -483,13 +589,19 @@ function AppContent() {
     if (selectedAssetTag) {
       setActiveGraphTrace(null);
       loadAssetDetails(selectedAssetTag);
+      loadTribalNotes(selectedAssetTag);
+      setTribalNotes([]);
+      setTribalNoteText('');
+      setTribalNoteRole('');
+      setTribalNoteConf('');
+      setTribalNoteSaveError(null);
     }
   }, [selectedAssetTag]);
 
   // Live Telemetry EventSource Connection
   useEffect(() => {
     if (!liveAlarmsActive) {
-      setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
+      setTelemetry(prev => ({ ...prev, telemetryStream: 'IDLE' }));
       return;
     }
 
@@ -580,17 +692,17 @@ function AppContent() {
 
       eventSource.onerror = (err) => {
         console.error("Telemetry EventSource error. Falling back to local simulation.", err);
-        setTelemetry(prev => ({ ...prev, telemetryStream: 'FALLBACK_LOCAL' }));
+        setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
         triggerLocalAlarmFallback();
       };
     } catch (err) {
       console.error("Failed to initialize EventSource. Falling back to local simulation.", err);
-      setTelemetry(prev => ({ ...prev, telemetryStream: 'FALLBACK_LOCAL' }));
+      setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
       triggerLocalAlarmFallback();
     }
 
     return () => {
-      setTelemetry(prev => ({ ...prev, telemetryStream: 'DISCONNECTED' }));
+      setTelemetry(prev => ({ ...prev, telemetryStream: 'IDLE' }));
       if (eventSource) {
         eventSource.close();
         if (eventSource.localInterval) {
@@ -763,157 +875,186 @@ function AppContent() {
 
   const runRCAAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setRcaLoading(true);
     setRcaError(null);
     setRcaResult(null);
 
-    const apiPromise = fetchAPI('/agents/rca', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Investigate and determine the root cause of the most recent failure or active incident.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'rca', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/rca', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Investigate and determine the root cause of the most recent failure or active incident.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setRcaResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
       } catch (err) {
-        setRcaError(err.message || 'RCA Agent failed.');
+        setRcaError(err.message || 'RCA analysis failed. Please retry.');
       } finally {
         setRcaLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'rca', runCall);
+    } else {
+      runCall();
+    }
   };
 
   const runRiskAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setRiskAgentLoading(true);
+    setRiskAgentError(null);
     setRiskAgentResult(null);
 
-    const apiPromise = fetchAPI('/agents/risk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Calculate the current risk profile including all incident, compliance and maintenance factors.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'risk', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/risk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Calculate the current risk profile including all incident, compliance and maintenance factors.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setRiskAgentResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
-        loadAssetDetails(selectedAssetTag);
-        loadExecutiveData();
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
       } catch (err) {
-        console.error('Risk Agent error:', err);
+        setRiskAgentError(err.message || 'Risk analysis failed. Please retry.');
       } finally {
         setRiskAgentLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'risk', runCall);
+    } else {
+      runCall();
+    }
   };
 
   const runComplianceAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setComplianceAgentLoading(true);
+    setComplianceAgentError(null);
     setComplianceAgentResult(null);
 
-    const apiPromise = fetchAPI('/agents/compliance', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Assess current regulatory and safety compliance status against all applicable regulations.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'compliance', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/compliance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Assess current regulatory and safety compliance status against all applicable regulations.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setComplianceAgentResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
       } catch (err) {
-        console.error('Compliance Agent error:', err);
+        setComplianceAgentError(err.message || 'Compliance analysis failed. Please retry.');
       } finally {
         setComplianceAgentLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'compliance', runCall);
+    } else {
+      runCall();
+    }
   };
 
   const runLessonsLearnedAgent = async () => {
     if (!selectedAssetTag) return;
+    if (rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading) return;
     setLessonsLoading(true);
+    setLessonsError(null);
     setLessonsResult(null);
 
-    const apiPromise = fetchAPI('/agents/lessons-learned', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: 'Extract key lessons learned from failure history and generate preventive safety checklists.',
-        tag_number: selectedAssetTag,
-      }),
-    });
-
-    startInvestigation(selectedAssetTag, 'lessons', async () => {
+    const runCall = async () => {
       try {
-        const res = await apiPromise;
+        const res = await fetchAPI('/agents/lessons-learned', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'Extract key lessons learned from failure history and generate preventive safety checklists.',
+            tag_number: selectedAssetTag,
+          }),
+        });
         setLessonsResult(res.data);
         if (res.data && res.data.graph_trace) {
           setActiveGraphTrace(res.data.graph_trace);
-          if (res.data.graph_trace.reasoning_steps) {
+          if (ENABLE_INVESTIGATION_HUD && res.data.graph_trace.reasoning_steps) {
             for (let i = 0; i < res.data.graph_trace.reasoning_steps.length; i++) {
               await new Promise(r => setTimeout(r, 600));
               setInvestigationLogs(prev => [...prev, `> [INFERENCE] ${res.data.graph_trace.reasoning_steps[i]}`]);
             }
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        if (ENABLE_INVESTIGATION_HUD) {
+          await new Promise(r => setTimeout(r, 800));
+        }
       } catch (err) {
-        console.error('Lessons Learned Agent error:', err);
+        setLessonsError(err.message || 'Lessons extraction failed. Please retry.');
       } finally {
         setLessonsLoading(false);
         setIsInvestigating(false);
         setInvestigationStep(0);
       }
-    });
+    };
+
+    if (ENABLE_INVESTIGATION_HUD) {
+      startInvestigation(selectedAssetTag, 'lessons', runCall);
+    } else {
+      runCall();
+    }
   };
 
   // Clear agent results when selected asset changes
@@ -969,50 +1110,100 @@ function AppContent() {
         :root {
           --theme-accent: var(--accent-primary);
         }
-        /* Custom scrollbar to match industrial look */
-        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
+        .theme-slate, .theme-steel { --tw-bg-opacity: 1; }
+
+        /* ── Replace dark slate bg classes with themed surface ── */
+        .bg-slate-900,
+        .bg-slate-950,
+        .bg-slate-900\/40, .bg-slate-900\/60, .bg-slate-900\/70,
+        .bg-slate-950\/40, .bg-slate-950\/50, .bg-slate-950\/60 {
+          background-color: var(--bg-card-tinted) !important;
         }
-        ::-webkit-scrollbar-track {
-          background: var(--bg-app);
-        }
-        ::-webkit-scrollbar-thumb {
-          background: var(--border-color);
-          border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: var(--border-hover);
-        }
-        /* Standard card override rules for custom themes */
-        .theme-slate, .theme-steel, .theme-graphite {
-          --tw-bg-opacity: 1;
-        }
-        .bg-slate-900, .bg-slate-900\\/40, .bg-slate-900\\/60, .bg-slate-900\\/70, .bg-slate-950, .bg-slate-950\\/40, .bg-slate-950\\/50 {
-          background-color: var(--bg-card) !important;
-        }
-        .border-slate-800, .border-slate-850, .border-slate-700\\/60, .border-slate-700\\/40 {
+        .border-slate-800, .border-slate-850,
+        .border-slate-700\/60, .border-slate-700\/40 {
           border-color: var(--border-color) !important;
         }
+
+        /* ── Text: strong contrast on light theme ── */
         .text-slate-100, .text-slate-200, .text-slate-300 {
-          color: var(--text-primary) !important;
+          color: var(--text-secondary) !important;
         }
         .text-slate-400, .text-slate-500 {
           color: var(--text-muted) !important;
         }
-        .text-cyan-400, .text-fuchsia-400 {
-          color: var(--accent-primary) !important;
-        }
-        .bg-cyan-500\\/10, .bg-fuchsia-500\\/10, .bg-emerald-500\\/10 {
+        .text-slate-600 { color: var(--text-label) !important; }
+
+        /* ── Semantic accent colors ── */
+        .text-cyan-400  { color: var(--accent-primary-text) !important; }
+        .text-cyan-300  { color: var(--accent-primary-text) !important; }
+        .text-fuchsia-400 { color: var(--accent-ai-text) !important; }
+        .text-emerald-400 { color: var(--color-healthy) !important; }
+        .text-amber-300, .text-amber-400 { color: var(--color-warning) !important; }
+        .text-rose-400 { color: var(--color-critical) !important; }
+
+        /* ── Badge / pill backgrounds ── */
+        .bg-cyan-500\/10, .bg-fuchsia-500\/10 {
           background-color: var(--bg-pill) !important;
           border-color: var(--border-pill) !important;
         }
-        .border-cyan-500\\/10, .border-cyan-500\\/20, .border-cyan-500\\/30, .border-fuchsia-500\\/20 {
+        .bg-emerald-500\/10 {
+          background-color: var(--color-healthy-light) !important;
+          border-color: var(--color-healthy-border) !important;
+        }
+        .bg-amber-500\/5, .bg-amber-500\/10 {
+          background-color: var(--color-warning-light) !important;
+          border-color: var(--color-warning-border) !important;
+        }
+        .bg-rose-500\/5, .bg-rose-500\/10 {
+          background-color: var(--color-critical-light) !important;
+          border-color: var(--color-critical-border) !important;
+        }
+        .border-cyan-500\/10, .border-cyan-500\/20,
+        .border-cyan-500\/30, .border-fuchsia-500\/20 {
           border-color: var(--border-pill) !important;
         }
-        .text-cyan-300 {
+        .border-amber-500\/20, .border-amber-900\/30, .border-amber-900\/20 {
+          border-color: var(--color-warning-border) !important;
+        }
+        .border-emerald-500\/20, .border-emerald-500\/30 {
+          border-color: var(--color-healthy-border) !important;
+        }
+        .border-rose-500\/20, .border-rose-500\/25, .border-rose-500\/30 {
+          border-color: var(--color-critical-border) !important;
+        }
+
+        /* ── Inputs: must look like real inputs, not disabled ── */
+        input[type="text"], input[type="search"], textarea {
+          background-color: var(--bg-input) !important;
+          color: var(--text-primary) !important;
+          border-color: var(--border-input) !important;
+        }
+        input::placeholder, textarea::placeholder {
+          color: var(--text-label) !important;
+          opacity: 1 !important;
+        }
+        input:focus, textarea:focus {
+          border-color: var(--accent-primary) !important;
+          outline: none !important;
+          box-shadow: 0 0 0 3px var(--bg-pill) !important;
+          background-color: var(--bg-input-focus) !important;
+        }
+
+        /* ── Sidebar: keep dark, fix text opacity ── */
+        .cockpit-sidebar * { color: inherit; }
+        .cockpit-sidebar .text-slate-400,
+        .cockpit-sidebar .text-slate-500 {
+          color: rgba(255,255,255,0.44) !important;
+        }
+        .cockpit-sidebar .border-slate-800 {
+          border-color: rgba(255,255,255,0.07) !important;
+        }
+        .cockpit-sidebar .sidebar-nav-item-active,
+        .cockpit-sidebar .sidebar-nav-item-active * {
           color: var(--accent-primary) !important;
         }
+        .cockpit-sidebar .text-amber-400 { color: #fbbf24 !important; }
+        .cockpit-sidebar .text-cyan-400  { color: #22d3ee !important; }
       `}</style>
       {/* P5: Mobile overlay backdrop */}
       {sidebarOpen && (
@@ -1024,35 +1215,41 @@ function AppContent() {
 
       {/* P5: Responsive sidebar — fixed on mobile, static on md+ */}
       <aside className={`
+        cockpit-sidebar
         fixed md:static inset-y-0 left-0 z-30
-        w-64 bg-[var(--bg-card)] border-r border-[var(--border-color)] flex flex-col flex-shrink-0
+        w-64 flex flex-col flex-shrink-0
         transform transition-transform duration-200 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
-        <div className="p-5 border-b border-[var(--border-color)] flex flex-col gap-1 bg-slate-950/20">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-5.5 w-5.5 text-[var(--accent-primary)]" />
-            <span className="font-black text-[16px] tracking-wider text-[var(--text-primary)] uppercase">OPSBRAIN AI</span>
+        <div className="p-5 border-b border-white/[0.07] flex flex-col gap-1.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-[var(--accent-primary)]/20 border border-[var(--accent-primary)]/30 flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="h-3.5 w-3.5 text-[var(--accent-primary)]" />
+            </div>
+            <span className="font-black text-[15px] tracking-widest text-white uppercase">OPSBRAIN AI</span>
           </div>
-          <div className="text-[9px] font-mono text-slate-500 uppercase leading-none tracking-widest mt-1">
-            SYS: OPSBRAIN_V1.2 // REGION: VIZAG_STEEL // STATUS: ACTIVE
+          <div className="flex items-center gap-1.5 ml-0.5">
+            <span className="pulse-live flex-shrink-0"></span>
+            <span className="text-[9px] font-mono text-white/35 uppercase leading-none tracking-widest">
+              V1.2 · VIZAG_STEEL · ACTIVE
+            </span>
           </div>
         </div>
         
-        <nav className="flex-1 py-6 px-4 space-y-1.5">
+        <nav className="flex-1 py-5 px-3 space-y-0.5">
           <button 
             onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'dashboard' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Database className="h-4.5 w-4.5" />
+              <Database className="h-4 w-4" />
               <span>Dashboard</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[01]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">01</span>
           </button>
 
           <button 
@@ -1060,32 +1257,32 @@ function AppContent() {
               setActiveTab('executive');
               loadExecutiveData();
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'executive' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <TrendingUp className="h-4.5 w-4.5" />
+              <TrendingUp className="h-4 w-4" />
               <span>Executive View</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[02]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">02</span>
           </button>
           
           <button 
             onClick={() => setActiveTab('twin')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'twin' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Network className="h-4.5 w-4.5" />
+              <Network className="h-4 w-4" />
               <span>Digital Twin</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[03]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">03</span>
           </button>
           
           <button 
@@ -1093,167 +1290,250 @@ function AppContent() {
               setActiveTab('ingestion');
               loadDocuments();
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'ingestion' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <UploadCloud className="h-4.5 w-4.5" />
+              <UploadCloud className="h-4 w-4" />
               <span>Ingestion</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[04]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">04</span>
           </button>
 
           <button 
             onClick={() => {
               setActiveTab('pid_parser');
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'pid_parser' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Network className="h-4.5 w-4.5" />
+              <Network className="h-4 w-4" />
               <span>P&ID Parser</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[05]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">05</span>
           </button>
 
           <button 
             onClick={() => {
               setActiveTab('evaluation');
             }}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-[15px] font-semibold transition duration-150 border ${
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-[13px] font-semibold transition-all duration-150 border ${
               activeTab === 'evaluation' 
-                ? 'bg-[var(--bg-pill)] text-[var(--accent-primary)] border-[var(--border-pill)]' 
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/25 border-transparent'
+                ? 'sidebar-nav-item-active' 
+                : 'sidebar-nav-item-inactive border-transparent'
             }`}
           >
             <div className="flex items-center gap-3">
-              <ShieldCheck className="h-4.5 w-4.5" />
+              <ShieldCheck className="h-4 w-4" />
               <span>Evaluation & Benchmarks</span>
             </div>
-            <span className="text-[9px] font-mono opacity-50 font-bold">[06]</span>
+            <span className="text-[8px] font-mono opacity-30 font-bold">06</span>
           </button>
         </nav>
 
         
         {/* Presentation & Demo Control Panel */}
-        <div className="p-4 border-t border-[var(--border-color)] space-y-3 bg-[var(--bg-app)]/30">
-          <div className="text-[10px] uppercase font-black tracking-widest text-[var(--text-muted)] flex items-center gap-1.5">
+        <div className="p-4 border-t border-white/[0.07] space-y-3">
+          <div className="text-[9px] uppercase font-black tracking-widest text-white/35 flex items-center gap-1.5">
             <TrendingUp className="h-3 w-3 text-[var(--accent-primary)]" />
             Hackathon Mode
           </div>
           
+          {/* Phase 6B: Active Dataset Label */}
+          <div className="flex items-center gap-1.5 px-1">
+            <span className="text-[9px] uppercase font-black tracking-widest text-slate-400">Active Dataset:</span>
+            <span className={`text-[9px] font-bold uppercase tracking-wide ${activeDataset === 'refinery' ? 'text-amber-400' : 'text-[var(--accent-primary)]'}`}>
+              {activeDataset === 'refinery' ? 'Refinery Pump Station' : 'Vizag Steel Coke Oven'}
+            </span>
+          </div>
+
+          {/* Seed Vizag button */}
           <button
+            type="button"
+            disabled={seedingDataset}
             onClick={async () => {
               if (confirm("Reset database and seed Vizag Steel Coke Oven Battery dataset?")) {
                 try {
+                  setSeedingDataset(true);
                   setLoadingAssets(true);
+                  setSelectedAssetDetails(null);
+                  setIsInvestigating(false);
+                  setInvestigationStep(0);
+                  setInvestigationLogs([]);
+                  // Reset any in-flight agent loading states to clean slate
+                  setRcaLoading(false); setRcaResult(null); setRcaError(null);
+                  setRiskAgentLoading(false); setRiskAgentResult(null); setRiskAgentError(null);
+                  setComplianceAgentLoading(false); setComplianceAgentResult(null); setComplianceAgentError(null);
+                  setLessonsLoading(false); setLessonsResult(null); setLessonsError(null);
                   const res = await fetchAPI('/demo/seed-vizag', { method: 'POST' });
-                  alert("Successfully seeded Vizag Steel Coke Oven Battery dataset!");
-                  
-                  // Reload datasets
+                  setActiveDataset('vizag');
+                  setSeedMessage({ type: 'success', text: 'Vizag demo seeded successfully.' });
+                  setTimeout(() => setSeedMessage(null), 4000);
                   await loadAssets();
                   await loadExecutiveData();
-                  
-                  // Switch to Executive view
                   setActiveTab('executive');
                   if (res.data && res.data.assets && res.data.assets.length > 0) {
                     setSelectedAssetTag(res.data.assets[0].tag_number);
                   }
                 } catch (err) {
-                  alert("Failed to seed scenario: " + err.message);
+                  setSeedMessage({ type: 'error', text: 'Seed failed: ' + err.message });
+                  setTimeout(() => setSeedMessage(null), 5000);
                 } finally {
                   setLoadingAssets(false);
+                  setSeedingDataset(false);
                 }
               }
             }}
-            className="w-full py-1.5 px-3 bg-[var(--bg-pill)] hover:bg-[var(--bg-pill)]/20 text-[var(--accent-primary)] border border-[var(--border-pill)] hover:border-[var(--accent-primary)] rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5"
+            className="w-full py-1.5 px-3 bg-sky-600 hover:bg-sky-700 text-white border border-sky-700 rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
           >
-            Seed Vizag Steel
+            {seedingDataset && activeDataset !== 'refinery' ? 'Seeding...' : 'Seed Vizag Steel'}
           </button>
+
+          {/* Phase 6B: Seed Refinery Demo button */}
+          <button
+            type="button"
+            disabled={seedingDataset}
+            onClick={async () => {
+              if (confirm("Switch to Refinery Pump Station scalability demo? This will replace Vizag data.")) {
+                try {
+                  setSeedingDataset(true);
+                  setLoadingAssets(true);
+                  setSelectedAssetDetails(null);
+                  setSelectedAssetTag(null);
+                  setIsInvestigating(false);
+                  setInvestigationStep(0);
+                  setInvestigationLogs([]);
+                  // Reset any in-flight agent loading states to clean slate
+                  setRcaLoading(false); setRcaResult(null); setRcaError(null);
+                  setRiskAgentLoading(false); setRiskAgentResult(null); setRiskAgentError(null);
+                  setComplianceAgentLoading(false); setComplianceAgentResult(null); setComplianceAgentError(null);
+                  setLessonsLoading(false); setLessonsResult(null); setLessonsError(null);
+                  await fetchAPI('/demo/seed-refinery', { method: 'POST' });
+                  setActiveDataset('refinery');
+                  setSeedMessage({ type: 'success', text: 'Refinery Pump Station demo seeded.' });
+                  setTimeout(() => setSeedMessage(null), 4000);
+                  await loadAssets();
+                  await loadExecutiveData();
+                  setActiveTab('twin');
+                } catch (err) {
+                  setSeedMessage({ type: 'error', text: 'Refinery seed failed: ' + err.message });
+                  setTimeout(() => setSeedMessage(null), 5000);
+                } finally {
+                  setLoadingAssets(false);
+                  setSeedingDataset(false);
+                }
+              }
+            }}
+            className="w-full py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white border border-amber-700 rounded-lg text-xs font-bold transition duration-200 ease-in-out flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+          >
+            {seedingDataset && activeDataset !== 'vizag' ? 'Seeding...' : 'Seed Refinery Demo'}
+          </button>
+
+          {/* Phase 6B: Optional scalability note */}
+          <p className="text-[9px] text-slate-400 leading-tight px-1">
+            Optional scalability proof. Uses the same knowledge graph and asset schema on a second plant dataset.
+          </p>
+
+          {/* Seed toast */}
+          {seedMessage && (
+            <div className={`w-full text-xs px-2 py-1 rounded-md mt-1 font-medium transition-all ${seedMessage.type === 'success' ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`}>
+              {seedMessage.text}
+            </div>
+          )}
           
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[10px] font-semibold text-slate-400">Live Alarms</span>
-            <button
-              onClick={() => {
-                setLiveAlarmsActive(!liveAlarmsActive);
-              }}
-              className={`px-2 py-0.5 rounded text-[9px] font-bold border transition ${
-                liveAlarmsActive
-                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                  : 'bg-slate-800 text-slate-400 border-slate-700'
-              }`}
-            >
-              {liveAlarmsActive ? 'SIMULATING' : 'INACTIVE'}
-            </button>
-          </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-semibold text-white/45">Live Alarms</span>
+              <button
+                onClick={() => {
+                  setLiveAlarmsActive(!liveAlarmsActive);
+                }}
+                className={`px-2 py-0.5 rounded text-[9px] font-bold border transition ${
+                  liveAlarmsActive
+                    ? 'bg-rose-500/15 text-rose-400 border-rose-500/40'
+                    : 'bg-white/5 text-white/30 border-white/10'
+                }`}
+              >
+                {liveAlarmsActive ? 'SIMULATING' : 'INACTIVE'}
+              </button>
+            </div>
         </div>
 
-        <div className="p-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
-          <span>Engine Online</span>
+        <div className="p-4 border-t border-white/[0.06] flex items-center justify-between text-[10px] text-white/25">
+          <span className="flex items-center gap-1.5">
+            <span className="pulse-live"></span>
+            Engine Online
+          </span>
           <span>v1.0.0</span>
         </div>
       </aside>
 
       {/* Main Workspace */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="h-16 border-b border-[var(--border-color)] flex items-center justify-between px-4 md:px-8 bg-[var(--bg-card)]/40 backdrop-blur-md">
+        {/* Header — glass surface */}
+        <header className="h-14 border-b border-[var(--border-color)] flex items-center justify-between px-4 md:px-6 bg-[var(--bg-header)] backdrop-blur-xl shadow-sm">
           <div className="flex items-center gap-3">
             {/* P5: Hamburger — mobile only */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+              className="md:hidden p-2 rounded-lg hover:bg-[var(--bg-pill)] text-[var(--text-muted)]"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
-            <h1 className="text-base md:text-lg font-bold tracking-tight text-[var(--text-primary)] capitalize">
-              {activeTab === 'twin' ? 'Asset Digital Twin'
-                : activeTab === 'executive' ? 'Executive View'
-                : activeTab === 'pid_parser' ? 'P&ID Blueprint Parser'
-                : `${activeTab} Workspace`}
-            </h1>
+            <div>
+              <h1 className="text-[15px] font-bold tracking-tight text-[var(--text-primary)] capitalize leading-tight">
+                {activeTab === 'twin' ? 'Asset Digital Twin'
+                  : activeTab === 'executive' ? 'Executive Intelligence'
+                  : activeTab === 'pid_parser' ? 'P&ID Blueprint Parser'
+                  : activeTab === 'ingestion' ? 'Document Ingestion'
+                  : activeTab === 'evaluation' ? 'Evaluation & Benchmarks'
+                  : 'Command Dashboard'}
+              </h1>
+              <div className="text-[10px] text-[var(--text-muted)] font-mono tracking-wider hidden md:block">
+                OPSBRAIN AI · {activeDataset === 'refinery' ? 'REFINERY_PUMP_STATION' : 'VIZAG_STEEL_COB'}
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2 md:gap-3 flex-wrap justify-end py-1">
-            {/* Theme Selector */}
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/60 border border-[var(--border-color)] rounded-full text-xs transition duration-300">
-              <span className="font-semibold opacity-60">THEME:</span>
+          <div className="flex items-center gap-2 md:gap-2.5 flex-wrap justify-end">
+            {/* Theme Selector — refined pill */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-full text-xs shadow-sm transition-all duration-300 hover:border-[var(--border-hover)]">
+              <span className="font-semibold text-[var(--text-muted)] text-[10px] tracking-wider">THEME</span>
               <select
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
-                className="bg-transparent border-none text-slate-200 focus:outline-none cursor-pointer pr-1 text-xs font-bold"
+                className="bg-transparent border-none text-[var(--text-primary)] focus:outline-none cursor-pointer pr-1 text-[11px] font-bold"
               >
-                <option value="slate" className="bg-slate-900 text-slate-200">Slate Obsidian 🌑</option>
-                <option value="steel" className="bg-slate-900 text-slate-200">Industrial Steel ⚙️</option>
-                <option value="graphite" className="bg-slate-900 text-slate-200">Midnight Graphite ⬢</option>
+                <option value="slate">Titanium ✦</option>
+                <option value="steel">Amber ⚡</option>
+                <option value="graphite">Command ◈</option>
               </select>
             </div>
 
-            {/* API Status Pill */}
+            {/* API Status Pill — elegant */}
             <button
               onClick={() => setIsMonitorOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/40 border border-[var(--border-color)] rounded-full text-[10px] md:text-xs font-semibold tracking-wider transition duration-200 hover:bg-slate-800/40 focus:outline-none cursor-pointer text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              className="chip-premium hover:border-[var(--border-hover)] hover:text-[var(--text-primary)] cursor-pointer"
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${apiStatus === 'healthy' ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-              <span>API STATUS</span>
+              <span className={`inline-block w-1.5 h-1.5 rounded-full flex-shrink-0 ${apiStatus === 'healthy' ? 'bg-[var(--color-healthy)]' : 'bg-[var(--color-critical)]'}`}></span>
+              <span>AI Runtime</span>
             </button>
 
-            {/* Online Pill */}
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/40 border border-[var(--border-color)] rounded-full text-[10px] md:text-xs font-semibold tracking-wider text-[var(--text-muted)]">
-              <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
-              <span>{isOnline ? 'ONLINE' : 'OFFLINE'}</span>
+            {/* Online status chip */}
+            <div className="chip-premium">
+              <span className={isOnline ? 'pulse-live flex-shrink-0' : 'inline-block w-1.5 h-1.5 rounded-full bg-[var(--color-critical)] flex-shrink-0'}></span>
+              <span>{isOnline ? 'Online' : 'Offline'}</span>
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 bg-slate-950 relative">
+        {/* Content Area — bright mist background */}
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[var(--bg-app)] bg-grid-blueprint relative">
           {error && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/25 text-red-400 rounded-xl text-sm">
               {error}
@@ -1277,78 +1557,105 @@ function AppContent() {
 
           {/* --- DASHBOARD TAB --- */}
           {activeTab === 'dashboard' && (
-            <div className="max-w-7xl mx-auto space-y-6 px-2">
-              {/* Hero Banner */}
-              <div className="p-6 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg relative overflow-hidden shadow-sm card-premium">
+            <div className="max-w-7xl mx-auto space-y-5">
+
+              {/* ── Hero Command Panel ─────────────────────────────── */}
+              <div className="relative overflow-hidden rounded-2xl card-premium p-7 md:p-8">
                 {renderCadCorners()}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--accent-primary)]/5 rounded-full filter blur-3xl"></div>
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-[26px] md:text-[30px] font-black text-[var(--text-primary)] tracking-tight">OpsBrain AI Command Center</h2>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">[SYS_CENTRAL_CONSOLE // NODE: 001]</span>
-                </div>
-                <p className="text-[14px] text-[var(--text-muted)] max-w-xl leading-relaxed mb-6 font-medium">
-                  Industrial plant operations optimizer. Map P&IDs into graph digital twins, ingestion SOP documentation, and query RAG agents for safety assessments.
-                </p>
-                
-                {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Digital twins</div>
-                    <div className="text-[28px] font-black text-[var(--accent-primary)] font-mono mt-1">{stats.totalAssets} Assets</div>
-                  </div>
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Active Failures</div>
-                    <div className="text-[28px] font-black text-[var(--color-critical)] font-mono mt-1">
-                      {selectedAssetDetails && selectedAssetDetails.incidents ? selectedAssetDetails.incidents.length : 0} Active
+                {/* Gradient orb backgrounds */}
+                <div className="absolute -top-20 -right-20 w-72 h-72 bg-[var(--accent-primary)]/10 rounded-full filter blur-3xl pointer-events-none"></div>
+                <div className="absolute -bottom-16 -left-10 w-56 h-56 bg-[var(--accent-ai)]/8 rounded-full filter blur-3xl pointer-events-none"></div>
+
+                <div className="relative z-10">
+                  {/* Top row */}
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-5">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="pulse-live"></span>
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[var(--accent-primary)]">System Active · Node 001</span>
+                      </div>
+                      <h2 className="text-[28px] md:text-[34px] font-black tracking-tight text-[var(--text-primary)] leading-none">
+                        OpsBrain AI
+                        <span className="block text-[16px] md:text-[18px] font-semibold text-[var(--text-muted)] mt-1 tracking-normal">
+                          Unified Asset & Operations Brain
+                        </span>
+                      </h2>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="chip-premium border-[var(--border-pill)] bg-[var(--bg-pill)] text-[var(--accent-primary)]">Multi-Agent RAG</span>
+                      <span className="chip-premium border-[var(--border-pill)] bg-[var(--accent-ai-light)] text-[var(--accent-ai)]">Knowledge Graph</span>
+                      <span className="chip-premium">
+                        {activeDataset === 'refinery' ? '⚡ Refinery Pump Station' : '🏭 Vizag Steel COB'}
+                      </span>
                     </div>
                   </div>
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Compliance checks</div>
-                    <div className="text-[28px] font-black font-mono mt-1"
-                      style={{ color: executiveData?.compliance_summary?.non_compliant > 0 ? 'var(--color-critical)' : 'var(--color-healthy)' }}
-                    >
-                      {executiveData?.compliance_summary
-                        ? `${executiveData.compliance_summary.compliant}/${executiveData.compliance_summary.total} OK`
-                        : 'N/A'}
+
+                  <p className="text-[14px] text-[var(--text-muted)] max-w-2xl leading-relaxed mb-6">
+                    Map P&IDs into graph digital twins, ingest SOP documentation, and run multi-agent investigations for root-cause analysis, compliance checks, and risk assessments — all in one intelligent command center.
+                  </p>
+
+                  {/* Quick Stats Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Digital Twins</div>
+                      <div className="stat-num text-[30px] text-[var(--accent-primary)]">{stats.totalAssets}</div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Active Assets</div>
                     </div>
-                  </div>
-                  <div className="p-4 bg-slate-950/30 border border-[var(--border-color)] rounded-lg relative card-premium">
-                    {renderCadCorners()}
-                    <div className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Embedding Dim</div>
-                    <div className="text-[28px] font-black text-[var(--accent-ai)] font-mono mt-1">384 Dim</div>
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Active Failures</div>
+                      <div className="stat-num text-[30px]" style={{ color: 'var(--color-critical)' }}>
+                        {selectedAssetDetails && selectedAssetDetails.incidents ? selectedAssetDetails.incidents.length : 0}
+                      </div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Open Incidents</div>
+                    </div>
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Compliance</div>
+                      <div className="stat-num text-[30px]" style={{ color: executiveData?.compliance_summary?.non_compliant > 0 ? 'var(--color-critical)' : 'var(--color-healthy)' }}>
+                        {executiveData?.compliance_summary
+                          ? `${executiveData.compliance_summary.compliant}/${executiveData.compliance_summary.total}`
+                          : '—'}
+                      </div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Checks Passed</div>
+                    </div>
+                    <div className="metric-card p-4">
+                      {renderCadCorners()}
+                      <div className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">Embedding</div>
+                      <div className="stat-num text-[30px] text-[var(--accent-ai)]">384</div>
+                      <div className="text-[11px] text-[var(--text-muted)] mt-0.5">Vector Dimensions</div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Recent Failures Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 relative card-premium">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="p-5 card-premium space-y-4 relative">
                   {renderCadCorners()}
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-[var(--text-primary)] text-[16px] tracking-wider uppercase flex items-center gap-2">
-                      <AlertOctagon className="h-4.5 w-4.5 text-[var(--color-critical)]" />
+                    <h3 className="font-bold text-[var(--text-primary)] text-[15px] tracking-wide flex items-center gap-2">
+                      <AlertOctagon className="h-4 w-4 text-[var(--color-critical)]" />
                       Failures & Critical Events
                     </h3>
-                    <span className="text-[9px] font-mono text-slate-500">[LOG_INCIDENTS]</span>
+                    <span className="chip-premium text-[var(--color-critical)] border-[var(--color-critical-light)] bg-[var(--color-critical-light)]">Live Feed</span>
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto pr-2">
+                  <div className="max-h-[300px] overflow-y-auto pr-1">
                     <IncidentTimeline incidents={recentIncidents} />
                   </div>
                 </div>
 
-                <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 relative card-premium">
+                <div className="p-5 card-premium space-y-4 relative">
                   {renderCadCorners()}
                   <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-[var(--text-primary)] text-[16px] tracking-wider uppercase flex items-center gap-2">
-                      <Wrench className="h-4.5 w-4.5 text-[var(--accent-primary)]" />
+                    <h3 className="font-bold text-[var(--text-primary)] text-[15px] tracking-wide flex items-center gap-2">
+                      <Wrench className="h-4 w-4 text-[var(--accent-primary)]" />
                       Maintenance Operations
                     </h3>
-                    <span className="text-[9px] font-mono text-slate-500">[LOG_WORKORDERS]</span>
+                    <span className="chip-premium">Work Orders</span>
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto pr-2">
+                  <div className="max-h-[300px] overflow-y-auto pr-1">
                     <MaintenanceLogs maintenanceLogs={selectedAssetDetails ? selectedAssetDetails.maintenance_logs : []} />
                   </div>
                 </div>
@@ -1358,11 +1665,11 @@ function AppContent() {
 
           {/* --- DIGITAL TWIN TAB --- */}
           {activeTab === 'twin' && (
-            <div className="flex flex-col lg:flex-row lg:h-full gap-6 lg:gap-8 max-w-7xl mx-auto items-stretch lg:items-start">
+            <div className="flex h-full gap-8 max-w-7xl mx-auto items-stretch">
               {/* Asset list sub-sidebar */}
-              <div className={`w-full lg:w-80 flex flex-col border border-slate-800 bg-slate-900/40 rounded-xl p-4 space-y-4 flex-shrink-0 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
-                <h3 className="font-bold text-slate-200 px-2 flex items-center gap-2">
-                  <Database className="h-4.5 w-4.5 text-cyan-400" />
+              <div className={`w-80 flex flex-col border border-[var(--border-color)] bg-[var(--bg-card-tinted)] rounded-xl p-4 space-y-4 flex-shrink-0 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                <h3 className="font-bold text-[var(--text-primary)] px-2 flex items-center gap-2">
+                  <Database className="h-4.5 w-4.5 text-[var(--accent-primary)]" />
                   Asset Register ({assets.length})
                 </h3>
                 
@@ -1378,15 +1685,15 @@ function AppContent() {
                         onClick={() => setSelectedAssetTag(asset.tag_number)}
                         className={`w-full text-left p-2.5 rounded-lg transition duration-150 border text-xs flex flex-col gap-1 ${
                           selectedAssetTag === asset.tag_number
-                            ? 'bg-[var(--bg-pill)] border-[var(--border-pill)] text-[var(--accent-primary)] font-semibold shadow-sm'
-                            : 'bg-slate-900/40 border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/30'
+                            ? 'bg-[var(--bg-pill)] border-[var(--border-pill)] text-[var(--text-primary)] font-bold shadow-sm'
+                            : 'bg-[var(--bg-card)] border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-tinted)]'
                         }`}
                       >
                         <div className="flex justify-between items-center w-full">
-                          <span className="font-mono text-xs uppercase font-extrabold">{asset.tag_number}</span>
-                          <span className="text-[9px] uppercase font-bold tracking-wider opacity-60">{asset.category}</span>
+                          <span className={`font-mono text-xs uppercase font-extrabold ${selectedAssetTag === asset.tag_number ? 'text-[var(--accent-primary-text)]' : 'text-[var(--text-primary)]'}`}>{asset.tag_number}</span>
+                          <span className={`text-[9px] uppercase font-black tracking-wider ${selectedAssetTag === asset.tag_number ? 'text-[var(--accent-primary-text)]' : 'text-[var(--text-muted)]'}`}>{asset.category}</span>
                         </div>
-                        <span className="text-xs font-medium truncate w-full">{asset.name}</span>
+                        <span className="text-xs font-semibold truncate w-full">{asset.name}</span>
                       </button>
                     ))}
                   </div>
@@ -1408,14 +1715,14 @@ function AppContent() {
                       <div className="flex justify-between items-start gap-4 flex-wrap">
                         <div className="space-y-2">
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className="px-2.5 py-1 rounded bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-xs font-bold font-mono text-[var(--accent-primary)] uppercase">
+                            <span className="px-2.5 py-1 rounded bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-xs font-bold font-mono text-[var(--accent-primary-text)] uppercase">
                               {selectedAssetDetails.asset.tag_number}
                             </span>
-                            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                            <span className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">
                               Category: {selectedAssetDetails.asset.category}
                             </span>
                           </div>
-                          <h2 className="text-xl md:text-2xl font-black text-slate-100 tracking-tight">
+                          <h2 className="text-xl md:text-2xl font-black text-[var(--text-primary)] tracking-tight">
                             {selectedAssetDetails.asset.name}
                           </h2>
                           {selectedAssetDetails.asset.description && (
@@ -1424,7 +1731,7 @@ function AppContent() {
                             </p>
                           )}
                         </div>
-                        <div className="text-right text-xs text-slate-500 font-mono">
+                        <div className="text-right text-xs text-[var(--text-muted)] font-mono">
                           [SYS_twin_id // {selectedAssetDetails.asset.id.slice(0, 8)}]
                         </div>
                       </div>
@@ -1435,48 +1742,90 @@ function AppContent() {
                       {renderCadCorners()}
                       <div className="text-[10px] uppercase font-black tracking-widest text-[var(--accent-ai)] mb-3 flex items-center gap-1.5 justify-between">
                         <span className="flex items-center gap-1.5"><Brain className="h-3.5 w-3.5" /> AI Agent Actions — {selectedAssetDetails.asset.tag_number}</span>
-                        <span className="text-[8px] font-mono text-slate-500">[SYS_AGENT_ROUTING]</span>
+                        <span className="text-[8px] font-mono text-[var(--text-muted)]">[SYS_AGENT_ROUTING]</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {/* Run RCA */}
                         <button
-                          onClick={runRCAAgent}
-                          disabled={rcaLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition disabled:opacity-50"
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRCAAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white border border-rose-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {rcaLoading ? <Loader className="h-3 w-3 animate-spin" /> : <AlertOctagon className="h-3 w-3" />}
                           {rcaLoading ? 'Analyzing...' : 'Run RCA'}
                         </button>
                         {/* Run Risk */}
                         <button
-                          onClick={runRiskAgent}
-                          disabled={riskAgentLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/20 transition disabled:opacity-50"
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runRiskAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white border border-amber-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {riskAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <Activity className="h-3 w-3" />}
                           {riskAgentLoading ? 'Calculating...' : 'Run Risk Score'}
                         </button>
                         {/* Run Compliance */}
                         <button
-                          onClick={runComplianceAgent}
-                          disabled={complianceAgentLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/20 transition disabled:opacity-50"
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runComplianceAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 hover:bg-violet-700 text-white border border-violet-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {complianceAgentLoading ? <Loader className="h-3 w-3 animate-spin" /> : <ShieldCheck className="h-3 w-3" />}
                           {complianceAgentLoading ? 'Checking...' : 'Run Compliance'}
                         </button>
                         {/* Lessons Learned */}
                         <button
-                          onClick={runLessonsLearnedAgent}
-                          disabled={lessonsLoading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition disabled:opacity-50"
+                          type="button"
+                          onClick={(e) => { e && e.preventDefault(); e && e.stopPropagation(); runLessonsLearnedAgent(); }}
+                          disabled={rcaLoading || riskAgentLoading || complianceAgentLoading || lessonsLoading}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white border border-sky-700 shadow-sm transition disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           {lessonsLoading ? <Loader className="h-3 w-3 animate-spin" /> : <BookOpen className="h-3 w-3" />}
                           {lessonsLoading ? 'Extracting...' : 'Extract Lessons'}
                         </button>
                       </div>
                       {rcaError && (
-                        <p className="mt-2 text-xs text-rose-400">{rcaError}</p>
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          RCA analysis failed: {rcaError} Please retry.
+                        </div>
+                      )}
+                      {riskAgentError && (
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          Risk analysis failed: {riskAgentError} Please retry.
+                        </div>
+                      )}
+                      {complianceAgentError && (
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          Compliance analysis failed: {complianceAgentError} Please retry.
+                        </div>
+                      )}
+                      {lessonsError && (
+                        <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/25 text-rose-400 rounded-lg text-xs font-semibold">
+                          Lessons extraction failed: {lessonsError} Please retry.
+                        </div>
+                      )}
+
+                      {rcaLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-rose-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Running RCA analysis...
+                        </div>
+                      )}
+                      {riskAgentLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-orange-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Running Risk Score calculation...
+                        </div>
+                      )}
+                      {complianceAgentLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-fuchsia-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Running Compliance safety audit...
+                        </div>
+                      )}
+                      {lessonsLoading && !ENABLE_INVESTIGATION_HUD && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400 font-semibold font-mono animate-pulse">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Extracting Lessons learned...
+                        </div>
                       )}
                     </div>
 
@@ -1485,7 +1834,7 @@ function AppContent() {
                       <div className={`p-5 bg-rose-500/5 border border-rose-500/20 rounded-lg space-y-3 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-rose-300 text-sm flex items-center gap-2">
+                          <h4 className="font-bold text-[var(--color-critical)] text-sm flex items-center gap-2">
                             <AlertOctagon className="h-4 w-4" /> Root Cause Analysis Result
                           </h4>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase ${
@@ -1496,15 +1845,15 @@ function AppContent() {
                         </div>
                         <div>
                           <div className="text-[10px] text-rose-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Root Cause</div>
-                          <p className="text-sm text-slate-200 leading-relaxed font-medium">{rcaResult.identified_root_cause}</p>
+                          <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{rcaResult.identified_root_cause}</p>
                         </div>
                         {rcaResult.contributing_factors?.length > 0 && (
                           <div>
                             <div className="text-[10px] text-rose-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Contributing Factors</div>
                             <ul className="space-y-1">
                               {rcaResult.contributing_factors.map((f, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <span className="text-rose-400 font-bold mt-0.5">›</span>{f}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)]">
+                                  <span className="text-[var(--color-critical)] font-bold mt-0.5">›</span>{f}
                                 </li>
                               ))}
                             </ul>
@@ -1515,7 +1864,7 @@ function AppContent() {
                             <div className="text-[10px] text-emerald-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Suggested Mitigations</div>
                             <ul className="space-y-1">
                               {rcaResult.suggested_mitigations.map((m, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)]">
                                   <CheckCircle className="h-3 w-3 text-emerald-400 flex-shrink-0 mt-0.5" />{m}
                                 </li>
                               ))}
@@ -1531,8 +1880,8 @@ function AppContent() {
                       <div className={`p-5 border rounded-lg space-y-3 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${riskLevelBg(riskAgentResult.risk_level)} ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-sm flex items-center gap-2 text-slate-200">
-                            <Activity className="h-4 w-4 text-orange-400" /> Risk Agent Assessment
+                          <h4 className="font-bold text-sm flex items-center gap-2 text-[var(--text-primary)]">
+                            <Activity className="h-4 w-4 text-[var(--color-warning)]" /> Risk Agent Assessment
                           </h4>
                           <div className="flex items-center gap-2">
                             <span className={`text-2xl font-black font-mono ${riskLevelColor(riskAgentResult.risk_level)}`}>
@@ -1543,8 +1892,8 @@ function AppContent() {
                             </span>
                           </div>
                         </div>
-                        <p className="text-sm text-slate-300 leading-relaxed font-medium">{riskAgentResult.explanation}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">Risk score written to database. Refresh Executive Dashboard to see updated distribution.</p>
+                        <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{riskAgentResult.explanation}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] font-mono">Risk score written to database. Refresh Executive Dashboard to see updated distribution.</p>
                         {renderProviderMetadataChip(riskAgentResult)}
                       </div>
                     )}
@@ -1558,8 +1907,8 @@ function AppContent() {
                       }`}>
                         {renderCadCorners()}
                         <div className="flex items-center justify-between">
-                          <h4 className="font-bold text-sm flex items-center gap-2 text-slate-200">
-                            <ShieldCheck className="h-4 w-4 text-fuchsia-400" /> Compliance Agent Result
+                          <h4 className="font-bold text-sm flex items-center gap-2 text-[var(--text-primary)]">
+                            <ShieldCheck className="h-4 w-4 text-[var(--accent-ai-text)]" /> Compliance Agent Result
                           </h4>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase ${
                             complianceAgentResult.status === 'NON_COMPLIANT' ? 'text-rose-400 border-rose-500/30 bg-rose-500/10'
@@ -1569,81 +1918,71 @@ function AppContent() {
                         </div>
                         {complianceAgentResult.violations?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-rose-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Violations Detected</div>
+                            <div className="text-[10px] text-[var(--color-critical)] uppercase font-bold tracking-wider mb-1 font-mono">Violations Detected</div>
                             <ul className="space-y-1">
                               {complianceAgentResult.violations.map((v, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <XCircle className="h-3 w-3 text-rose-400 flex-shrink-0 mt-0.5" />{v}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)]">
+                                  <XCircle className="h-3 w-3 text-[var(--color-critical)] flex-shrink-0 mt-0.5" />{v}
                                 </li>
                               ))}
                             </ul>
                           </div>
                         )}
-                        <p className="text-sm text-slate-300 leading-relaxed font-medium">{complianceAgentResult.findings}</p>
-                        
-                        {complianceAgentResult.compliance_evidence?.length > 0 && (
-                          <div className="pt-2.5 border-t border-slate-800/80 space-y-3">
-                            <div className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider font-mono">Evidence Used / Clauses Triggered</div>
+                        <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{complianceAgentResult.findings}</p>
+
+                        {/* Explainable Compliance Evidence Section */}
+                        <div className="mt-4 pt-4 border-t border-[var(--border-color)]/60 space-y-3">
+                          <div className="text-[10px] text-[var(--accent-ai-text)] uppercase font-black tracking-widest font-mono">
+                            Explainable Compliance Evidence
+                          </div>
+                          {complianceAgentResult.compliance_evidence && complianceAgentResult.compliance_evidence.length > 0 ? (
                             <div className="space-y-3">
-                              {complianceAgentResult.compliance_evidence.map((ev, index) => (
-                                <div key={index} className="p-3.5 bg-slate-950/60 border border-slate-800 rounded-lg space-y-2.5 text-xs">
+                              {complianceAgentResult.compliance_evidence.map((ev, idx) => (
+                                <div key={idx} className="p-3 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 text-xs">
                                   <div className="flex justify-between items-start gap-2 flex-wrap">
-                                    <div className="font-bold text-slate-200">{ev.issue}</div>
-                                    <div className="flex gap-1.5 flex-wrap">
-                                      <span className="text-[8px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded border border-cyan-500/20 font-bold uppercase">{ev.affected_asset}</span>
-                                      <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded font-bold border uppercase ${
-                                        ev.source_type === 'public_validation' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
-                                        : ev.source_type === 'seeded_demo' ? 'text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20'
-                                        : 'text-slate-400 bg-slate-500/10 border-slate-500/20'
-                                      }`}>
-                                        {ev.source_type === 'public_validation' ? 'Public Validation Excerpt' 
-                                         : ev.source_type === 'seeded_demo' ? 'Seeded Demo Source' 
-                                         : ev.source_type === 'benchmark' ? 'Benchmark Source'
-                                         : 'Unknown Source'}
-                                      </span>
+                                    <div>
+                                      <span className="font-bold text-[var(--text-secondary)]">Asset:</span> <span className="font-mono text-[var(--accent-primary-text)] bg-[var(--bg-pill)] px-1 py-0.5 rounded">{ev.affected_asset || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex gap-2 text-[9px] font-mono">
+                                      <span className="text-[var(--color-critical)] border border-[var(--color-critical-border)] bg-[var(--color-critical-light)] px-1.5 py-0.2 rounded uppercase">{ev.severity || 'Medium'}</span>
+                                      <span className="text-[var(--text-muted)] border border-[var(--border-color)] bg-[var(--bg-card)] px-1.5 py-0.2 rounded uppercase">Confidence: {ev.confidence || 'High'}</span>
                                     </div>
                                   </div>
-                                  
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
+                                  <div>
+                                    <span className="font-bold text-[var(--text-muted)]">Issue:</span> <span className="text-[var(--text-primary)] font-semibold">{ev.issue || 'Compliance review required'}</span>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] bg-[var(--bg-card)] border border-[var(--border-color)] p-2 rounded">
                                     <div>
-                                      <span className="text-slate-500">Observed Value:</span> <strong className="text-rose-400 font-semibold">{ev.observed_value !== null ? `${ev.observed_value}${ev.unit ? ' ' + ev.unit : ''}` : 'N/A'}</strong>
+                                      <span className="text-[var(--text-muted)] font-medium">Observed Value:</span> <span className="font-bold text-[var(--text-primary)]">{ev.observed_value || 'N/A'} {ev.unit || ''}</span>
                                     </div>
                                     <div>
-                                      <span className="text-slate-500">Allowed Threshold:</span> <strong className="text-slate-400 font-semibold">{ev.allowed_threshold !== null ? `${ev.allowed_threshold}${ev.unit ? ' ' + ev.unit : ''}` : 'N/A'}</strong>
+                                      <span className="text-[var(--text-muted)] font-medium">Allowed Threshold:</span> <span className="font-bold text-[var(--color-healthy)]">{ev.allowed_threshold || 'N/A'} {ev.unit || ''}</span>
                                     </div>
                                   </div>
-
-                                  <div className="text-[11px] text-slate-300">
-                                    <span className="text-slate-500">Rule/Clause:</span> <strong className="text-slate-400 font-semibold">{ev.rule_or_clause}</strong>
-                                    {ev.source_document && (
-                                      <span className="text-[9px] text-slate-500 font-mono ml-2">[{ev.source_document}]</span>
-                                    )}
+                                  <div className="text-[11px] text-[var(--text-muted)]">
+                                    <span className="text-[var(--text-muted)] font-medium">Source Document:</span> <span className="italic text-[var(--text-primary)]">{ev.source_document || 'N/A'}</span> 
+                                    {ev.citation && <span className="text-[var(--text-muted)] text-[10px] ml-1">({ev.citation})</span>}
                                   </div>
-
-                                  {ev.citation && (
-                                    <div className="p-2 bg-slate-900/60 border-l-2 border-slate-700 text-[10px] text-slate-400 italic leading-relaxed font-medium">
-                                      "{ev.citation}"
+                                  {ev.recommended_action && (
+                                    <div className="pt-1.5 border-t border-[var(--border-color)]/60">
+                                      <span className="font-bold text-[var(--color-healthy)] block mb-0.5">Recommended Action:</span>
+                                      <p className="text-[var(--text-secondary)] text-[11px] leading-relaxed">{ev.recommended_action}</p>
                                     </div>
                                   )}
-
-                                  <div className="text-[11px] text-slate-300">
-                                    <span className="text-slate-500 font-bold">Recommended Action:</span> <span className="text-slate-300">{ev.recommended_action}</span>
-                                  </div>
-
-                                  {ev.confidence_score !== null && (
-                                    <div className="flex justify-between items-center text-[9px] font-mono text-slate-500 pt-1.5 border-t border-slate-900">
-                                      <span>
-                                        {ev.confidence_score >= 1.0 
-                                          ? "Confidence rating: High confidence based on available seeded/public validation evidence."
-                                          : `Confidence rating: ${(ev.confidence_score * 100).toFixed(1)}%`}
-                                      </span>
+                                  {ev.why_it_matters && (
+                                    <div className="text-[10px] text-[var(--text-muted)] italic">
+                                      * {ev.why_it_matters}
                                     </div>
                                   )}
                                 </div>
                               ))}
                             </div>
-                          </div>
-                        )}
+                          ) : (
+                            <div className="text-[11px] text-[var(--text-muted)] font-mono italic">
+                              No structured compliance evidence returned for this run.
+                            </div>
+                          )}
+                        </div>
 
                         {renderProviderMetadataChip(complianceAgentResult)}
                       </div>
@@ -1652,18 +1991,18 @@ function AppContent() {
                     {/* Middle grid: Risk Score & Compliance */}
                     <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Risk Profile</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Risk Profile</h3>
                         <RiskScorePanel latestRisk={selectedAssetDetails.latest_risk} />
                       </div>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Compliance Audit Status</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Compliance Audit Status</h3>
                         <CompliancePanel complianceRecords={selectedAssetDetails.compliance_records} />
                       </div>
                     </div>
 
                     {/* Graph Neighborhood Visualizer */}
                     <div className="space-y-4">
-                      <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Graph Topology Connections</h3>
+                      <h3 className="section-label text-[var(--text-muted)]">Graph Topology Connections</h3>
                       <GraphVisualizer 
                         graphData={selectedAssetDetails.neighborhood} 
                         selectedNodeName={selectedAssetDetails.asset.tag_number}
@@ -1676,29 +2015,110 @@ function AppContent() {
                     {/* Timeline & Maintenance log list */}
                     <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Active Incidents timeline</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Active Incidents Timeline</h3>
                         <IncidentTimeline incidents={selectedAssetDetails.incidents} />
                       </div>
                       <div className="space-y-4">
-                        <h3 className="font-bold text-slate-300 tracking-tight uppercase text-xs">Maintenance history logs</h3>
+                        <h3 className="section-label text-[var(--text-muted)]">Maintenance History Logs</h3>
                         <MaintenanceLogs maintenanceLogs={selectedAssetDetails.maintenance_logs} />
                       </div>
                     </div>
 
+                    {/* P5A: Tribal Knowledge / Field Notes */}
+                    <div className={`p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                      {renderCadCorners()}
+                      <div className="flex flex-wrap justify-between items-center gap-2">
+                        <h4 className="font-bold text-[var(--text-secondary)] text-sm flex items-center gap-2 uppercase tracking-wider">
+                          <BookOpen className="h-4 w-4 flex-shrink-0" /> Tribal Knowledge / Field Notes
+                        </h4>
+                        <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-widest flex-shrink-0">[SYS_FIELD_NOTES // {selectedAssetTag}]</span>
+                      </div>
+                      <p className="text-[10px] text-[var(--text-muted)] font-medium italic">Capture informal operational knowledge from technicians and engineers. Not yet connected to Copilot RAG (Phase 5A).</p>
+
+                      {/* Existing Notes */}
+                      {tribalNotesLoading ? (
+                        <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] py-2">
+                          <Loader className="h-3.5 w-3.5 animate-spin" /> Loading field notes...
+                        </div>
+                      ) : tribalNotes.length === 0 ? (
+                        <div className="p-3 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-muted)] italic text-center">
+                          No field notes captured for this asset yet.
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                          {tribalNotes.map((note) => (
+                            <div key={note.id} className="p-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-1.5 shadow-sm">
+                              <p className="text-xs text-[var(--text-primary)] font-medium leading-relaxed break-words">{note.note_text}</p>
+                              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[var(--text-muted)] font-mono">
+                                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded font-bold">{note.source_type}</span>
+                                {note.author_role && <span className="font-medium">👤 {note.author_role}</span>}
+                                {note.confidence && <span className="font-medium">📊 {note.confidence}</span>}
+                                {note.created_at && <span className="text-[var(--text-muted)]">{new Date(note.created_at).toLocaleDateString()}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Add New Note Form */}
+                      <div className="border-t border-[var(--border-color)]/60 pt-3 space-y-2">
+                        <div className="text-[9px] uppercase font-bold text-[var(--text-muted)] tracking-widest">Add Field Note</div>
+                        <textarea
+                          value={tribalNoteText}
+                          onChange={(e) => setTribalNoteText(e.target.value)}
+                          placeholder="Describe what you observed in the field..."
+                          rows={3}
+                          className="w-full px-3 py-2 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 resize-none font-semibold"
+                        />
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={tribalNoteRole}
+                            onChange={(e) => setTribalNoteRole(e.target.value)}
+                            placeholder="Role (optional, e.g. Senior Technician)"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-amber-500/30 font-semibold"
+                          />
+                          <input
+                            type="text"
+                            value={tribalNoteConf}
+                            onChange={(e) => setTribalNoteConf(e.target.value)}
+                            placeholder="Confidence (optional)"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-amber-500/30 font-semibold"
+                          />
+                          <button
+                            type="button"
+                            onClick={saveTribalNote}
+                            disabled={tribalNoteSaving || !tribalNoteText.trim()}
+                            className="w-full sm:w-auto px-4 py-1.5 min-h-[36px] bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0"
+                          >
+                            {tribalNoteSaving ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                            {tribalNoteSaving ? 'Saving...' : 'Save Note'}
+                          </button>
+                        </div>
+                        {tribalNoteSaveError && (
+                          <div className="p-2.5 bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs rounded-lg flex items-center gap-2">
+                            <AlertOctagon className="h-3.5 w-3.5 flex-shrink-0" />
+                            <span>{tribalNoteSaveError}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     {/* P3: Lessons Learned Result */}
+
                     {lessonsResult && (
-                      <div className={`p-5 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-4 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                      <div className={`p-5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-4 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
-                        <h4 className="font-bold text-amber-300 text-sm flex items-center gap-2">
-                          <BookOpen className="h-4 w-4" /> Lessons Learned & Failure Intelligence
+                        <h4 className="font-bold text-[var(--text-secondary)] text-sm flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-[var(--accent-primary)]" /> Lessons Learned & Failure Intelligence
                         </h4>
                         {lessonsResult.lessons_extracted?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-amber-400/60 uppercase font-bold tracking-wider mb-2 font-mono">Key Lessons Extracted</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider mb-2 font-mono">Key Lessons Extracted</div>
                             <ul className="space-y-1.5">
                               {lessonsResult.lessons_extracted.map((l, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <span className="text-amber-400 font-bold mt-0.5">›</span>{l}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                                  <span className="text-amber-500 font-bold mt-0.5">›</span>{l}
                                 </li>
                               ))}
                             </ul>
@@ -1706,11 +2126,11 @@ function AppContent() {
                         )}
                         {lessonsResult.preventive_actions?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-cyan-400/60 uppercase font-bold tracking-wider mb-2 font-mono">Preventive Actions</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider mb-2 font-mono">Preventive Actions</div>
                             <ul className="space-y-1.5">
                               {lessonsResult.preventive_actions.map((a, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <CheckCircle className="h-3 w-3 text-cyan-400 flex-shrink-0 mt-0.5" />{a}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                                  <CheckCircle className="h-3 w-3 text-[var(--accent-primary-text)] flex-shrink-0 mt-0.5" />{a}
                                 </li>
                               ))}
                             </ul>
@@ -1718,11 +2138,11 @@ function AppContent() {
                         )}
                         {lessonsResult.safety_recommendations?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-emerald-400/60 uppercase font-bold tracking-wider mb-2 font-mono">Safety Recommendations</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider mb-2 font-mono">Safety Recommendations</div>
                             <ul className="space-y-1.5">
                               {lessonsResult.safety_recommendations.map((r, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <ShieldCheck className="h-3 w-3 text-emerald-400 flex-shrink-0 mt-0.5" />{r}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                                  <ShieldCheck className="h-3 w-3 text-[var(--color-healthy)] flex-shrink-0 mt-0.5" />{r}
                                 </li>
                               ))}
                             </ul>
@@ -1735,12 +2155,12 @@ function AppContent() {
                     {/* P1 + P4: Agent Knowledge Copilot Chat Panel */}
                     <div className={`p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       {renderCadCorners()}
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-bold text-[var(--accent-ai)] text-[16px] flex items-center gap-2 uppercase tracking-wider">
-                          <MessageSquare className="h-4.5 w-4.5" /> Knowledge Copilot
-                          <span className="text-[10px] font-normal text-slate-500 ml-1 lowercase normal-case">— Ask anything about safety SOPs, manuals, or failures</span>
+                      <div className="flex flex-wrap justify-between items-start gap-y-1">
+                        <h4 className="font-bold text-[var(--accent-ai-text)] text-[15px] sm:text-[16px] flex items-center gap-2 uppercase tracking-wider min-w-0">
+                          <MessageSquare className="h-4 w-4 flex-shrink-0" /> Knowledge Copilot
+                          <span className="text-[10px] font-normal text-[var(--text-muted)] ml-1 lowercase normal-case hidden sm:inline">— Ask anything about safety SOPs, manuals, or failures</span>
                         </h4>
-                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">[SYS_KNOWLEDGE_RAG]</span>
+                        <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-widest flex-shrink-0">[SYS_KNOWLEDGE_RAG]</span>
                       </div>
 
                       <form onSubmit={runKnowledgeAgent} className="flex flex-col sm:flex-row gap-2">
@@ -1748,23 +2168,23 @@ function AppContent() {
                           type="text"
                           value={agentQuery}
                           onChange={(e) => setAgentQuery(e.target.value)}
-                          placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}... e.g. "Why is ${selectedAssetTag} at risk?"` : 'Select an asset first...'}
-                          className="w-full sm:flex-1 px-4 py-2.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-sm md:text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
+                          placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}...` : 'Select an asset first...'}
+                          className="w-full min-w-0 flex-1 px-4 py-2.5 sm:py-2 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-[14px] sm:text-[15px] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30 font-semibold"
                         />
                         <button
                           type="submit"
                           disabled={knowledgeLoading || !agentQuery.trim()}
-                          className="w-full sm:w-auto px-5 py-2.5 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 flex-shrink-0 hover:shadow-md cursor-pointer"
+                          className="w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0 hover:shadow-md"
                         >
                           {knowledgeLoading
-                            ? <Loader className="h-4 w-4 animate-spin text-slate-950" />
-                            : <Send className="h-4 w-4 text-slate-950" />}
+                            ? <Loader className="h-4 w-4 animate-spin text-white" />
+                            : <Send className="h-4 w-4 text-white" />}
                           {knowledgeLoading ? 'Thinking...' : 'Ask'}
                         </button>
                       </form>
 
-                      <div className="flex items-center gap-3 text-[9px] font-mono text-slate-500 uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
-                        <span className="font-extrabold text-[var(--accent-ai)]">Powered by:</span>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
+                        <span className="font-extrabold text-[var(--accent-ai-text)]">Powered by:</span>
                         <span>Groq LLM</span>
                         <span className="opacity-40">|</span>
                         <span>Mistral RAG</span>
@@ -1778,24 +2198,23 @@ function AppContent() {
                           <span>{knowledgeError}</span>
                         </div>
                       )}
-
                       {knowledgeResult && (
                         <div className="space-y-3.5">
                           {/* Answer block */}
-                          <div className="p-3.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg space-y-2.5 shadow-sm">
+                          <div className="p-3.5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2.5 shadow-sm">
                             <div className="flex items-center justify-between flex-wrap gap-2">
-                              <div className="text-[10px] text-[var(--accent-primary)]/80 uppercase font-black tracking-widest">AI Answer</div>
+                              <div className="text-[10px] text-[var(--accent-primary-text)] uppercase font-black tracking-widest">AI Answer</div>
                               {knowledgeResult.confidence !== undefined && (
                                 <span className={`px-2 py-0.5 rounded text-[9px] font-black border uppercase tracking-wider ${
-                                  knowledgeResult.confidence >= 0.8 ? 'text-emerald-400 border-emerald-500/25 bg-emerald-500/10'
-                                  : knowledgeResult.confidence >= 0.5 ? 'text-amber-400 border-amber-500/25 bg-amber-500/10'
-                                  : 'text-rose-400 border-rose-500/25 bg-rose-500/10'
+                                  knowledgeResult.confidence >= 0.8 ? 'text-[var(--color-healthy)] border-[var(--color-healthy-border)] bg-[var(--color-healthy-light)]'
+                                  : knowledgeResult.confidence >= 0.5 ? 'text-[var(--color-warning)] border-[var(--color-warning-border)] bg-[var(--color-warning-light)]'
+                                  : 'text-[var(--color-critical)] border-[var(--color-critical-border)] bg-[var(--color-critical-light)]'
                                 }`}>
                                   Confidence: {Math.round(knowledgeResult.confidence * 100)}%
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap font-medium">{knowledgeResult.answer}</p>
+                            <p className="text-sm text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words font-medium">{knowledgeResult.answer}</p>
                             {renderProviderMetadataChip(knowledgeResult)}
                             {knowledgeResult.related_tags?.length > 0 && (
                               <div className="flex flex-wrap gap-1 pt-1">
@@ -1803,7 +2222,7 @@ function AppContent() {
                                   <button
                                     key={tag}
                                     onClick={() => { setSelectedAssetTag(tag); setSidebarOpen(false); }}
-                                    className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold text-[var(--accent-primary)] bg-[var(--bg-pill)] border border-[var(--border-pill)] hover:bg-[var(--bg-pill)]/30 transition cursor-pointer"
+                                    className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold text-[var(--accent-primary)] bg-[var(--bg-pill)] border border-[var(--border-pill)] hover:bg-[var(--bg-pill)]/30 transition"
                                   >
                                     {tag}
                                   </button>
@@ -1813,58 +2232,56 @@ function AppContent() {
                           </div>
 
                           {/* Evidence Path Panel */}
-                          <div className="p-3.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-3 shadow-sm relative overflow-hidden">
-                            <div className="text-[10px] text-cyan-400/80 uppercase font-black tracking-widest flex items-center gap-1.5">
+                          <div className="p-3.5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-3 shadow-sm relative overflow-hidden">
+                            <div className="text-[10px] text-[var(--accent-primary-text)] uppercase font-black tracking-widest flex items-center gap-1.5">
                               <Network className="h-3.5 w-3.5" />
                               Graph-Aware Evidence Path
                             </div>
                             
-                            <div className="flex flex-col sm:flex-row items-center sm:items-center gap-2 text-xs text-slate-300">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 text-xs text-[var(--text-secondary)] flex-wrap">
                               {/* Selected Asset */}
-                              <div className="px-2.5 py-1.5 bg-slate-900 border border-[var(--border-color)] rounded font-mono font-bold text-slate-200 text-center w-full sm:w-auto">
+                              <div className="px-2 py-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded font-mono font-bold text-[var(--text-primary)]">
                                 {selectedAssetTag || "N/A"}
                               </div>
                               
-                              <span className="text-slate-600 hidden sm:inline">→</span>
-                              <span className="text-cyan-500/50 sm:hidden py-0.5 text-xs">↓</span>
+                              <span className="text-[var(--text-muted)] hidden sm:inline">→</span>
                               
                               {/* Related Graph Nodes */}
-                              <div className="flex flex-wrap gap-1.5 items-center justify-center sm:justify-start w-full sm:w-auto">
+                              <div className="flex flex-wrap gap-1.5 items-center">
                                 {knowledgeResult.graph_trace?.affected_nodes?.filter(n => n !== selectedAssetTag).length > 0 ? (
                                   knowledgeResult.graph_trace.affected_nodes.filter(n => n !== selectedAssetTag).map(node => (
-                                    <span key={node} className="px-2 py-1 bg-cyan-950/30 border border-cyan-800/30 text-cyan-400 rounded font-mono text-[11px] font-bold">
+                                    <span key={node} className="px-2 py-1 bg-cyan-500/10 border border-cyan-500/25 text-[var(--accent-primary-text)] rounded font-mono text-[11px] font-bold animate-pulse">
                                       {node}
                                     </span>
                                   ))
                                 ) : (
-                                  <span className="text-slate-500 italic text-[11px]">No connected nodes</span>
+                                  <span className="text-[var(--text-muted)] italic font-semibold">No connected nodes</span>
                                 )}
                               </div>
                               
-                              <span className="text-slate-600 hidden sm:inline">→</span>
-                              <span className="text-fuchsia-500/50 sm:hidden py-0.5 text-xs">↓</span>
+                              <span className="text-[var(--text-muted)] hidden sm:inline">→</span>
                               
                               {/* Retrieved Documents & Regulations */}
-                              <div className="flex flex-wrap gap-1.5 items-center justify-center sm:justify-start w-full sm:w-auto">
+                              <div className="flex flex-wrap gap-1.5 items-center">
                                 {knowledgeResult.graph_trace?.evidence_refs?.length > 0 ? (
                                   knowledgeResult.graph_trace.evidence_refs.map(ref => (
-                                    <span key={ref} className="px-2 py-1 bg-fuchsia-950/30 border border-fuchsia-800/30 text-fuchsia-400 rounded font-mono text-[10px] font-bold break-words max-w-[280px] sm:max-w-none text-center">
+                                    <span key={ref} className="px-2 py-1 bg-fuchsia-500/10 border border-fuchsia-500/25 text-[var(--accent-ai-text)] rounded font-mono text-[10px] font-bold">
                                       {ref}
                                     </span>
                                   ))
                                 ) : (
-                                  <span className="text-slate-500 italic text-[11px]">No regulations referenced</span>
+                                  <span className="text-[var(--text-muted)] italic font-semibold">No regulations referenced</span>
                                 )}
                               </div>
                             </div>
                             
                             {/* Detailed reasoning path bullet logs if available */}
                             {knowledgeResult.graph_trace?.reasoning_steps?.length > 0 && (
-                              <div className="pt-2 border-t border-[var(--border-color)]/60 text-[11px] text-slate-400 space-y-1">
-                                <div className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Trace Reasoning:</div>
+                              <div className="pt-2 border-t border-[var(--border-color)]/60 text-[11px] text-[var(--text-secondary)] space-y-1">
+                                <div className="text-[9px] uppercase font-bold text-[var(--text-muted)] tracking-wider">Trace Reasoning:</div>
                                 {knowledgeResult.graph_trace.reasoning_steps.map((step, idx) => (
                                   <div key={idx} className="flex gap-1">
-                                    <span className="text-cyan-400">›</span> {step}
+                                    <span className="text-cyan-600">›</span> {step}
                                   </div>
                                 ))}
                               </div>
@@ -1874,28 +2291,49 @@ function AppContent() {
                           {/* P4: Source Citations */}
                           {knowledgeResult.sources && knowledgeResult.sources.length > 0 ? (
                             <div className="space-y-2">
-                              <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Source Citations</div>
+                              <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest">Source Citations</div>
                               <div className="flex flex-wrap gap-2">
-                                {knowledgeResult.sources.map((src, i) => (
-                                  <div
-                                    key={i}
-                                    className="flex items-center gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full"
-                                  >
-                                    <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0" />
-                                    <div className="min-w-0">
-                                      <div className="text-[10px] font-bold text-slate-300 truncate max-w-[180px] sm:max-w-[220px]">{src.title || src.label}</div>
-                                      <div className="text-[9px] text-slate-500 font-mono">
-                                        {src.page_number ? `Page ${src.page_number}` : ''}
-                                        {src.page_number && src.similarity_score ? ' · ' : ''}
-                                        {src.similarity_score ? `${Math.round(src.similarity_score * 100)}% match` : ''}
+                                {knowledgeResult.sources.map((src, i) => {
+                                  if (src.source_type === 'Field Note / Tribal Knowledge') {
+                                    return (
+                                      <div
+                                        key={i}
+                                        className="flex flex-col gap-1.5 p-3 bg-amber-500/5 border border-amber-500/25 rounded-lg shadow-sm w-full sm:max-w-[280px]"
+                                      >
+                                        <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-amber-400">
+                                          <BookOpen className="h-3.5 w-3.5 flex-shrink-0" />
+                                          <span>Field Note / Tribal Knowledge</span>
+                                        </div>
+                                        <div className="min-w-0 space-y-1">
+                                          {src.author_role && <div className="text-[9px] text-[var(--text-muted)] font-semibold">Role: {src.author_role}</div>}
+                                          {src.confidence && <div className="text-[9px] text-[var(--text-muted)] font-semibold">Confidence: {src.confidence}</div>}
+                                          <div className="text-[10px] text-[var(--text-primary)] leading-normal italic line-clamp-3">"{src.note_text}"</div>
+                                        </div>
+                                      </div>
+                                    );
+                                  }
+
+                                  return (
+                                    <div
+                                      key={i}
+                                      className="flex items-start gap-2 px-2.5 py-1.5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full sm:max-w-[280px]"
+                                    >
+                                      <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
+                                      <div className="min-w-0">
+                                        <div className="text-[10px] font-bold text-[var(--text-secondary)] break-words max-w-[160px] sm:max-w-[200px]">{src.title || src.label}</div>
+                                        <div className="text-[9px] text-[var(--text-muted)] font-mono font-semibold">
+                                          {src.page_number ? `Page ${src.page_number}` : ''}
+                                          {src.page_number && src.similarity_score ? ' · ' : ''}
+                                          {src.similarity_score ? `${Math.round(src.similarity_score * 100)}% match` : ''}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           ) : (
-                            <p className="text-[10px] text-slate-500 italic">No source citations returned for this response.</p>
+                            <p className="text-[10px] text-[var(--text-muted)] font-medium italic">No source citations returned for this response.</p>
                           )}
                         </div>
                       )}
@@ -1904,8 +2342,8 @@ function AppContent() {
                 ) : (
                   <div className="h-[400px] flex flex-col items-center justify-center text-[var(--text-muted)] border border-dashed border-[var(--border-color)] rounded-lg gap-3 bg-[var(--bg-card)]/20 p-8 text-center relative overflow-hidden card-premium">
                     {renderCadCorners()}
-                    <Database className="h-10 w-10 text-slate-600 mb-1" />
-                    <span className="text-[16px] font-bold text-slate-300 uppercase tracking-wider">No Asset Selected</span>
+                    <Database className="h-10 w-10 text-[var(--text-muted)] mb-1" />
+                    <span className="text-[16px] font-bold text-[var(--text-primary)] uppercase tracking-wider">No Asset Selected</span>
                     <span className="text-[14px] text-[var(--text-muted)] max-w-md font-medium leading-relaxed">
                       Select an active coke oven battery node, sensor, or valve from the Asset Register on the left to examine telemetry logs, incident records, safety audits, and to interact with operational agents.
                     </span>
@@ -1933,15 +2371,15 @@ function AppContent() {
 
                 <form onSubmit={handleUpload} className="space-y-4">
                   <div className="border border-dashed border-[var(--border-color)] rounded-lg p-8 text-center bg-[var(--bg-app)]/30 flex flex-col items-center justify-center gap-3 hover:border-[var(--accent-primary)]/40 transition duration-200 ease-in-out">
-                    <UploadCloud className="h-9 w-9 text-slate-500" />
-                    <div className="text-xs text-slate-400 font-medium">
+                    <UploadCloud className="h-9 w-9 text-[var(--text-muted)]" />
+                    <div className="text-xs text-[var(--text-muted)] font-medium">
                       Select a file from your system to upload to the ingestion router.
                     </div>
                     <input 
                       id="file-upload-input"
                       type="file" 
                       onChange={(e) => setSelectedFile(e.target.files[0])}
-                      className="text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
+                      className="text-xs text-[var(--text-muted)] file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
                     />
                   </div>
 
@@ -1954,11 +2392,11 @@ function AppContent() {
                   <button
                     type="submit"
                     disabled={!selectedFile || uploading}
-                    className="w-full py-2 bg-[var(--accent-primary)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-semibold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
+                    className="w-full py-2 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
                   >
                     {uploading ? (
                       <>
-                        <Loader className="h-4 w-4 animate-spin text-slate-950" />
+                        <Loader className="h-4 w-4 animate-spin text-white" />
                         Uploading document...
                       </>
                     ) : (
@@ -1977,7 +2415,7 @@ function AppContent() {
                   </h3>
                   <button 
                     onClick={loadDocuments}
-                    className="p-2 hover:bg-slate-900 border border-[var(--border-color)] rounded-lg transition text-slate-400"
+                    className="p-2 hover:bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg transition text-[var(--text-muted)]"
                   >
                     <RefreshCw className="h-4 w-4" />
                   </button>
@@ -1988,7 +2426,7 @@ function AppContent() {
                     <LoaderSkeleton type="list" />
                   </div>
                 ) : documents.length === 0 ? (
-                  <div className="p-8 text-center text-slate-500 border border-dashed border-[var(--border-color)] rounded-lg text-xs font-semibold">
+                  <div className="p-8 text-center text-[var(--text-muted)] border border-dashed border-[var(--border-color)] rounded-lg text-xs font-semibold">
                     No documents ingested yet.
                   </div>
                 ) : (
@@ -1996,7 +2434,7 @@ function AppContent() {
                     {renderCadCorners()}
                     <table className="w-full text-left border-collapse text-xs mt-1">
                       <thead>
-                        <tr className="bg-slate-950/60 border-b border-[var(--border-color)] text-slate-500 font-bold uppercase tracking-wider">
+                        <tr className="bg-[var(--bg-card-tinted)] border-b border-[var(--border-color)] text-[var(--text-secondary)] font-bold uppercase tracking-wider">
                           <th className="p-3">Title</th>
                           <th className="p-3">Type</th>
                           <th className="p-3">Status</th>
@@ -2011,15 +2449,15 @@ function AppContent() {
                           if (status === 'FAILED') statusClass = 'text-rose-400 bg-rose-500/10 border-rose-500/25';
                           
                           return (
-                            <tr key={doc.id} className="hover:bg-slate-800/10 transition duration-150">
+                            <tr key={doc.id} className="hover:bg-[var(--bg-card-tinted)] transition duration-150">
                               <td className="p-3 font-semibold text-[var(--text-primary)]">{doc.title}</td>
-                              <td className="p-3 font-mono text-[10px] uppercase text-slate-400">{doc.file_type}</td>
+                              <td className="p-3 font-mono text-[10px] uppercase text-[var(--text-muted)]">{doc.file_type}</td>
                               <td className="p-3">
                                 <span className={`px-2 py-0.5 rounded text-[9px] border font-bold uppercase tracking-wider ${statusClass}`}>
                                   {status}
                                 </span>
                               </td>
-                              <td className="p-3 text-right text-[10px] text-slate-400 font-mono">
+                              <td className="p-3 text-right text-[10px] text-[var(--text-muted)] font-mono">
                                 {new Date(doc.created_at).toLocaleDateString()} {new Date(doc.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </td>
                             </tr>
@@ -2048,13 +2486,13 @@ function AppContent() {
                       Upload Piping & Instrumentation Diagram drawings (PNG, JPEG, PDF) for Gemini 2.5 Flash to automatically extract physical equipment assets and build the relational digital twin topology.
                     </p>
                   </div>
-                  <span className="text-[9px] font-mono text-slate-500">[SYS_VISION_PARSER]</span>
+                  <span className="text-[9px] font-mono text-[var(--text-muted)]">[SYS_VISION_PARSER]</span>
                 </div>
 
                 <form onSubmit={handlePidUpload} className="space-y-4">
                   <div className="border border-dashed border-[var(--border-color)] rounded-lg p-8 text-center bg-[var(--bg-app)]/30 flex flex-col items-center justify-center gap-3 hover:border-[var(--accent-primary)]/40 transition duration-200 ease-in-out">
                     <UploadCloud className="h-9 w-9 text-[var(--accent-primary)]" />
-                    <div className="text-xs text-slate-400 font-medium">
+                    <div className="text-xs text-[var(--text-muted)] font-medium">
                       Select P&ID image blueprint from your computer
                     </div>
                     <input 
@@ -2062,7 +2500,7 @@ function AppContent() {
                       type="file" 
                       accept="image/*,application/pdf"
                       onChange={(e) => setPidFile(e.target.files[0])}
-                      className="text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
+                      className="text-xs text-[var(--text-muted)] file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
                     />
                   </div>
 
@@ -2075,11 +2513,11 @@ function AppContent() {
                   <button
                     type="submit"
                     disabled={!pidFile || parsingPid}
-                    className="w-full py-2 bg-[var(--accent-primary)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
+                    className="w-full py-2 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
                   >
                     {parsingPid ? (
                       <>
-                        <Loader className="h-4 w-4 animate-spin text-slate-950" />
+                        <Loader className="h-4 w-4 animate-spin text-white" />
                         Gemini analyzing P&ID blueprint & updating database...
                       </>
                     ) : (
@@ -2097,26 +2535,26 @@ function AppContent() {
                       <ShieldCheck className="h-4.5 w-4.5 text-[var(--color-healthy)]" />
                       Extraction Result Summary
                     </h4>
-                    <span className="text-[9px] font-mono text-slate-500">[SYS_EXTRACTION_RESULTS]</span>
+                    <span className="text-[9px] font-mono text-[var(--text-muted)]">[SYS_EXTRACTION_RESULTS]</span>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="p-4 bg-slate-950/40 rounded-lg border border-[var(--border-color)] text-center relative">
-                      <div className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Assets Found</div>
-                      <div className="text-2xl font-extrabold text-[var(--accent-ai)] mt-1">+{pidParseResult.assets_created}</div>
+                    <div className="p-4 bg-[var(--bg-card-tinted)] rounded-lg border border-[var(--border-color)] text-center relative">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">Assets Found</div>
+                      <div className="text-2xl font-extrabold text-[var(--accent-ai-text)] mt-1">+{pidParseResult.assets_created}</div>
                     </div>
-                    <div className="p-4 bg-slate-950/40 rounded-lg border border-[var(--border-color)] text-center relative">
-                      <div className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Graph Nodes Created</div>
-                      <div className="text-2xl font-extrabold text-[var(--accent-ai)] mt-1">+{pidParseResult.nodes_created}</div>
+                    <div className="p-4 bg-[var(--bg-card-tinted)] rounded-lg border border-[var(--border-color)] text-center relative">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">Graph Nodes Created</div>
+                      <div className="text-2xl font-extrabold text-[var(--accent-ai-text)] mt-1">+{pidParseResult.nodes_created}</div>
                     </div>
-                    <div className="p-4 bg-slate-950/40 rounded-lg border border-[var(--border-color)] text-center relative">
-                      <div className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Graph Edges Mapped</div>
-                      <div className="text-2xl font-extrabold text-[var(--accent-ai)] mt-1">+{pidParseResult.edges_created}</div>
+                    <div className="p-4 bg-[var(--bg-card-tinted)] rounded-lg border border-[var(--border-color)] text-center relative">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">Graph Edges Mapped</div>
+                      <div className="text-2xl font-extrabold text-[var(--accent-ai-text)] mt-1">+{pidParseResult.edges_created}</div>
                     </div>
                   </div>
                   <div className="flex justify-end mt-2">
                     <button
                       onClick={() => setActiveTab('twin')}
-                      className="px-4 py-2 bg-slate-900 border border-[var(--border-color)] hover:border-[var(--accent-primary)] text-xs font-bold rounded-lg text-slate-300 transition"
+                      className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--accent-primary)] text-xs font-bold rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
                     >
                       Examine in Digital Twin View →
                     </button>
@@ -2144,25 +2582,33 @@ function AppContent() {
             <div className="flex items-center justify-between border-b border-[var(--border-color)]/60 pb-4 mb-4">
               <div className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-[var(--accent-ai)]" />
-                <h2 className="font-black text-lg tracking-tight text-slate-100 uppercase flex items-center gap-2">
+                <h2 className="font-black text-lg tracking-tight text-[var(--text-primary)] uppercase flex items-center gap-2">
                   AI Runtime & Fallback Monitor
-                  <span className="text-[9px] font-mono text-slate-500 normal-case font-normal lowercase">— monitor LLM latency and fallback routing</span>
+                  <span className="text-[9px] font-mono text-[var(--text-muted)] normal-case font-normal lowercase">— monitor LLM latency and fallback routing</span>
                 </h2>
               </div>
-              <button
-                onClick={() => setIsMonitorOpen(false)}
-                className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleClearTelemetry}
+                  className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 rounded-lg transition"
+                >
+                  Clear Logs
+                </button>
+                <button
+                  onClick={() => setIsMonitorOpen(false)}
+                  className="p-1 rounded-lg hover:bg-[var(--bg-card-tinted)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
             {/* Providers Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               {/* Groq Card */}
-              <div className="p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-2 relative">
+              <div className="p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 relative">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-xs uppercase text-slate-400">Groq</span>
+                  <span className="font-extrabold text-xs uppercase text-[var(--text-secondary)]">Groq</span>
                   <span className={`flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
                     telemetry.groq.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                     : telemetry.groq.status === 'DEGRADED' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -2172,19 +2618,19 @@ function AppContent() {
                     {telemetry.groq.status}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono">llama-3.3-70b-versatile</div>
+                <div className="text-[10px] text-[var(--text-muted)] font-mono">llama-3.3-70b-versatile</div>
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-color)]/60 text-xs">
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Requests</span>
-                    <span className="font-mono font-bold text-slate-200">{telemetry.groq.reqs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Requests</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)]">{telemetry.groq.reqs}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Errors</span>
-                    <span className="font-mono font-bold text-rose-400">{telemetry.groq.errs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Errors</span>
+                    <span className="font-mono font-bold text-[var(--color-critical)]">{telemetry.groq.errs}</span>
                   </div>
                 </div>
                 <div className="pt-2 text-xs">
-                  <span className="text-[9px] text-slate-500 block uppercase font-bold">Avg Latency</span>
+                  <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Avg Latency</span>
                   <span className="font-mono font-bold text-[var(--accent-ai)]">
                     {telemetry.groq.reqs > 0 ? `${Math.round(telemetry.groq.totalLatency / telemetry.groq.reqs)}ms` : 'N/A'}
                   </span>
@@ -2192,9 +2638,9 @@ function AppContent() {
               </div>
 
               {/* Gemini Card */}
-              <div className="p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-2 relative">
+              <div className="p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 relative">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-xs uppercase text-slate-400">Gemini</span>
+                  <span className="font-extrabold text-xs uppercase text-[var(--text-secondary)]">Gemini</span>
                   <span className={`flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
                     telemetry.gemini.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                     : telemetry.gemini.status === 'DEGRADED' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -2204,19 +2650,19 @@ function AppContent() {
                     {telemetry.gemini.status}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono">gemini-2.5-flash</div>
+                <div className="text-[10px] text-[var(--text-muted)] font-mono">gemini-2.5-flash</div>
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-color)]/60 text-xs">
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Requests</span>
-                    <span className="font-mono font-bold text-slate-200">{telemetry.gemini.reqs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Requests</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)]">{telemetry.gemini.reqs}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Errors</span>
-                    <span className="font-mono font-bold text-rose-400">{telemetry.gemini.errs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Errors</span>
+                    <span className="font-mono font-bold text-[var(--color-critical)]">{telemetry.gemini.errs}</span>
                   </div>
                 </div>
                 <div className="pt-2 text-xs">
-                  <span className="text-[9px] text-slate-500 block uppercase font-bold">Avg Latency</span>
+                  <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Avg Latency</span>
                   <span className="font-mono font-bold text-[var(--accent-ai)]">
                     {telemetry.gemini.reqs > 0 ? `${Math.round(telemetry.gemini.totalLatency / telemetry.gemini.reqs)}ms` : 'N/A'}
                   </span>
@@ -2224,9 +2670,9 @@ function AppContent() {
               </div>
 
               {/* Mistral Card */}
-              <div className="p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-2 relative">
+              <div className="p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 relative">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-xs uppercase text-slate-400">Mistral</span>
+                  <span className="font-extrabold text-xs uppercase text-[var(--text-secondary)]">Mistral</span>
                   <span className={`flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
                     telemetry.mistral.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                     : telemetry.mistral.status === 'DEGRADED' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -2236,19 +2682,19 @@ function AppContent() {
                     {telemetry.mistral.status}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono">open-mistral-7b</div>
+                <div className="text-[10px] text-[var(--text-muted)] font-mono">open-mistral-7b</div>
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-color)]/60 text-xs">
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Requests</span>
-                    <span className="font-mono font-bold text-slate-200">{telemetry.mistral.reqs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Requests</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)]">{telemetry.mistral.reqs}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Errors</span>
-                    <span className="font-mono font-bold text-rose-400">{telemetry.mistral.errs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Errors</span>
+                    <span className="font-mono font-bold text-[var(--color-critical)]">{telemetry.mistral.errs}</span>
                   </div>
                 </div>
                 <div className="pt-2 text-xs">
-                  <span className="text-[9px] text-slate-500 block uppercase font-bold">Avg Latency</span>
+                  <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Avg Latency</span>
                   <span className="font-mono font-bold text-[var(--accent-ai)]">
                     {telemetry.mistral.reqs > 0 ? `${Math.round(telemetry.mistral.totalLatency / telemetry.mistral.reqs)}ms` : 'N/A'}
                   </span>
@@ -2257,34 +2703,35 @@ function AppContent() {
             </div>
             {/* Telemetry Stream Monitor */}
 
-            <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg mb-4 text-xs flex justify-between items-center px-4 relative">
-              <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">SCADA Telemetry Stream (SSE)</span>
+            <div className="p-3 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg mb-4 text-xs flex justify-between items-center px-4 relative">
+              <span className="font-semibold text-[var(--text-secondary)] uppercase tracking-wider text-[10px]">SCADA Telemetry Stream (SSE)</span>
               <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase ${
                 telemetry.telemetryStream === 'CONNECTED' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
+                : telemetry.telemetryStream === 'DISCONNECTED' ? 'text-rose-400 border-rose-500/30 bg-rose-500/10'
                 : telemetry.telemetryStream === 'FALLBACK_LOCAL' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10'
-                : 'text-slate-500 border-slate-500/30 bg-slate-500/10'
+                : 'text-[var(--text-muted)] border-[var(--border-color)] bg-[var(--bg-card-tinted)]'
               }`}>
                 {telemetry.telemetryStream}
               </span>
             </div>
 
             {/* Cache Row */}
-            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg mb-6 text-xs relative">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg mb-6 text-xs relative">
 
               <div className="flex justify-between items-center px-2">
-                <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Prompt Cache Hits</span>
+                <span className="font-semibold text-[var(--text-secondary)] uppercase tracking-wider text-[10px]">Prompt Cache Hits</span>
                 <span className="font-mono font-bold text-[var(--accent-ai)] bg-[var(--accent-ai)]/10 border border-[var(--accent-ai)]/20 px-2 py-0.5 rounded">{telemetry.promptCacheHits}</span>
               </div>
               <div className="flex justify-between items-center px-2 border-l border-[var(--border-color)]/60">
-                <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Search Cache Hits</span>
+                <span className="font-semibold text-[var(--text-secondary)] uppercase tracking-wider text-[10px]">Search Cache Hits</span>
                 <span className="font-mono font-bold text-[var(--color-healthy)] bg-[var(--color-healthy)]/10 border border-[var(--color-healthy)]/20 px-2 py-0.5 rounded">{telemetry.searchCacheHits}</span>
               </div>
             </div>
 
             {/* Fallback Logs Terminal Box */}
             <div className="flex-1 flex flex-col min-h-[160px] overflow-hidden space-y-2">
-              <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Fallback & Event logs</div>
-              <div className="flex-1 p-4 bg-black border border-[var(--border-color)] rounded-lg font-mono text-[11px] overflow-y-auto space-y-1.5 text-slate-400">
+              <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest">Fallback & Event logs</div>
+              <div className="flex-1 p-4 bg-black border border-[var(--border-color)] rounded-lg font-mono text-[11px] overflow-y-auto space-y-1.5 text-slate-200">
                 {fallbackLogs.length > 0 ? (
                   fallbackLogs.map((log, idx) => (
                     <div key={idx} className="leading-relaxed break-all">
@@ -2292,7 +2739,7 @@ function AppContent() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-slate-600 text-center py-8">
+                  <div className="text-slate-500 text-center py-8">
                     No fallback events recorded yet. Ready to rotate.
                   </div>
                 )}
@@ -2304,9 +2751,9 @@ function AppContent() {
       )}
 
       {/* AI Traversal Auditing Engine Viewport HUD Overlay */}
-      {isInvestigating && (
+      {isInvestigating && ENABLE_INVESTIGATION_HUD && (
         <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-8 animate-backdrop-in">
-          <div className="w-full max-w-4xl max-h-[70vh] bg-slate-900 border border-[var(--accent-ai)]/30 rounded-lg flex flex-col p-6 font-mono text-xs shadow-2xl relative overflow-hidden card-premium animate-modal-in">
+          <div className="w-full max-w-4xl max-h-[70vh] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg flex flex-col p-6 font-mono text-xs shadow-2xl relative overflow-hidden card-premium animate-modal-in">
             {renderCadCorners()}
             
             {/* HUD Header */}
@@ -2314,7 +2761,7 @@ function AppContent() {
               <span className="text-[var(--accent-ai)] font-black uppercase tracking-widest flex items-center gap-2 text-sm animate-pulse">
                 <Brain className="h-4.5 w-4.5" /> AI Traversal Auditing Engine
               </span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-mono">[SYS_AGENT_REASONING_TRACE // VIEWPORT_HUD]</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider font-mono">[SYS_AGENT_REASONING_TRACE // VIEWPORT_HUD]</span>
             </div>
             
             {/* Terminal logs content */}
@@ -2325,14 +2772,14 @@ function AppContent() {
                 </div>
               ))}
               {investigationStep < 5 && (
-                <div className="text-slate-600 animate-pulse text-[14px] font-mono pl-3">
+                <div className="text-[var(--text-muted)] animate-pulse text-[14px] font-mono pl-3">
                   ⬢ Traversing graph edges...
                 </div>
               )}
             </div>
             
             {/* HUD Footer */}
-            <div className="border-t border-[var(--accent-ai)]/20 pt-3 mt-4 flex items-center justify-between text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
+            <div className="border-t border-[var(--accent-ai)]/20 pt-3 mt-4 flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-semibold">
               <span>Status: Processing RAG & Graph Data</span>
               <span className="font-mono">Route Step: {investigationStep}/5</span>
             </div>
