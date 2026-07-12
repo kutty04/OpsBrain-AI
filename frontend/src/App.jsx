@@ -58,18 +58,18 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center min-h-screen bg-[var(--bg-app)] text-[var(--text-primary)]">
-          <div className="max-w-lg w-full mx-4 p-8 border border-rose-500/30 bg-rose-950/20 rounded-xl space-y-4 text-center">
-            <div className="text-rose-400 text-4xl">⚠</div>
-            <h2 className="text-lg font-bold text-rose-300 font-mono tracking-wide">PANEL FAILURE DETECTED</h2>
-            <p className="text-sm text-slate-400">
+          <div className="max-w-lg w-full mx-4 p-8 border border-[var(--color-critical-border)] bg-[var(--color-critical-light)] rounded-xl space-y-4 text-center">
+            <div className="text-[var(--color-critical)] text-4xl">⚠</div>
+            <h2 className="text-lg font-bold text-[var(--color-critical)] font-mono tracking-wide">PANEL FAILURE DETECTED</h2>
+            <p className="text-sm text-[var(--text-secondary)] font-medium">
               A component encountered an unexpected error and could not render.
             </p>
-            <p className="text-xs font-mono text-rose-400/60 bg-slate-900/60 rounded px-3 py-2 text-left break-all">
+            <p className="text-xs font-mono text-[var(--color-critical)] bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded px-3 py-2 text-left break-all">
               {this.state.errorMessage}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 px-6 py-2 text-sm font-semibold rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 transition"
+              className="mt-4 px-6 py-2 text-sm font-semibold rounded-lg bg-[var(--color-critical-light)] border border-[var(--color-critical-border)] text-[var(--color-critical)] hover:bg-[var(--color-critical-light)]/80 transition"
             >
               Reload OpsBrain
             </button>
@@ -89,11 +89,11 @@ function LoaderSkeleton({ type = 'card' }) {
         {[1, 2, 3].map((i) => (
           <div key={i} className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-2">
             <div className="flex justify-between items-center">
-              <div className="h-3.5 bg-slate-850 rounded w-1/4"></div>
-              <div className="h-3.5 bg-slate-850 rounded w-1/12"></div>
+              <div className="h-3.5 bg-[var(--border-color)] rounded w-1/4"></div>
+              <div className="h-3.5 bg-[var(--border-color)] rounded w-1/12"></div>
             </div>
-            <div className="h-3 bg-slate-850 rounded w-full"></div>
-            <div className="h-3 bg-slate-850 rounded w-5/6"></div>
+            <div className="h-3 bg-[var(--border-color)] rounded w-full"></div>
+            <div className="h-3 bg-[var(--border-color)] rounded w-5/6"></div>
           </div>
         ))}
       </div>
@@ -104,11 +104,11 @@ function LoaderSkeleton({ type = 'card' }) {
       <div className="space-y-6 animate-pulse">
         <div className="p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-3">
           <div className="flex gap-2">
-            <div className="h-4.5 bg-slate-850 rounded w-16"></div>
-            <div className="h-4.5 bg-slate-850 rounded w-28"></div>
+            <div className="h-4.5 bg-[var(--border-color)] rounded w-16"></div>
+            <div className="h-4.5 bg-[var(--border-color)] rounded w-28"></div>
           </div>
-          <div className="h-6 bg-slate-850 rounded w-1/2"></div>
-          <div className="h-3.5 bg-slate-850 rounded w-3/4"></div>
+          <div className="h-6 bg-[var(--border-color)] rounded w-1/2"></div>
+          <div className="h-3.5 bg-[var(--border-color)] rounded w-3/4"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="h-[200px] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg"></div>
@@ -119,9 +119,9 @@ function LoaderSkeleton({ type = 'card' }) {
   }
   return (
     <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-3 animate-pulse">
-      <div className="h-3.5 bg-slate-850 rounded w-2/3"></div>
-      <div className="h-3 bg-slate-850 rounded w-full"></div>
-      <div className="h-3 bg-slate-850 rounded w-5/6"></div>
+      <div className="h-3.5 bg-[var(--border-color)] rounded w-2/3"></div>
+      <div className="h-3 bg-[var(--border-color)] rounded w-full"></div>
+      <div className="h-3 bg-[var(--border-color)] rounded w-5/6"></div>
     </div>
   );
 }
@@ -1348,7 +1348,7 @@ function AppContent() {
           
           {/* Phase 6B: Active Dataset Label */}
           <div className="flex items-center gap-1.5 px-1">
-            <span className="text-[9px] uppercase font-black tracking-widest text-slate-500">Active Dataset:</span>
+            <span className="text-[9px] uppercase font-black tracking-widest text-slate-400">Active Dataset:</span>
             <span className={`text-[9px] font-bold uppercase tracking-wide ${activeDataset === 'refinery' ? 'text-amber-400' : 'text-[var(--accent-primary)]'}`}>
               {activeDataset === 'refinery' ? 'Refinery Pump Station' : 'Vizag Steel Coke Oven'}
             </span>
@@ -1437,7 +1437,7 @@ function AppContent() {
           </button>
 
           {/* Phase 6B: Optional scalability note */}
-          <p className="text-[9px] text-slate-600 leading-tight px-1">
+          <p className="text-[9px] text-slate-400 leading-tight px-1">
             Optional scalability proof. Uses the same knowledge graph and asset schema on a second plant dataset.
           </p>
 
@@ -1667,9 +1667,9 @@ function AppContent() {
           {activeTab === 'twin' && (
             <div className="flex h-full gap-8 max-w-7xl mx-auto items-stretch">
               {/* Asset list sub-sidebar */}
-              <div className={`w-80 flex flex-col border border-slate-800 bg-slate-900/40 rounded-xl p-4 space-y-4 flex-shrink-0 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
-                <h3 className="font-bold text-slate-200 px-2 flex items-center gap-2">
-                  <Database className="h-4.5 w-4.5 text-cyan-400" />
+              <div className={`w-80 flex flex-col border border-[var(--border-color)] bg-[var(--bg-card-tinted)] rounded-xl p-4 space-y-4 flex-shrink-0 transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                <h3 className="font-bold text-[var(--text-primary)] px-2 flex items-center gap-2">
+                  <Database className="h-4.5 w-4.5 text-[var(--accent-primary)]" />
                   Asset Register ({assets.length})
                 </h3>
                 
@@ -1685,15 +1685,15 @@ function AppContent() {
                         onClick={() => setSelectedAssetTag(asset.tag_number)}
                         className={`w-full text-left p-2.5 rounded-lg transition duration-150 border text-xs flex flex-col gap-1 ${
                           selectedAssetTag === asset.tag_number
-                            ? 'bg-[var(--bg-pill)] border-[var(--border-pill)] text-[var(--accent-primary)] font-semibold shadow-sm'
-                            : 'bg-slate-900/40 border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-slate-800/30'
+                            ? 'bg-[var(--bg-pill)] border-[var(--border-pill)] text-[var(--text-primary)] font-bold shadow-sm'
+                            : 'bg-[var(--bg-card)] border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card-tinted)]'
                         }`}
                       >
                         <div className="flex justify-between items-center w-full">
-                          <span className="font-mono text-xs uppercase font-extrabold">{asset.tag_number}</span>
-                          <span className="text-[9px] uppercase font-bold tracking-wider opacity-60">{asset.category}</span>
+                          <span className={`font-mono text-xs uppercase font-extrabold ${selectedAssetTag === asset.tag_number ? 'text-[var(--accent-primary-text)]' : 'text-[var(--text-primary)]'}`}>{asset.tag_number}</span>
+                          <span className={`text-[9px] uppercase font-black tracking-wider ${selectedAssetTag === asset.tag_number ? 'text-[var(--accent-primary-text)]' : 'text-[var(--text-muted)]'}`}>{asset.category}</span>
                         </div>
-                        <span className="text-xs font-medium truncate w-full">{asset.name}</span>
+                        <span className="text-xs font-semibold truncate w-full">{asset.name}</span>
                       </button>
                     ))}
                   </div>
@@ -1715,14 +1715,14 @@ function AppContent() {
                       <div className="flex justify-between items-start gap-4 flex-wrap">
                         <div className="space-y-2">
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className="px-2.5 py-1 rounded bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-xs font-bold font-mono text-[var(--accent-primary)] uppercase">
+                            <span className="px-2.5 py-1 rounded bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/20 text-xs font-bold font-mono text-[var(--accent-primary-text)] uppercase">
                               {selectedAssetDetails.asset.tag_number}
                             </span>
-                            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">
+                            <span className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider">
                               Category: {selectedAssetDetails.asset.category}
                             </span>
                           </div>
-                          <h2 className="text-xl md:text-2xl font-black text-slate-100 tracking-tight">
+                          <h2 className="text-xl md:text-2xl font-black text-[var(--text-primary)] tracking-tight">
                             {selectedAssetDetails.asset.name}
                           </h2>
                           {selectedAssetDetails.asset.description && (
@@ -1731,7 +1731,7 @@ function AppContent() {
                             </p>
                           )}
                         </div>
-                        <div className="text-right text-xs text-slate-500 font-mono">
+                        <div className="text-right text-xs text-[var(--text-muted)] font-mono">
                           [SYS_twin_id // {selectedAssetDetails.asset.id.slice(0, 8)}]
                         </div>
                       </div>
@@ -1742,7 +1742,7 @@ function AppContent() {
                       {renderCadCorners()}
                       <div className="text-[10px] uppercase font-black tracking-widest text-[var(--accent-ai)] mb-3 flex items-center gap-1.5 justify-between">
                         <span className="flex items-center gap-1.5"><Brain className="h-3.5 w-3.5" /> AI Agent Actions — {selectedAssetDetails.asset.tag_number}</span>
-                        <span className="text-[8px] font-mono text-slate-500">[SYS_AGENT_ROUTING]</span>
+                        <span className="text-[8px] font-mono text-[var(--text-muted)]">[SYS_AGENT_ROUTING]</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {/* Run RCA */}
@@ -1918,11 +1918,11 @@ function AppContent() {
                         </div>
                         {complianceAgentResult.violations?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-rose-400/60 uppercase font-bold tracking-wider mb-1 font-mono">Violations Detected</div>
+                            <div className="text-[10px] text-[var(--color-critical)] uppercase font-bold tracking-wider mb-1 font-mono">Violations Detected</div>
                             <ul className="space-y-1">
                               {complianceAgentResult.violations.map((v, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <XCircle className="h-3 w-3 text-rose-400 flex-shrink-0 mt-0.5" />{v}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)]">
+                                  <XCircle className="h-3 w-3 text-[var(--color-critical)] flex-shrink-0 mt-0.5" />{v}
                                 </li>
                               ))}
                             </ul>
@@ -1931,8 +1931,8 @@ function AppContent() {
                         <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{complianceAgentResult.findings}</p>
 
                         {/* Explainable Compliance Evidence Section */}
-                        <div className="mt-4 pt-4 border-t border-slate-800/60 space-y-3">
-                          <div className="text-[10px] text-fuchsia-400/80 uppercase font-black tracking-widest font-mono">
+                        <div className="mt-4 pt-4 border-t border-[var(--border-color)]/60 space-y-3">
+                          <div className="text-[10px] text-[var(--accent-ai-text)] uppercase font-black tracking-widest font-mono">
                             Explainable Compliance Evidence
                           </div>
                           {complianceAgentResult.compliance_evidence && complianceAgentResult.compliance_evidence.length > 0 ? (
@@ -1944,33 +1944,33 @@ function AppContent() {
                                       <span className="font-bold text-[var(--text-secondary)]">Asset:</span> <span className="font-mono text-[var(--accent-primary-text)] bg-[var(--bg-pill)] px-1 py-0.5 rounded">{ev.affected_asset || 'N/A'}</span>
                                     </div>
                                     <div className="flex gap-2 text-[9px] font-mono">
-                                      <span className="text-rose-400 border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.2 rounded uppercase">{ev.severity || 'Medium'}</span>
-                                      <span className="text-slate-400 border border-slate-500/20 bg-slate-500/10 px-1.5 py-0.2 rounded uppercase">Confidence: {ev.confidence || 'High'}</span>
+                                      <span className="text-[var(--color-critical)] border border-[var(--color-critical-border)] bg-[var(--color-critical-light)] px-1.5 py-0.2 rounded uppercase">{ev.severity || 'Medium'}</span>
+                                      <span className="text-[var(--text-muted)] border border-[var(--border-color)] bg-[var(--bg-card)] px-1.5 py-0.2 rounded uppercase">Confidence: {ev.confidence || 'High'}</span>
                                     </div>
                                   </div>
                                   <div>
-                                    <span className="font-bold text-slate-400">Issue:</span> <span className="text-slate-200">{ev.issue || 'Compliance review required'}</span>
+                                    <span className="font-bold text-[var(--text-muted)]">Issue:</span> <span className="text-[var(--text-primary)] font-semibold">{ev.issue || 'Compliance review required'}</span>
                                   </div>
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] bg-slate-900/30 p-2 rounded">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] bg-[var(--bg-card)] border border-[var(--border-color)] p-2 rounded">
                                     <div>
-                                      <span className="text-slate-500 font-medium">Observed Value:</span> <span className="font-bold text-slate-300">{ev.observed_value || 'N/A'} {ev.unit || ''}</span>
+                                      <span className="text-[var(--text-muted)] font-medium">Observed Value:</span> <span className="font-bold text-[var(--text-primary)]">{ev.observed_value || 'N/A'} {ev.unit || ''}</span>
                                     </div>
                                     <div>
-                                      <span className="text-slate-500 font-medium">Allowed Threshold:</span> <span className="font-bold text-emerald-400">{ev.allowed_threshold || 'N/A'} {ev.unit || ''}</span>
+                                      <span className="text-[var(--text-muted)] font-medium">Allowed Threshold:</span> <span className="font-bold text-[var(--color-healthy)]">{ev.allowed_threshold || 'N/A'} {ev.unit || ''}</span>
                                     </div>
                                   </div>
-                                  <div className="text-[11px] text-slate-400">
-                                    <span className="text-slate-500 font-medium">Source Document:</span> <span className="italic text-slate-300">{ev.source_document || 'N/A'}</span> 
-                                    {ev.citation && <span className="text-slate-500 text-[10px] ml-1">({ev.citation})</span>}
+                                  <div className="text-[11px] text-[var(--text-muted)]">
+                                    <span className="text-[var(--text-muted)] font-medium">Source Document:</span> <span className="italic text-[var(--text-primary)]">{ev.source_document || 'N/A'}</span> 
+                                    {ev.citation && <span className="text-[var(--text-muted)] text-[10px] ml-1">({ev.citation})</span>}
                                   </div>
                                   {ev.recommended_action && (
-                                    <div className="pt-1.5 border-t border-slate-800/60">
-                                      <span className="font-bold text-emerald-400 block mb-0.5">Recommended Action:</span>
-                                      <p className="text-slate-300 text-[11px] leading-relaxed">{ev.recommended_action}</p>
+                                    <div className="pt-1.5 border-t border-[var(--border-color)]/60">
+                                      <span className="font-bold text-[var(--color-healthy)] block mb-0.5">Recommended Action:</span>
+                                      <p className="text-[var(--text-secondary)] text-[11px] leading-relaxed">{ev.recommended_action}</p>
                                     </div>
                                   )}
                                   {ev.why_it_matters && (
-                                    <div className="text-[10px] text-slate-500 italic">
+                                    <div className="text-[10px] text-[var(--text-muted)] italic">
                                       * {ev.why_it_matters}
                                     </div>
                                   )}
@@ -1978,7 +1978,7 @@ function AppContent() {
                               ))}
                             </div>
                           ) : (
-                            <div className="text-[11px] text-slate-500 font-mono italic">
+                            <div className="text-[11px] text-[var(--text-muted)] font-mono italic">
                               No structured compliance evidence returned for this run.
                             </div>
                           )}
@@ -2025,35 +2025,35 @@ function AppContent() {
                     </div>
 
                     {/* P5A: Tribal Knowledge / Field Notes */}
-                    <div className={`p-5 bg-[var(--bg-card)] border border-amber-900/30 rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                    <div className={`p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       {renderCadCorners()}
                       <div className="flex flex-wrap justify-between items-center gap-2">
-                        <h4 className="font-bold text-amber-400/90 text-sm flex items-center gap-2 uppercase tracking-wider">
+                        <h4 className="font-bold text-[var(--text-secondary)] text-sm flex items-center gap-2 uppercase tracking-wider">
                           <BookOpen className="h-4 w-4 flex-shrink-0" /> Tribal Knowledge / Field Notes
                         </h4>
-                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex-shrink-0">[SYS_FIELD_NOTES // {selectedAssetTag}]</span>
+                        <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-widest flex-shrink-0">[SYS_FIELD_NOTES // {selectedAssetTag}]</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 font-medium italic">Capture informal operational knowledge from technicians and engineers. Not yet connected to Copilot RAG (Phase 5A).</p>
+                      <p className="text-[10px] text-[var(--text-muted)] font-medium italic">Capture informal operational knowledge from technicians and engineers. Not yet connected to Copilot RAG (Phase 5A).</p>
 
                       {/* Existing Notes */}
                       {tribalNotesLoading ? (
-                        <div className="flex items-center gap-2 text-xs text-slate-500 py-2">
+                        <div className="flex items-center gap-2 text-xs text-[var(--text-muted)] py-2">
                           <Loader className="h-3.5 w-3.5 animate-spin" /> Loading field notes...
                         </div>
                       ) : tribalNotes.length === 0 ? (
-                        <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg text-xs text-slate-500 italic text-center">
+                        <div className="p-3 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-muted)] italic text-center">
                           No field notes captured for this asset yet.
                         </div>
                       ) : (
                         <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
                           {tribalNotes.map((note) => (
-                            <div key={note.id} className="p-3 bg-slate-950/50 border border-amber-900/20 rounded-lg space-y-1.5">
-                              <p className="text-xs text-slate-200 leading-relaxed break-words">{note.note_text}</p>
-                              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-500 font-mono">
-                                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded font-bold">{note.source_type}</span>
-                                {note.author_role && <span>👤 {note.author_role}</span>}
-                                {note.confidence && <span>📊 {note.confidence}</span>}
-                                {note.created_at && <span className="text-slate-600">{new Date(note.created_at).toLocaleDateString()}</span>}
+                            <div key={note.id} className="p-3 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-1.5 shadow-sm">
+                              <p className="text-xs text-[var(--text-primary)] font-medium leading-relaxed break-words">{note.note_text}</p>
+                              <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[var(--text-muted)] font-mono">
+                                <span className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-600 rounded font-bold">{note.source_type}</span>
+                                {note.author_role && <span className="font-medium">👤 {note.author_role}</span>}
+                                {note.confidence && <span className="font-medium">📊 {note.confidence}</span>}
+                                {note.created_at && <span className="text-[var(--text-muted)]">{new Date(note.created_at).toLocaleDateString()}</span>}
                               </div>
                             </div>
                           ))}
@@ -2062,13 +2062,13 @@ function AppContent() {
 
                       {/* Add New Note Form */}
                       <div className="border-t border-[var(--border-color)]/60 pt-3 space-y-2">
-                        <div className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">Add Field Note</div>
+                        <div className="text-[9px] uppercase font-bold text-[var(--text-muted)] tracking-widest">Add Field Note</div>
                         <textarea
                           value={tribalNoteText}
                           onChange={(e) => setTribalNoteText(e.target.value)}
                           placeholder="Describe what you observed in the field..."
                           rows={3}
-                          className="w-full px-3 py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 resize-none"
+                          className="w-full px-3 py-2 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 resize-none font-semibold"
                         />
                         <div className="flex flex-col sm:flex-row gap-2">
                           <input
@@ -2076,20 +2076,20 @@ function AppContent() {
                             value={tribalNoteRole}
                             onChange={(e) => setTribalNoteRole(e.target.value)}
                             placeholder="Role (optional, e.g. Senior Technician)"
-                            className="flex-1 min-w-0 px-3 py-1.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/30"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-amber-500/30 font-semibold"
                           />
                           <input
                             type="text"
                             value={tribalNoteConf}
                             onChange={(e) => setTribalNoteConf(e.target.value)}
                             placeholder="Confidence (optional)"
-                            className="flex-1 min-w-0 px-3 py-1.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-xs text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-amber-500/30"
+                            className="flex-1 min-w-0 px-3 py-1.5 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-amber-500/30 font-semibold"
                           />
                           <button
                             type="button"
                             onClick={saveTribalNote}
                             disabled={tribalNoteSaving || !tribalNoteText.trim()}
-                            className="w-full sm:w-auto px-4 py-1.5 min-h-[36px] bg-amber-500/80 hover:bg-amber-500 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0"
+                            className="w-full sm:w-auto px-4 py-1.5 min-h-[36px] bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0"
                           >
                             {tribalNoteSaving ? <Loader className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
                             {tribalNoteSaving ? 'Saving...' : 'Save Note'}
@@ -2107,18 +2107,18 @@ function AppContent() {
                     {/* P3: Lessons Learned Result */}
 
                     {lessonsResult && (
-                      <div className={`p-5 bg-amber-500/5 border border-amber-500/20 rounded-lg space-y-4 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
+                      <div className={`p-5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-4 relative overflow-hidden card-premium shadow-sm transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                         {renderCadCorners()}
-                        <h4 className="font-bold text-amber-300 text-sm flex items-center gap-2">
-                          <BookOpen className="h-4 w-4" /> Lessons Learned & Failure Intelligence
+                        <h4 className="font-bold text-[var(--text-secondary)] text-sm flex items-center gap-2">
+                          <BookOpen className="h-4 w-4 text-[var(--accent-primary)]" /> Lessons Learned & Failure Intelligence
                         </h4>
                         {lessonsResult.lessons_extracted?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-amber-400/60 uppercase font-bold tracking-wider mb-2 font-mono">Key Lessons Extracted</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider mb-2 font-mono">Key Lessons Extracted</div>
                             <ul className="space-y-1.5">
                               {lessonsResult.lessons_extracted.map((l, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <span className="text-amber-400 font-bold mt-0.5">›</span>{l}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                                  <span className="text-amber-500 font-bold mt-0.5">›</span>{l}
                                 </li>
                               ))}
                             </ul>
@@ -2126,11 +2126,11 @@ function AppContent() {
                         )}
                         {lessonsResult.preventive_actions?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-cyan-400/60 uppercase font-bold tracking-wider mb-2 font-mono">Preventive Actions</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider mb-2 font-mono">Preventive Actions</div>
                             <ul className="space-y-1.5">
                               {lessonsResult.preventive_actions.map((a, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <CheckCircle className="h-3 w-3 text-cyan-400 flex-shrink-0 mt-0.5" />{a}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                                  <CheckCircle className="h-3 w-3 text-[var(--accent-primary-text)] flex-shrink-0 mt-0.5" />{a}
                                 </li>
                               ))}
                             </ul>
@@ -2138,11 +2138,11 @@ function AppContent() {
                         )}
                         {lessonsResult.safety_recommendations?.length > 0 && (
                           <div>
-                            <div className="text-[10px] text-emerald-400/60 uppercase font-bold tracking-wider mb-2 font-mono">Safety Recommendations</div>
+                            <div className="text-[10px] text-[var(--text-muted)] uppercase font-bold tracking-wider mb-2 font-mono">Safety Recommendations</div>
                             <ul className="space-y-1.5">
                               {lessonsResult.safety_recommendations.map((r, i) => (
-                                <li key={i} className="flex gap-2 text-xs text-slate-300">
-                                  <ShieldCheck className="h-3 w-3 text-emerald-400 flex-shrink-0 mt-0.5" />{r}
+                                <li key={i} className="flex gap-2 text-xs text-[var(--text-secondary)] font-medium">
+                                  <ShieldCheck className="h-3 w-3 text-[var(--color-healthy)] flex-shrink-0 mt-0.5" />{r}
                                 </li>
                               ))}
                             </ul>
@@ -2156,11 +2156,11 @@ function AppContent() {
                     <div className={`p-5 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-4 shadow-sm relative overflow-hidden card-premium transition-all duration-500 ${isInvestigating ? 'opacity-20 blur-[0.5px] pointer-events-none' : ''}`}>
                       {renderCadCorners()}
                       <div className="flex flex-wrap justify-between items-start gap-y-1">
-                        <h4 className="font-bold text-[var(--accent-ai)] text-[15px] sm:text-[16px] flex items-center gap-2 uppercase tracking-wider min-w-0">
+                        <h4 className="font-bold text-[var(--accent-ai-text)] text-[15px] sm:text-[16px] flex items-center gap-2 uppercase tracking-wider min-w-0">
                           <MessageSquare className="h-4 w-4 flex-shrink-0" /> Knowledge Copilot
-                          <span className="text-[10px] font-normal text-slate-500 ml-1 lowercase normal-case hidden sm:inline">— Ask anything about safety SOPs, manuals, or failures</span>
+                          <span className="text-[10px] font-normal text-[var(--text-muted)] ml-1 lowercase normal-case hidden sm:inline">— Ask anything about safety SOPs, manuals, or failures</span>
                         </h4>
-                        <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest flex-shrink-0">[SYS_KNOWLEDGE_RAG]</span>
+                        <span className="text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-widest flex-shrink-0">[SYS_KNOWLEDGE_RAG]</span>
                       </div>
 
                       <form onSubmit={runKnowledgeAgent} className="flex flex-col sm:flex-row gap-2">
@@ -2169,22 +2169,22 @@ function AppContent() {
                           value={agentQuery}
                           onChange={(e) => setAgentQuery(e.target.value)}
                           placeholder={selectedAssetTag ? `Ask about ${selectedAssetTag}...` : 'Select an asset first...'}
-                          className="w-full min-w-0 flex-1 px-4 py-2.5 sm:py-2 bg-slate-950/60 border border-[var(--border-color)] rounded-lg text-[14px] sm:text-[15px] text-[var(--text-primary)] placeholder-slate-500 focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30"
+                          className="w-full min-w-0 flex-1 px-4 py-2.5 sm:py-2 bg-[var(--bg-input)] border border-[var(--border-input)] rounded-lg text-[14px] sm:text-[15px] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-ai)]/50 focus:ring-1 focus:ring-[var(--accent-ai)]/30 font-semibold"
                         />
                         <button
                           type="submit"
                           disabled={knowledgeLoading || !agentQuery.trim()}
-                          className="w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0 hover:shadow-md"
+                          className="w-full sm:w-auto px-5 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-[var(--accent-ai)] hover:opacity-90 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 sm:flex-shrink-0 hover:shadow-md"
                         >
                           {knowledgeLoading
-                            ? <Loader className="h-4 w-4 animate-spin text-slate-950" />
-                            : <Send className="h-4 w-4 text-slate-950" />}
+                            ? <Loader className="h-4 w-4 animate-spin text-white" />
+                            : <Send className="h-4 w-4 text-white" />}
                           {knowledgeLoading ? 'Thinking...' : 'Ask'}
                         </button>
                       </form>
 
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-mono text-slate-500 uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
-                        <span className="font-extrabold text-[var(--accent-ai)]">Powered by:</span>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-wider border-t border-[var(--border-color)]/60 pt-3">
+                        <span className="font-extrabold text-[var(--accent-ai-text)]">Powered by:</span>
                         <span>Groq LLM</span>
                         <span className="opacity-40">|</span>
                         <span>Mistral RAG</span>
@@ -2201,20 +2201,20 @@ function AppContent() {
                       {knowledgeResult && (
                         <div className="space-y-3.5">
                           {/* Answer block */}
-                          <div className="p-3.5 bg-slate-950/60 border border-[var(--border-color)] rounded-lg space-y-2.5 shadow-sm">
+                          <div className="p-3.5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2.5 shadow-sm">
                             <div className="flex items-center justify-between flex-wrap gap-2">
-                              <div className="text-[10px] text-[var(--accent-primary)]/80 uppercase font-black tracking-widest">AI Answer</div>
+                              <div className="text-[10px] text-[var(--accent-primary-text)] uppercase font-black tracking-widest">AI Answer</div>
                               {knowledgeResult.confidence !== undefined && (
                                 <span className={`px-2 py-0.5 rounded text-[9px] font-black border uppercase tracking-wider ${
-                                  knowledgeResult.confidence >= 0.8 ? 'text-emerald-400 border-emerald-500/25 bg-emerald-500/10'
-                                  : knowledgeResult.confidence >= 0.5 ? 'text-amber-400 border-amber-500/25 bg-amber-500/10'
-                                  : 'text-rose-400 border-rose-500/25 bg-rose-500/10'
+                                  knowledgeResult.confidence >= 0.8 ? 'text-[var(--color-healthy)] border-[var(--color-healthy-border)] bg-[var(--color-healthy-light)]'
+                                  : knowledgeResult.confidence >= 0.5 ? 'text-[var(--color-warning)] border-[var(--color-warning-border)] bg-[var(--color-warning-light)]'
+                                  : 'text-[var(--color-critical)] border-[var(--color-critical-border)] bg-[var(--color-critical-light)]'
                                 }`}>
                                   Confidence: {Math.round(knowledgeResult.confidence * 100)}%
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-[var(--text-muted)] leading-relaxed whitespace-pre-wrap break-words font-medium">{knowledgeResult.answer}</p>
+                            <p className="text-sm text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap break-words font-medium">{knowledgeResult.answer}</p>
                             {renderProviderMetadataChip(knowledgeResult)}
                             {knowledgeResult.related_tags?.length > 0 && (
                               <div className="flex flex-wrap gap-1 pt-1">
@@ -2238,9 +2238,9 @@ function AppContent() {
                               Graph-Aware Evidence Path
                             </div>
                             
-                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 text-xs text-slate-300 flex-wrap">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 text-xs text-[var(--text-secondary)] flex-wrap">
                               {/* Selected Asset */}
-                              <div className="px-2 py-1 bg-slate-900 border border-[var(--border-color)] rounded font-mono font-bold text-slate-200">
+                              <div className="px-2 py-1 bg-[var(--bg-card)] border border-[var(--border-color)] rounded font-mono font-bold text-[var(--text-primary)]">
                                 {selectedAssetTag || "N/A"}
                               </div>
                               
@@ -2250,12 +2250,12 @@ function AppContent() {
                               <div className="flex flex-wrap gap-1.5 items-center">
                                 {knowledgeResult.graph_trace?.affected_nodes?.filter(n => n !== selectedAssetTag).length > 0 ? (
                                   knowledgeResult.graph_trace.affected_nodes.filter(n => n !== selectedAssetTag).map(node => (
-                                    <span key={node} className="px-2 py-1 bg-cyan-950/30 border border-cyan-800/30 text-cyan-400 rounded font-mono text-[11px] font-bold">
+                                    <span key={node} className="px-2 py-1 bg-cyan-500/10 border border-cyan-500/25 text-[var(--accent-primary-text)] rounded font-mono text-[11px] font-bold animate-pulse">
                                       {node}
                                     </span>
                                   ))
                                 ) : (
-                                  <span className="text-slate-500 italic">No connected nodes</span>
+                                  <span className="text-[var(--text-muted)] italic font-semibold">No connected nodes</span>
                                 )}
                               </div>
                               
@@ -2265,23 +2265,23 @@ function AppContent() {
                               <div className="flex flex-wrap gap-1.5 items-center">
                                 {knowledgeResult.graph_trace?.evidence_refs?.length > 0 ? (
                                   knowledgeResult.graph_trace.evidence_refs.map(ref => (
-                                    <span key={ref} className="px-2 py-1 bg-fuchsia-950/30 border border-fuchsia-800/30 text-fuchsia-400 rounded font-mono text-[10px] font-bold">
+                                    <span key={ref} className="px-2 py-1 bg-fuchsia-500/10 border border-fuchsia-500/25 text-[var(--accent-ai-text)] rounded font-mono text-[10px] font-bold">
                                       {ref}
                                     </span>
                                   ))
                                 ) : (
-                                  <span className="text-slate-500 italic">No regulations referenced</span>
+                                  <span className="text-[var(--text-muted)] italic font-semibold">No regulations referenced</span>
                                 )}
                               </div>
                             </div>
                             
                             {/* Detailed reasoning path bullet logs if available */}
                             {knowledgeResult.graph_trace?.reasoning_steps?.length > 0 && (
-                              <div className="pt-2 border-t border-[var(--border-color)]/60 text-[11px] text-slate-400 space-y-1">
-                                <div className="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Trace Reasoning:</div>
+                              <div className="pt-2 border-t border-[var(--border-color)]/60 text-[11px] text-[var(--text-secondary)] space-y-1">
+                                <div className="text-[9px] uppercase font-bold text-[var(--text-muted)] tracking-wider">Trace Reasoning:</div>
                                 {knowledgeResult.graph_trace.reasoning_steps.map((step, idx) => (
                                   <div key={idx} className="flex gap-1">
-                                    <span className="text-cyan-400">›</span> {step}
+                                    <span className="text-cyan-600">›</span> {step}
                                   </div>
                                 ))}
                               </div>
@@ -2291,7 +2291,7 @@ function AppContent() {
                           {/* P4: Source Citations */}
                           {knowledgeResult.sources && knowledgeResult.sources.length > 0 ? (
                             <div className="space-y-2">
-                              <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Source Citations</div>
+                              <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest">Source Citations</div>
                               <div className="flex flex-wrap gap-2">
                                 {knowledgeResult.sources.map((src, i) => {
                                   if (src.source_type === 'Field Note / Tribal Knowledge') {
@@ -2305,10 +2305,9 @@ function AppContent() {
                                           <span>Field Note / Tribal Knowledge</span>
                                         </div>
                                         <div className="min-w-0 space-y-1">
-                                          <div className="text-[10px] font-bold text-slate-200">Asset: {src.asset_tag}</div>
-                                          {src.author_role && <div className="text-[9px] text-slate-400">Role: {src.author_role}</div>}
-                                          {src.confidence && <div className="text-[9px] text-slate-400">Confidence: {src.confidence}</div>}
-                                          <div className="text-[9px] text-slate-400 leading-normal italic line-clamp-3">"{src.note_text}"</div>
+                                          {src.author_role && <div className="text-[9px] text-[var(--text-muted)] font-semibold">Role: {src.author_role}</div>}
+                                          {src.confidence && <div className="text-[9px] text-[var(--text-muted)] font-semibold">Confidence: {src.confidence}</div>}
+                                          <div className="text-[10px] text-[var(--text-primary)] leading-normal italic line-clamp-3">"{src.note_text}"</div>
                                         </div>
                                       </div>
                                     );
@@ -2317,12 +2316,12 @@ function AppContent() {
                                   return (
                                     <div
                                       key={i}
-                                      className="flex items-start gap-2 px-2.5 py-1.5 bg-slate-950/40 border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full sm:max-w-[280px]"
+                                      className="flex items-start gap-2 px-2.5 py-1.5 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg hover:border-[var(--border-hover)] transition duration-150 shadow-sm max-w-full sm:max-w-[280px]"
                                     >
                                       <FileText className="h-3.5 w-3.5 text-[var(--accent-primary)] flex-shrink-0 mt-0.5" />
                                       <div className="min-w-0">
-                                        <div className="text-[10px] font-bold text-slate-300 break-words max-w-[160px] sm:max-w-[200px]">{src.title || src.label}</div>
-                                        <div className="text-[9px] text-slate-500 font-mono">
+                                        <div className="text-[10px] font-bold text-[var(--text-secondary)] break-words max-w-[160px] sm:max-w-[200px]">{src.title || src.label}</div>
+                                        <div className="text-[9px] text-[var(--text-muted)] font-mono font-semibold">
                                           {src.page_number ? `Page ${src.page_number}` : ''}
                                           {src.page_number && src.similarity_score ? ' · ' : ''}
                                           {src.similarity_score ? `${Math.round(src.similarity_score * 100)}% match` : ''}
@@ -2334,7 +2333,7 @@ function AppContent() {
                               </div>
                             </div>
                           ) : (
-                            <p className="text-[10px] text-slate-500 italic">No source citations returned for this response.</p>
+                            <p className="text-[10px] text-[var(--text-muted)] font-medium italic">No source citations returned for this response.</p>
                           )}
                         </div>
                       )}
@@ -2343,8 +2342,8 @@ function AppContent() {
                 ) : (
                   <div className="h-[400px] flex flex-col items-center justify-center text-[var(--text-muted)] border border-dashed border-[var(--border-color)] rounded-lg gap-3 bg-[var(--bg-card)]/20 p-8 text-center relative overflow-hidden card-premium">
                     {renderCadCorners()}
-                    <Database className="h-10 w-10 text-slate-600 mb-1" />
-                    <span className="text-[16px] font-bold text-slate-300 uppercase tracking-wider">No Asset Selected</span>
+                    <Database className="h-10 w-10 text-[var(--text-muted)] mb-1" />
+                    <span className="text-[16px] font-bold text-[var(--text-primary)] uppercase tracking-wider">No Asset Selected</span>
                     <span className="text-[14px] text-[var(--text-muted)] max-w-md font-medium leading-relaxed">
                       Select an active coke oven battery node, sensor, or valve from the Asset Register on the left to examine telemetry logs, incident records, safety audits, and to interact with operational agents.
                     </span>
@@ -2372,15 +2371,15 @@ function AppContent() {
 
                 <form onSubmit={handleUpload} className="space-y-4">
                   <div className="border border-dashed border-[var(--border-color)] rounded-lg p-8 text-center bg-[var(--bg-app)]/30 flex flex-col items-center justify-center gap-3 hover:border-[var(--accent-primary)]/40 transition duration-200 ease-in-out">
-                    <UploadCloud className="h-9 w-9 text-slate-500" />
-                    <div className="text-xs text-slate-400 font-medium">
+                    <UploadCloud className="h-9 w-9 text-[var(--text-muted)]" />
+                    <div className="text-xs text-[var(--text-muted)] font-medium">
                       Select a file from your system to upload to the ingestion router.
                     </div>
                     <input 
                       id="file-upload-input"
                       type="file" 
                       onChange={(e) => setSelectedFile(e.target.files[0])}
-                      className="text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
+                      className="text-xs text-[var(--text-muted)] file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
                     />
                   </div>
 
@@ -2393,11 +2392,11 @@ function AppContent() {
                   <button
                     type="submit"
                     disabled={!selectedFile || uploading}
-                    className="w-full py-2 bg-[var(--accent-primary)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-semibold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
+                    className="w-full py-2 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
                   >
                     {uploading ? (
                       <>
-                        <Loader className="h-4 w-4 animate-spin text-slate-950" />
+                        <Loader className="h-4 w-4 animate-spin text-white" />
                         Uploading document...
                       </>
                     ) : (
@@ -2416,7 +2415,7 @@ function AppContent() {
                   </h3>
                   <button 
                     onClick={loadDocuments}
-                    className="p-2 hover:bg-slate-900 border border-[var(--border-color)] rounded-lg transition text-slate-400"
+                    className="p-2 hover:bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg transition text-[var(--text-muted)]"
                   >
                     <RefreshCw className="h-4 w-4" />
                   </button>
@@ -2427,7 +2426,7 @@ function AppContent() {
                     <LoaderSkeleton type="list" />
                   </div>
                 ) : documents.length === 0 ? (
-                  <div className="p-8 text-center text-slate-500 border border-dashed border-[var(--border-color)] rounded-lg text-xs font-semibold">
+                  <div className="p-8 text-center text-[var(--text-muted)] border border-dashed border-[var(--border-color)] rounded-lg text-xs font-semibold">
                     No documents ingested yet.
                   </div>
                 ) : (
@@ -2435,7 +2434,7 @@ function AppContent() {
                     {renderCadCorners()}
                     <table className="w-full text-left border-collapse text-xs mt-1">
                       <thead>
-                        <tr className="bg-slate-950/60 border-b border-[var(--border-color)] text-slate-500 font-bold uppercase tracking-wider">
+                        <tr className="bg-[var(--bg-card-tinted)] border-b border-[var(--border-color)] text-[var(--text-secondary)] font-bold uppercase tracking-wider">
                           <th className="p-3">Title</th>
                           <th className="p-3">Type</th>
                           <th className="p-3">Status</th>
@@ -2450,15 +2449,15 @@ function AppContent() {
                           if (status === 'FAILED') statusClass = 'text-rose-400 bg-rose-500/10 border-rose-500/25';
                           
                           return (
-                            <tr key={doc.id} className="hover:bg-slate-800/10 transition duration-150">
+                            <tr key={doc.id} className="hover:bg-[var(--bg-card-tinted)] transition duration-150">
                               <td className="p-3 font-semibold text-[var(--text-primary)]">{doc.title}</td>
-                              <td className="p-3 font-mono text-[10px] uppercase text-slate-400">{doc.file_type}</td>
+                              <td className="p-3 font-mono text-[10px] uppercase text-[var(--text-muted)]">{doc.file_type}</td>
                               <td className="p-3">
                                 <span className={`px-2 py-0.5 rounded text-[9px] border font-bold uppercase tracking-wider ${statusClass}`}>
                                   {status}
                                 </span>
                               </td>
-                              <td className="p-3 text-right text-[10px] text-slate-400 font-mono">
+                              <td className="p-3 text-right text-[10px] text-[var(--text-muted)] font-mono">
                                 {new Date(doc.created_at).toLocaleDateString()} {new Date(doc.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </td>
                             </tr>
@@ -2487,13 +2486,13 @@ function AppContent() {
                       Upload Piping & Instrumentation Diagram drawings (PNG, JPEG, PDF) for Gemini 2.5 Flash to automatically extract physical equipment assets and build the relational digital twin topology.
                     </p>
                   </div>
-                  <span className="text-[9px] font-mono text-slate-500">[SYS_VISION_PARSER]</span>
+                  <span className="text-[9px] font-mono text-[var(--text-muted)]">[SYS_VISION_PARSER]</span>
                 </div>
 
                 <form onSubmit={handlePidUpload} className="space-y-4">
                   <div className="border border-dashed border-[var(--border-color)] rounded-lg p-8 text-center bg-[var(--bg-app)]/30 flex flex-col items-center justify-center gap-3 hover:border-[var(--accent-primary)]/40 transition duration-200 ease-in-out">
                     <UploadCloud className="h-9 w-9 text-[var(--accent-primary)]" />
-                    <div className="text-xs text-slate-400 font-medium">
+                    <div className="text-xs text-[var(--text-muted)] font-medium">
                       Select P&ID image blueprint from your computer
                     </div>
                     <input 
@@ -2501,7 +2500,7 @@ function AppContent() {
                       type="file" 
                       accept="image/*,application/pdf"
                       onChange={(e) => setPidFile(e.target.files[0])}
-                      className="text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
+                      className="text-xs text-[var(--text-muted)] file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-[var(--bg-pill)] file:text-[var(--accent-primary)] hover:file:bg-[var(--bg-pill)]/30 cursor-pointer"
                     />
                   </div>
 
@@ -2514,11 +2513,11 @@ function AppContent() {
                   <button
                     type="submit"
                     disabled={!pidFile || parsingPid}
-                    className="w-full py-2 bg-[var(--accent-primary)] hover:opacity-90 disabled:opacity-50 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
+                    className="w-full py-2 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 disabled:bg-[var(--bg-card-tinted)] disabled:text-[var(--text-muted)] text-white font-bold rounded-lg text-xs transition duration-150 flex items-center justify-center gap-1.5 hover:shadow-md"
                   >
                     {parsingPid ? (
                       <>
-                        <Loader className="h-4 w-4 animate-spin text-slate-950" />
+                        <Loader className="h-4 w-4 animate-spin text-white" />
                         Gemini analyzing P&ID blueprint & updating database...
                       </>
                     ) : (
@@ -2536,26 +2535,26 @@ function AppContent() {
                       <ShieldCheck className="h-4.5 w-4.5 text-[var(--color-healthy)]" />
                       Extraction Result Summary
                     </h4>
-                    <span className="text-[9px] font-mono text-slate-500">[SYS_EXTRACTION_RESULTS]</span>
+                    <span className="text-[9px] font-mono text-[var(--text-muted)]">[SYS_EXTRACTION_RESULTS]</span>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="p-4 bg-slate-950/40 rounded-lg border border-[var(--border-color)] text-center relative">
-                      <div className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Assets Found</div>
-                      <div className="text-2xl font-extrabold text-[var(--accent-ai)] mt-1">+{pidParseResult.assets_created}</div>
+                    <div className="p-4 bg-[var(--bg-card-tinted)] rounded-lg border border-[var(--border-color)] text-center relative">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">Assets Found</div>
+                      <div className="text-2xl font-extrabold text-[var(--accent-ai-text)] mt-1">+{pidParseResult.assets_created}</div>
                     </div>
-                    <div className="p-4 bg-slate-950/40 rounded-lg border border-[var(--border-color)] text-center relative">
-                      <div className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Graph Nodes Created</div>
-                      <div className="text-2xl font-extrabold text-[var(--accent-ai)] mt-1">+{pidParseResult.nodes_created}</div>
+                    <div className="p-4 bg-[var(--bg-card-tinted)] rounded-lg border border-[var(--border-color)] text-center relative">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">Graph Nodes Created</div>
+                      <div className="text-2xl font-extrabold text-[var(--accent-ai-text)] mt-1">+{pidParseResult.nodes_created}</div>
                     </div>
-                    <div className="p-4 bg-slate-950/40 rounded-lg border border-[var(--border-color)] text-center relative">
-                      <div className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Graph Edges Mapped</div>
-                      <div className="text-2xl font-extrabold text-[var(--accent-ai)] mt-1">+{pidParseResult.edges_created}</div>
+                    <div className="p-4 bg-[var(--bg-card-tinted)] rounded-lg border border-[var(--border-color)] text-center relative">
+                      <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-wider">Graph Edges Mapped</div>
+                      <div className="text-2xl font-extrabold text-[var(--accent-ai-text)] mt-1">+{pidParseResult.edges_created}</div>
                     </div>
                   </div>
                   <div className="flex justify-end mt-2">
                     <button
                       onClick={() => setActiveTab('twin')}
-                      className="px-4 py-2 bg-slate-900 border border-[var(--border-color)] hover:border-[var(--accent-primary)] text-xs font-bold rounded-lg text-slate-300 transition"
+                      className="px-4 py-2 bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--accent-primary)] text-xs font-bold rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition"
                     >
                       Examine in Digital Twin View →
                     </button>
@@ -2583,9 +2582,9 @@ function AppContent() {
             <div className="flex items-center justify-between border-b border-[var(--border-color)]/60 pb-4 mb-4">
               <div className="flex items-center gap-2">
                 <Brain className="h-5 w-5 text-[var(--accent-ai)]" />
-                <h2 className="font-black text-lg tracking-tight text-slate-100 uppercase flex items-center gap-2">
+                <h2 className="font-black text-lg tracking-tight text-[var(--text-primary)] uppercase flex items-center gap-2">
                   AI Runtime & Fallback Monitor
-                  <span className="text-[9px] font-mono text-slate-500 normal-case font-normal lowercase">— monitor LLM latency and fallback routing</span>
+                  <span className="text-[9px] font-mono text-[var(--text-muted)] normal-case font-normal lowercase">— monitor LLM latency and fallback routing</span>
                 </h2>
               </div>
               <div className="flex items-center gap-3">
@@ -2597,7 +2596,7 @@ function AppContent() {
                 </button>
                 <button
                   onClick={() => setIsMonitorOpen(false)}
-                  className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition"
+                  className="p-1 rounded-lg hover:bg-[var(--bg-card-tinted)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -2607,9 +2606,9 @@ function AppContent() {
             {/* Providers Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               {/* Groq Card */}
-              <div className="p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-2 relative">
+              <div className="p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 relative">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-xs uppercase text-slate-400">Groq</span>
+                  <span className="font-extrabold text-xs uppercase text-[var(--text-secondary)]">Groq</span>
                   <span className={`flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
                     telemetry.groq.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                     : telemetry.groq.status === 'DEGRADED' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -2619,19 +2618,19 @@ function AppContent() {
                     {telemetry.groq.status}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono">llama-3.3-70b-versatile</div>
+                <div className="text-[10px] text-[var(--text-muted)] font-mono">llama-3.3-70b-versatile</div>
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-color)]/60 text-xs">
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Requests</span>
-                    <span className="font-mono font-bold text-slate-200">{telemetry.groq.reqs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Requests</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)]">{telemetry.groq.reqs}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Errors</span>
-                    <span className="font-mono font-bold text-rose-400">{telemetry.groq.errs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Errors</span>
+                    <span className="font-mono font-bold text-[var(--color-critical)]">{telemetry.groq.errs}</span>
                   </div>
                 </div>
                 <div className="pt-2 text-xs">
-                  <span className="text-[9px] text-slate-500 block uppercase font-bold">Avg Latency</span>
+                  <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Avg Latency</span>
                   <span className="font-mono font-bold text-[var(--accent-ai)]">
                     {telemetry.groq.reqs > 0 ? `${Math.round(telemetry.groq.totalLatency / telemetry.groq.reqs)}ms` : 'N/A'}
                   </span>
@@ -2639,9 +2638,9 @@ function AppContent() {
               </div>
 
               {/* Gemini Card */}
-              <div className="p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-2 relative">
+              <div className="p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 relative">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-xs uppercase text-slate-400">Gemini</span>
+                  <span className="font-extrabold text-xs uppercase text-[var(--text-secondary)]">Gemini</span>
                   <span className={`flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
                     telemetry.gemini.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                     : telemetry.gemini.status === 'DEGRADED' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -2651,19 +2650,19 @@ function AppContent() {
                     {telemetry.gemini.status}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono">gemini-2.5-flash</div>
+                <div className="text-[10px] text-[var(--text-muted)] font-mono">gemini-2.5-flash</div>
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-color)]/60 text-xs">
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Requests</span>
-                    <span className="font-mono font-bold text-slate-200">{telemetry.gemini.reqs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Requests</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)]">{telemetry.gemini.reqs}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Errors</span>
-                    <span className="font-mono font-bold text-rose-400">{telemetry.gemini.errs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Errors</span>
+                    <span className="font-mono font-bold text-[var(--color-critical)]">{telemetry.gemini.errs}</span>
                   </div>
                 </div>
                 <div className="pt-2 text-xs">
-                  <span className="text-[9px] text-slate-500 block uppercase font-bold">Avg Latency</span>
+                  <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Avg Latency</span>
                   <span className="font-mono font-bold text-[var(--accent-ai)]">
                     {telemetry.gemini.reqs > 0 ? `${Math.round(telemetry.gemini.totalLatency / telemetry.gemini.reqs)}ms` : 'N/A'}
                   </span>
@@ -2671,9 +2670,9 @@ function AppContent() {
               </div>
 
               {/* Mistral Card */}
-              <div className="p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg space-y-2 relative">
+              <div className="p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg space-y-2 relative">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-xs uppercase text-slate-400">Mistral</span>
+                  <span className="font-extrabold text-xs uppercase text-[var(--text-secondary)]">Mistral</span>
                   <span className={`flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
                     telemetry.mistral.status === 'ONLINE' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                     : telemetry.mistral.status === 'DEGRADED' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -2683,19 +2682,19 @@ function AppContent() {
                     {telemetry.mistral.status}
                   </span>
                 </div>
-                <div className="text-[10px] text-slate-500 font-mono">open-mistral-7b</div>
+                <div className="text-[10px] text-[var(--text-muted)] font-mono">open-mistral-7b</div>
                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-color)]/60 text-xs">
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Requests</span>
-                    <span className="font-mono font-bold text-slate-200">{telemetry.mistral.reqs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Requests</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)]">{telemetry.mistral.reqs}</span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Errors</span>
-                    <span className="font-mono font-bold text-rose-400">{telemetry.mistral.errs}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Errors</span>
+                    <span className="font-mono font-bold text-[var(--color-critical)]">{telemetry.mistral.errs}</span>
                   </div>
                 </div>
                 <div className="pt-2 text-xs">
-                  <span className="text-[9px] text-slate-500 block uppercase font-bold">Avg Latency</span>
+                  <span className="text-[9px] text-[var(--text-muted)] block uppercase font-bold">Avg Latency</span>
                   <span className="font-mono font-bold text-[var(--accent-ai)]">
                     {telemetry.mistral.reqs > 0 ? `${Math.round(telemetry.mistral.totalLatency / telemetry.mistral.reqs)}ms` : 'N/A'}
                   </span>
@@ -2704,35 +2703,35 @@ function AppContent() {
             </div>
             {/* Telemetry Stream Monitor */}
 
-            <div className="p-3 bg-slate-950/40 border border-[var(--border-color)] rounded-lg mb-4 text-xs flex justify-between items-center px-4 relative">
-              <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">SCADA Telemetry Stream (SSE)</span>
+            <div className="p-3 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg mb-4 text-xs flex justify-between items-center px-4 relative">
+              <span className="font-semibold text-[var(--text-secondary)] uppercase tracking-wider text-[10px]">SCADA Telemetry Stream (SSE)</span>
               <span className={`px-2 py-0.5 rounded text-[10px] font-black border uppercase ${
                 telemetry.telemetryStream === 'CONNECTED' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10'
                 : telemetry.telemetryStream === 'DISCONNECTED' ? 'text-rose-400 border-rose-500/30 bg-rose-500/10'
                 : telemetry.telemetryStream === 'FALLBACK_LOCAL' ? 'text-amber-400 border-amber-500/30 bg-amber-500/10'
-                : 'text-slate-500 border-slate-500/30 bg-slate-500/10'
+                : 'text-[var(--text-muted)] border-[var(--border-color)] bg-[var(--bg-card-tinted)]'
               }`}>
                 {telemetry.telemetryStream}
               </span>
             </div>
 
             {/* Cache Row */}
-            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-950/40 border border-[var(--border-color)] rounded-lg mb-6 text-xs relative">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-lg mb-6 text-xs relative">
 
               <div className="flex justify-between items-center px-2">
-                <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Prompt Cache Hits</span>
+                <span className="font-semibold text-[var(--text-secondary)] uppercase tracking-wider text-[10px]">Prompt Cache Hits</span>
                 <span className="font-mono font-bold text-[var(--accent-ai)] bg-[var(--accent-ai)]/10 border border-[var(--accent-ai)]/20 px-2 py-0.5 rounded">{telemetry.promptCacheHits}</span>
               </div>
               <div className="flex justify-between items-center px-2 border-l border-[var(--border-color)]/60">
-                <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Search Cache Hits</span>
+                <span className="font-semibold text-[var(--text-secondary)] uppercase tracking-wider text-[10px]">Search Cache Hits</span>
                 <span className="font-mono font-bold text-[var(--color-healthy)] bg-[var(--color-healthy)]/10 border border-[var(--color-healthy)]/20 px-2 py-0.5 rounded">{telemetry.searchCacheHits}</span>
               </div>
             </div>
 
             {/* Fallback Logs Terminal Box */}
             <div className="flex-1 flex flex-col min-h-[160px] overflow-hidden space-y-2">
-              <div className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Fallback & Event logs</div>
-              <div className="flex-1 p-4 bg-black border border-[var(--border-color)] rounded-lg font-mono text-[11px] overflow-y-auto space-y-1.5 text-slate-400">
+              <div className="text-[10px] text-[var(--text-muted)] uppercase font-black tracking-widest">Fallback & Event logs</div>
+              <div className="flex-1 p-4 bg-black border border-[var(--border-color)] rounded-lg font-mono text-[11px] overflow-y-auto space-y-1.5 text-slate-200">
                 {fallbackLogs.length > 0 ? (
                   fallbackLogs.map((log, idx) => (
                     <div key={idx} className="leading-relaxed break-all">
@@ -2740,7 +2739,7 @@ function AppContent() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-slate-600 text-center py-8">
+                  <div className="text-slate-500 text-center py-8">
                     No fallback events recorded yet. Ready to rotate.
                   </div>
                 )}
@@ -2754,7 +2753,7 @@ function AppContent() {
       {/* AI Traversal Auditing Engine Viewport HUD Overlay */}
       {isInvestigating && ENABLE_INVESTIGATION_HUD && (
         <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-8 animate-backdrop-in">
-          <div className="w-full max-w-4xl max-h-[70vh] bg-slate-900 border border-[var(--accent-ai)]/30 rounded-lg flex flex-col p-6 font-mono text-xs shadow-2xl relative overflow-hidden card-premium animate-modal-in">
+          <div className="w-full max-w-4xl max-h-[70vh] bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg flex flex-col p-6 font-mono text-xs shadow-2xl relative overflow-hidden card-premium animate-modal-in">
             {renderCadCorners()}
             
             {/* HUD Header */}
@@ -2762,7 +2761,7 @@ function AppContent() {
               <span className="text-[var(--accent-ai)] font-black uppercase tracking-widest flex items-center gap-2 text-sm animate-pulse">
                 <Brain className="h-4.5 w-4.5" /> AI Traversal Auditing Engine
               </span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-mono">[SYS_AGENT_REASONING_TRACE // VIEWPORT_HUD]</span>
+              <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider font-mono">[SYS_AGENT_REASONING_TRACE // VIEWPORT_HUD]</span>
             </div>
             
             {/* Terminal logs content */}
@@ -2773,14 +2772,14 @@ function AppContent() {
                 </div>
               ))}
               {investigationStep < 5 && (
-                <div className="text-slate-600 animate-pulse text-[14px] font-mono pl-3">
+                <div className="text-[var(--text-muted)] animate-pulse text-[14px] font-mono pl-3">
                   ⬢ Traversing graph edges...
                 </div>
               )}
             </div>
             
             {/* HUD Footer */}
-            <div className="border-t border-[var(--accent-ai)]/20 pt-3 mt-4 flex items-center justify-between text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
+            <div className="border-t border-[var(--accent-ai)]/20 pt-3 mt-4 flex items-center justify-between text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-semibold">
               <span>Status: Processing RAG & Graph Data</span>
               <span className="font-mono">Route Step: {investigationStep}/5</span>
             </div>

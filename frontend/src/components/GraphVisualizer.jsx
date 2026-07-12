@@ -162,7 +162,7 @@ export default function GraphVisualizer({ graphData, selectedNodeName, investiga
         source: e.source_id,
         target: e.target_id,
         label: e.relation_type,
-        labelStyle: { fill: '#0f172a', fontSize: '9px', fontWeight: 'bold' },
+        labelStyle: { fill: 'var(--text-primary)', fontSize: '9px', fontWeight: 'bold' },
 
         style: { 
           stroke: strokeColor, 
@@ -189,10 +189,10 @@ export default function GraphVisualizer({ graphData, selectedNodeName, investiga
       <div className="cad-corner-bl" />
       <div className="cad-corner-br" />
       
-      <div className="absolute top-4 left-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[10px] font-mono text-slate-400 uppercase tracking-wider font-semibold">
+      <div className="absolute top-4 left-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[10px] font-mono text-[var(--text-muted)] uppercase tracking-wider font-semibold">
         Active Topology: {nodes.length} Nodes | {edges.length} Edges
       </div>
-      <div className="absolute top-4 right-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[9px] font-mono text-slate-500 uppercase tracking-wider font-bold">
+      <div className="absolute top-4 right-4 z-10 bg-[var(--bg-card)]/90 backdrop-blur border border-[var(--border-color)] px-3 py-1.5 rounded-lg text-[9px] font-mono text-[var(--text-muted)] uppercase tracking-wider font-bold">
         [SYS_TOPOLOGY_FLOW]
       </div>
       <ReactFlow
@@ -206,7 +206,7 @@ export default function GraphVisualizer({ graphData, selectedNodeName, investiga
         <Controls showInteractive={false} className="fill-slate-900 stroke-slate-900 bg-[var(--bg-card)] border border-[var(--border-color)] rounded" />
         <MiniMap 
           nodeColor={(n) => 'var(--border-color)'} 
-          maskColor="rgba(5, 5, 5, 0.6)"
+          maskColor="rgba(5, 5, 5, 0.4)"
           className="border border-[var(--border-color)] rounded-lg overflow-hidden bg-[var(--bg-card)]"
         />
       </ReactFlow>

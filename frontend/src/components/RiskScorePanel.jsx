@@ -5,21 +5,21 @@ const getRiskColor = (level) => {
   const lvl = level ? level.toLowerCase() : '';
   switch (lvl) {
     case 'critical':
-      return { text: 'text-red-400', border: 'border-red-500/20', bg: 'bg-red-500/10', stroke: '#ef4444', icon: ShieldAlert };
+      return { text: 'text-[var(--color-critical)]', border: 'border-[var(--color-critical-border)]', bg: 'bg-[var(--color-critical-light)]', stroke: 'var(--color-critical)', icon: ShieldAlert };
     case 'high':
-      return { text: 'text-orange-400', border: 'border-orange-500/20', bg: 'bg-orange-500/10', stroke: '#f97316', icon: AlertTriangle };
+      return { text: 'text-[var(--color-warning)]', border: 'border-[var(--color-warning-border)]', bg: 'bg-[var(--color-warning-light)]', stroke: 'var(--color-warning)', icon: AlertTriangle };
     case 'medium':
-      return { text: 'text-yellow-400', border: 'border-yellow-500/20', bg: 'bg-yellow-500/10', stroke: '#eab308', icon: AlertTriangle };
+      return { text: 'text-[var(--color-warning)]', border: 'border-[var(--color-warning-border)]', bg: 'bg-[var(--color-warning-light)]', stroke: 'var(--color-warning)', icon: AlertTriangle };
     case 'low':
     default:
-      return { text: 'text-emerald-400', border: 'border-emerald-500/20', bg: 'bg-emerald-500/10', stroke: '#10b981', icon: ShieldCheck };
+      return { text: 'text-[var(--color-healthy)]', border: 'border-[var(--color-healthy-border)]', bg: 'bg-[var(--color-healthy-light)]', stroke: 'var(--color-healthy)', icon: ShieldCheck };
   }
 };
 
 export default function RiskScorePanel({ latestRisk }) {
   if (!latestRisk) {
     return (
-      <div className="p-6 bg-slate-900/50 border border-slate-800 rounded-xl text-center text-slate-500">
+      <div className="p-6 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-xl text-center text-[var(--text-muted)] font-medium">
         Risk assessment pending for this asset.
       </div>
     );
@@ -36,7 +36,7 @@ export default function RiskScorePanel({ latestRisk }) {
   const strokeDashoffset = circumference - (risk_score / 100) * circumference;
 
   return (
-    <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-6">
+    <div className="p-6 bg-[var(--bg-card-tinted)] border border-[var(--border-color)] rounded-xl space-y-6">
       <div className="flex items-center gap-6">
         {/* Gauge dial */}
         <div className="relative h-28 w-28 flex items-center justify-center flex-shrink-0">
@@ -47,7 +47,7 @@ export default function RiskScorePanel({ latestRisk }) {
               cy="56"
               r={radius}
               fill="transparent"
-              stroke="#1e293b"
+              stroke="var(--border-color)"
               strokeWidth={strokeWidth}
             />
             {/* Value fill */}
@@ -66,8 +66,8 @@ export default function RiskScorePanel({ latestRisk }) {
           </svg>
           {/* Centered text */}
           <div className="absolute text-center">
-            <div className="text-3xl font-extrabold font-mono text-slate-100">{risk_score}</div>
-            <div className="text-[10px] text-slate-500 font-bold tracking-wider uppercase">Score</div>
+            <div className="text-3xl font-extrabold font-mono text-[var(--text-primary)]">{risk_score}</div>
+            <div className="text-[10px] text-[var(--text-muted)] font-bold tracking-wider uppercase">Score</div>
           </div>
         </div>
 
@@ -77,19 +77,19 @@ export default function RiskScorePanel({ latestRisk }) {
               <Icon className="h-4.5 w-4.5" />
             </div>
             <div>
-              <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Risk Level</div>
+              <div className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Risk Level</div>
               <div className={`text-lg font-extrabold ${config.text}`}>{risk_level}</div>
             </div>
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-[var(--text-muted)] font-medium">
             Assessed: {new Date(calculated_at).toLocaleDateString()}
           </div>
         </div>
       </div>
 
-      <div className="p-4 bg-slate-950 border border-slate-800/80 rounded-lg space-y-2">
-        <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Assessment Details</h5>
-        <p className="text-sm text-slate-300 leading-relaxed font-medium">{explanation}</p>
+      <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-lg space-y-2">
+        <h5 className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Assessment Details</h5>
+        <p className="text-sm text-[var(--text-primary)] leading-relaxed font-medium">{explanation}</p>
       </div>
     </div>
   );
