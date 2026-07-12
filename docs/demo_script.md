@@ -39,11 +39,11 @@ This script guides the presenter step-by-step through a professional, high-impac
 
 ---
 
-### 🎬 Scene 5: Live SCADA Telemetry & Runtime Monitor (3:00 - 3:45)
+### 🎬 Scene 5: Synthetic SCADA-Style Telemetry Stream & Runtime Monitor (3:00 - 3:45)
 *   **What to do:** Toggle the **"Live Alarms"** simulator in the bottom left to `SIMULATING`. Click the green **"ONLINE / API STATUS"** button in the header.
 *   **What to click:** **"Live Alarms"** toggle switch, then **"API STATUS"** header link.
 *   **Narration:**
-    > *"OpsBrain continuously monitors streaming SCADA data. We toggle 'Live Alarms' on. The interface connects via Server-Sent Events to our backend stream. As telemetry spikes occur, new alert cards flow into the console in real time. We open the AI Runtime Monitor to audit API request rates, average model latencies, token cache hits, and active connection states."*
+    > *"OpsBrain continuously monitors our synthetic SCADA-style telemetry stream. We toggle 'Live Alarms' on. The interface connects via Server-Sent Events to our backend stream. As telemetry spikes occur, new alert cards flow into the console in real time. We open the AI Runtime Monitor to audit API request rates, average model latencies, token cache hits, and active connection states."*
 
 ---
 

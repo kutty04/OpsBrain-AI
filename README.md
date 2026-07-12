@@ -1,7 +1,7 @@
 # 🧠 OpsBrain AI
 
 ### Unified Asset & Operations Brain for Zero-Harm Plants
-OpsBrain AI integrates industrial telemetry logs, Piping & Instrumentation Diagrams (P&IDs), safety SOPs, and historical incident logs into a unified, context-aware **digital twin knowledge graph**. An autonomous multi-agent core works in the background to calculate cascading risk levels, audit regulatory compliance (OISD/CREP), and execute root-cause analysis in seconds.
+OpsBrain AI integrates industrial telemetry logs, Piping & Instrumentation Diagrams (P&IDs), safety SOPs, and historical incident logs into a unified, context-aware **digital twin knowledge graph**. An autonomous multi-agent core works in the background to calculate cascading risk levels, provide prototype compliance evidence support (OISD/CREP), and execute root-cause analysis in seconds based on demo benchmark results on seeded validation data.
 
 ---
 
@@ -35,13 +35,13 @@ Modern industrial facilities generate massive amounts of telemetry, yet safety i
 
 ## 💡 Our Solution: OpsBrain AI
 
-OpsBrain AI acts as a **unified analytical nervous system** for industrial assets. It parses documents and piping blueprints, maps physical connections into a graph, and deploys a fleet of LLM agents to monitor risks and enforce compliance guidelines in real time.
+OpsBrain AI acts as a **unified analytical nervous system** for industrial assets. It parses documents and piping blueprints, maps physical connections into a graph, and deploys a fleet of LLM agents to monitor risks and provide prototype compliance evidence support in real time.
 
 | Traditional Ops | OpsBrain AI Model |
 | :--- | :--- |
 | Reacting to isolated sensor alarms | Fusing telemetry with physical asset topology |
 | Searching index files manually for safety regulations | RAG-grounded Knowledge Copilot with direct citations |
-| Periodic manual safety audits | Continuous real-time regulatory compliance scoring |
+| Periodic manual safety audits | Real-time prototype compliance evidence support |
 
 ---
 
@@ -79,12 +79,12 @@ OpsBrain AI acts as a **unified analytical nervous system** for industrial asset
 | **💬 Knowledge Copilot** | RAG-grounded natural language Q&A | Provides specific answers on operating limits and safety SOPs, returning source documents and confidence levels. |
 | **🔍 Root Cause Analysis** | Post-incident safety diagnostics | Correlates maintenance histories, adjacent node stresses, and telemetry logs via Groq Llama-3.3-70b-versatile. |
 | **⚡ Risk Intelligence** | Cascading node risk calculator | Evaluates asset hazard scores (0-100) based on incidents, local logs, and status propagation from neighbors. |
-| **🛡️ Compliance Auditor** | Automatic regulatory checks | Checks live metrics against vector-stored regulatory safety guidelines (e.g. OISD standards). |
+| **🛡️ Compliance Auditor** | Automatic regulatory checks | Checks synthetic telemetry metrics against vector-stored regulatory safety guidelines (e.g. OISD standards) to offer prototype compliance evidence support. |
 | **📚 Lessons Learned** | Preventive safety checklists | Extracts specific guidelines from past work orders and failures to guide active maintenance tasks. |
 | **🔀 AI Provider Router** | Multi-provider LLM failover | Routes text agents (Groq→Mistral→Gemini), RAG queries, and P&ID vision to the best available provider with circuit-breaker protection. |
-| **🏭 Refinery Pump Station Demo** | Plant scalability proof | Exposes an optional dataset button in the sidebar (styled in neutral amber) to demonstrate database schema and topology scaling to other facilities with zero code changes. |
+| **🏭 Refinery Pump Station Demo** | Plant scalability proof | Exposes an optional dataset button in the sidebar (styled in neutral amber) to demonstrate database schema and topology scaling to other facilities using the same shared schema and agent pipeline, exposed through an optional refinery seed endpoint. |
 | **📊 Evaluation & Benchmarks** | Transparent performance metrics | Displays entity extraction accuracy, graph linkage completeness, answer quality, and compliance detection rates against seeded Vizag demo data. |
-| **📡 AI Runtime Monitor** | Live telemetry audit modal | Tracks request rates, model latencies, token cache stats, fallback events, and provider health. |
+| **📡 AI Runtime Monitor** | Live telemetry audit modal | Synthetic telemetry audit modal tracking request rates, model latencies, token cache stats, fallback events, and provider health. |
 
 ---
 
@@ -304,11 +304,11 @@ Open `http://localhost:3000` in your web browser.
 
 ## 📈 Business Impact
 
-*Fitted to standard industrial engineering benchmarks (prototype estimations for comparison):*
+*Demo benchmark results on seeded validation data (prototype estimations for comparison):*
 
-*   **35% Reduction in Safety Search Time:** Eliminates time spent manually referencing paper manuals, blueprint sheets, and PDF guidelines.
-*   **18–22% Reduction in Unplanned Outages:** Maps cascading risk propagation across physical connections, preventing failure cascades.
-*   **Preemptive Lead Time (<10s):** Calculates asset risk and alerts compliance inspectors in seconds rather than waiting for scheduled shift audits.
+*   **35% Reduction in Safety Search Time (demo benchmark results on seeded validation data):** Eliminates time spent manually referencing paper manuals, blueprint sheets, and PDF guidelines.
+*   **18–22% Reduction in Unplanned Outages (demo benchmark results on seeded validation data):** Maps cascading risk propagation across physical connections, preventing failure cascades.
+*   **Preemptive Lead Time (<10s) (demo benchmark results on seeded validation data):** Calculates asset risk and alerts compliance inspectors in seconds rather than waiting for scheduled shift audits.
 
 ---
 
@@ -326,6 +326,72 @@ Open `http://localhost:3000` in your web browser.
 *   **Streaming Edge Telemetry:** Integrating MQTT/Kafka queues to update graph nodes directly from live SCADA sensor feeds.
 *   **Fully Offline Deployments:** Running local LLMs (e.g. Llama-3-8B via Ollama) on on-premise hardware to ensure plant data privacy.
 *   **Emergency Path Isolation:** Automatically generating isolation valve sequence checklists during high-risk pressure incidents.
+
+---
+
+## 🎯 Problem Statement #8 Alignment
+OpsBrain AI is fully aligned with **ET AI Hackathon 2026 Problem Statement #8: AI for Industrial Knowledge Intelligence: Unified Asset & Operations Brain**.
+Our implementation directly addresses all core hackathon expectations:
+*   **Heterogeneous Document Ingestion:** Structures operating manuals, incident reports, and maintenance records using local vector indexing.
+*   **P&ID Parsing:** Extracts piping connections and equipment tags from schematics via multi-modal vision models.
+*   **Knowledge Graph Digital Twin:** Renders assets and pipeline connections in an interactive ReactFlow canvas.
+*   **Expert Knowledge Copilot:** Provides natural language Q&A backed by precise source citations and calculated confidence scores.
+*   **RCA / Risk / Compliance / Lessons Learned Agents:** Deploys a fleet of five specialized LLM agents to trace failure logs, calculate dynamic risks, support compliance check audits, and extract maintenance checklists.
+*   **Usability Focus:** Tested layout for mobile and field technicians (at 390px width) to ensure in-field applicability.
+*   **Refinery Scalability Proof:** Swaps the facility model dynamically using the same shared schema and agent pipeline, exposed through an optional refinery seed endpoint in the UI.
+
+---
+
+## 📦 Hackathon Deliverables
+*   **Working Prototype:** Full-stack React client and FastAPI server supporting all 5 agents, knowledge copilot, telemetry simulator, and P&ID vision parser.
+*   **Architecture Diagram:** Relational topology and AI agent routing schematic embedded inside the [System Architecture](#-system-architecture) section.
+*   **Presentation Deck:** PowerPoint deck outline containing slide layouts, diagrams, and speaker notes documented in [docs/presentation_deck_slides.md](docs/presentation_deck_slides.md).
+*   **Demo Video:** Full walkthrough script and narration guides prepared in [docs/demo_script.md](docs/demo_script.md) and [docs/demo_presentation_guide.md](docs/demo_presentation_guide.md).
+*   **GitHub Repository:** Outlined in the project version control under branch `submission-rc-phase6`.
+
+---
+
+## 🔒 Prototype Scope & Limitations
+*   **No Real Plant/SCADA Integration:** All SCADA-style sensor metrics and alarms are simulated and streamed synthetically using the backend process.
+*   **No Certified Legal/Compliance Validation:** The OISD and environmental check audits are strictly for prototype compliance evidence support and do not replace certified regulatory audits.
+*   **No Live Production Deployment:** The application is designed as a local prototype for demonstration and validation. All metrics are **demo benchmark results on seeded validation data**.
+*   **Vizag Main Demo Focus:** Vizag Steel Coke Oven Battery remains the primary and main default dataset for the demonstration. The Refinery Pump Station is an optional scalability proof only.
+
+---
+
+## 🛡️ Demo Safety / Provider Fallback
+OpsBrain AI features a capability-aware **AI Provider Router** with an active circuit-breaker pattern to protect the live demo against API slowdowns and third-party rate limits:
+*   **Circuit Breaker:** If a primary cloud API (e.g. Groq) registers 3 consecutive timeouts within a 60-second window, the router trips and redirects queries to Mistral or Gemini.
+*   **Local Demo Cache:** If all cloud providers fail, the frontend loads pre-compiled coking battery logs matching seeded tags (e.g. `COB-1`). The UI will complete its HUD traversal animations and close the overlay, displaying a results card clearly labeled as a demo fallback.
+*   **Real-time Audit:** Presenters can click the **API STATUS** header link at any time to open the Runtime Monitor modal to inspect latency logs and connection list status.
+
+---
+
+## 🔌 How to Run Locally
+The detailed setup steps are described in the [🚀 Demo Walkthrough & Setup](#-demo-walkthrough--setup) section. In summary:
+1. Set up your `.env` keys.
+2. Initialize virtualenv and install `backend/requirements.txt`.
+3. Run migrations (`python backend/database/migrate.py`).
+4. Start FastAPI server (`python -m uvicorn backend.main:app`).
+5. Install dependencies and start React (`npm install && npm run dev` inside `frontend/`).
+
+---
+
+## ✅ Validated Features Checklist
+- [x] Executive Dashboard Command Center
+- [x] Seed Vizag Steel Database
+- [x] Seed Refinery Demo Scalability Proof (same shared schema and agent pipeline)
+- [x] ReactFlow Topology Digital Twin (COB-1 / GCM-104 / P-101)
+- [x] AI Investigation console Traversal HUD modal
+- [x] Root Cause Analysis (RCA) Agent (`graph_trace` edges highlight)
+- [x] Risk Intelligence Agent (score committing)
+- [x] Compliance Auditor Agent (explainable evidence support)
+- [x] Lessons Learned Agent (maintenance checklists)
+- [x] Expert Knowledge Copilot with RAG citations
+- [x] Synthetic SCADA-Style Telemetry Stream (SSE stream toggle)
+- [x] AI Runtime Monitor (circuit-breaker stats)
+- [x] Evaluation & Benchmarks Dashboard (1.8s time-to-answer)
+- [x] Mobile Usability viewport check (390px width)
 
 ---
 

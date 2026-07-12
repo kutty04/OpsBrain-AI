@@ -18,11 +18,11 @@
 *   **Subtitle:** Unified Asset & Operations Brain for Zero-Harm Plants
 *   **Visuals:** Premium logo layout with a glowing network graph icon in cyan and indigo. Small badges for React, FastAPI, Supabase, Groq, Gemini, and Mistral.
 *   **Key Content:**
-    *   **What it is:** An AI-powered nervous system that fuses P&ID drawings, safety SOPs, past incidents, and live SCADA telemetry into a unified digital twin.
+    *   **What it is:** An AI-powered nervous system that fuses P&ID drawings, safety SOPs, past incidents, and a synthetic SCADA-style telemetry stream into a unified digital twin.
     *   **Hackathon Focus:** Aligned with **Problem Statement #8** (Unified Asset Operations).
     *   **Core Promise:** Prevent unplanned outages and ensure continuous compliance checks in seconds.
 *   **Speaker Notes:**
-    > *"Good morning, judges. Heavy industrial plants suffer from fragmented data silos. Today, we introduce OpsBrain AI, a Unified Asset & Operations Brain that connects physical drawings, PDF safety guidelines, and live SCADA telemetry into an interactive, real-time digital twin to protect equipment and prevent accidents."*
+    > *"Good morning, judges. Heavy industrial plants suffer from fragmented data silos. Today, we introduce OpsBrain AI, a Unified Asset & Operations Brain that connects physical drawings, PDF safety guidelines, and a synthetic SCADA-style telemetry stream into an interactive digital twin to support operational safety and prevent accidents."*
 
 ---
 
@@ -102,25 +102,25 @@
 *   **Slide Title:** Scalability: Refinery Pump Station Demo
 *   **Visuals:** Screenshot showing the Refinery dataset seeded and selected (from `6B_10_refinery_asset_register.png`), demonstrating the active dataset indicator in neutral amber.
 *   **Key Content:**
-    *   **Zero Code Modifications:** Uses the exact same database schemas, router, and agents on a completely different plant.
+    *   **Shared Topology Engine:** Uses the same shared schema and agent pipeline, exposed through an optional refinery seed endpoint on a completely different plant.
     *   **Active Dataset Selector:** Simple sidebar controls allow presenters to switch between Vizag Steel and the Refinery demo.
     *   **Data Isolation:** Seeding Refinery wipes Vizag data, verifying clean environment transitions with zero leakage.
 *   **Speaker Notes:**
-    > *"To prove scalability, we added the Refinery Pump Station dataset. Without changing a single line of backend logic, provider routing, or agent code, we can seed and select the Refinery demo. This swaps the digital twin to a pump station layout—verifying our model's adaptability to different asset schemas."*
+    > *"To prove scalability, we added the Refinery Pump Station dataset. Using the same shared schema and agent pipeline, exposed through an optional refinery seed endpoint, we can seed and select the Refinery demo. This swaps the digital twin to a pump station layout—verifying our model's adaptability to different asset schemas."*
 
 ---
 
 ### 🛝 Slide 8: Real-Time SSE SCADA Telemetry & Runtime Monitor
-*   **Slide Title:** Live Telemetry & Runtime Monitoring
+*   **Slide Title:** Synthetic Telemetry & Runtime Monitoring
 *   **Visuals:** Split screen showing:
-    *   Left: Live SCADA alarm warning cards pushed into the UI via Server-Sent Events.
+    *   Left: Synthetic SCADA-style alarm warning cards pushed into the UI via Server-Sent Events.
     *   Right: The API Status Monitor modal (from `07_runtime_monitor.png`), exposing model latencies and token cache hits.
 *   **Key Content:**
-    *   **Server-Sent Events (SSE):** Continuous backend stream pushes SCADA alarm events to the UI.
+    *   **Server-Sent Events (SSE):** Continuous backend stream pushes synthetic SCADA-style alarm events to the UI.
     *   **API Runtime Monitor:** Exposes real-time request latencies, token cache rates, and active breaker state.
     *   **Console Cleanliness:** Guaranteed zero SEVERE errors in the browser console, indicating high runtime quality.
 *   **Speaker Notes:**
-    > *"Operators can toggle Live Alarms to connect the dashboard to a continuous Server-Sent Events stream from the backend. Real-time SCADA telemetry triggers alerts immediately. Operators can click the API STATUS badge in the header to audit system health, model latency, and token caching stats in real time."*
+    > *"Operators can toggle Live Alarms to connect the dashboard to a continuous Server-Sent Events stream from the backend. Synthetic SCADA-style telemetry triggers alerts immediately. Operators can click the API STATUS badge in the header to audit system health, model latency, and token caching stats in real time."*
 
 ---
 
